@@ -2,7 +2,6 @@ import Vue from 'vue'
 import { uid, Notify } from 'quasar'
 import { firebaseDb, firebaseAuth, dbFirestore } from 'boot/firebase'
 
-
 const state = {
     tasksDownloaded: true,
 
@@ -639,7 +638,7 @@ const state = {
     FieldRecord: {},
     search: '',
     sort: 'name',
-    currentId: ''
+    currentId: '',
 
 }
 
@@ -667,7 +666,7 @@ const mutations = {
         Vue.delete(state.FieldRecord, payload.id)
     },
     addFieldRecord(state, payload) {
-        console.log(payload.id, payload.data)
+        // console.log(payload.id, payload.data)
         Vue.set(state.FieldRecord, payload.id, payload.data)
     },
 

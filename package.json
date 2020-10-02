@@ -14,8 +14,7 @@
     "core-js": "^3.6.5",
     "exif-js": "^2.3.0",
     "firebase": "^7.21.1",
-    "quasar": "^1.0.0",
-    "tw-city-selector": "^2.1.1"
+    "quasar": "^1.0.0"
   },
   "devDependencies": {
     "@quasar/app": "^2.0.0"

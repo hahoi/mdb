@@ -1,10 +1,12 @@
 import Vue from 'vue'
 import { dbFirestore } from 'boot/firebase'
+import TwCity from 'src/utils/tw-city'
 
 
 const state = {
-    professionalTitle: {}
-
+    professionalTitle: {},
+    counties : TwCity.counties,  //縣市
+    districts: TwCity.districts, //範圍：鄉鎮區里
 }
 
 const mutations = {

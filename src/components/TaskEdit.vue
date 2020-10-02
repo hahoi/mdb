@@ -33,7 +33,9 @@
           <q-tab-panel name="information">
             <div class="q-gutter-md row items-start">
               <div class="row">
-                <q-avatar> <img :src="task.avatar" /> </q-avatar>
+                <q-avatar v-if="task.photo.length > 0">
+                  <img :src="task.avatar" />
+                </q-avatar>
                 <q-input
                   v-model="task.name"
                   label="姓名"
@@ -48,11 +50,35 @@
             <div class="q-gutter-md row items-start">
               <q-input v-model="task.companyPhone" label="公司電話" />
             </div>
+            <div class="q-gutter-md q-mt-md row">
+              <q-select
+                class="col-5"
+                v-model="task.county"
+                :options="counties"
+                label="選擇縣市"
+                outlined
+                clearable
+              />
+              <q-select
+                class="col-5"
+                v-model="task.district"
+                :options="subDistricts"
+                label="選擇區域"
+                outlined
+                clearable
+                ref="district"
+              />
+            </div>
             <div class="q-gutter-md row items-start">
               <q-input v-model="task.address" label="地址" />
             </div>
-            <div class="q-gutter-md row items-start">
-              <q-input v-model="task.professionalTitle" label="職業職稱" />
+
+            <div class="q-gutter-md">
+              <q-select
+                v-model="task.professionalTitle"
+                :options="professionalTitle"
+                label="職業職稱"
+              />
             </div>
             <div class="q-gutter-md row items-start">
               <q-input v-model="task.clubTitle" label="社團職稱" />
@@ -90,7 +116,7 @@
             <div class="q-gutter-md row items-start">
               <q-input v-model="task.other" label="其他" />
             </div>
-            
+
             <div class="q-gutter-md q-mt-lg row items-start">
               <q-rating
                 v-model="task.star"
@@ -234,6 +260,8 @@ export default {
 
       imageFiles: [], //儲存上傳檔案資訊，含imageDataUrl（base64Url格式）
       uploadProgress: 0,
+      first: true,
+      index: -1,
     };
   },
   components: {},
@@ -242,6 +270,17 @@ export default {
   watch: {},
   computed: {
     ...mapState("fieldrecord", ["currentId"]),
+    ...mapState("phrase", ["professionalTitle", "counties", "districts"]),
+    subDistricts() {
+      let index = this.counties.indexOf(this.task.county);
+      if (this.index !== index) { 
+        if (this.index !== -1) { //第一次載入時不改變
+          this.task.district = "";
+        }
+      }
+      this.index = index;
+      return this.districts[index] || [];
+    },
   },
   methods: {
     // ...mapMutations("fieldrecord", ["setCurrentId"]),

@@ -19,8 +19,8 @@
       <q-item-section side>
         <!-- {{ task.update }} -->
         <!-- <div class="text-orange fit row wrap justify-start items-center content-center" v-for="star in task.star"> -->
-        <div class="text-orange" v-for="star in task.star">
-          <q-icon name="star" />
+        <div class="text-orange q-ma-none q-pa-none row" v-for="star in task.star">
+          <q-icon name="star" size="0.5rem" />
         </div>
       </q-item-section>
     </q-item>
@@ -48,7 +48,7 @@
         <q-card-section>
           <task-list :task="copyTask" :id="id"></task-list>
         </q-card-section>
-        <q-card-actions align="around">
+        <q-card-actions  align="around">
           <q-btn
             dense
             flat

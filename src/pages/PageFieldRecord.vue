@@ -35,7 +35,7 @@
       transition-hide="slide-down"
     >
       <q-card class="">
-        <q-bar class="bg-info">
+        <q-bar class="bg-info" v-close-popup>
           <q-space />
 
           <q-btn dense flat icon="close" v-close-popup
@@ -48,14 +48,12 @@
           <task-add @listenToChild="getChildMsg"></task-add>
         </q-card-section>
 
-        <div class="bg-info" col>
-          <q-space />
-          <q-btn dense flat icon="close" v-close-popup>關閉 </q-btn>
-        </div>
-
-
-
-        
+        <q-card-section v-close-popup>
+          <div class="bg-info">
+            <q-space />
+            <q-btn dense flat icon="close" v-close-popup>關閉 </q-btn>
+          </div>
+        </q-card-section>
       </q-card>
     </q-dialog>
 

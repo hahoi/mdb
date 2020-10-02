@@ -42,6 +42,26 @@
             <div class="q-gutter-md row items-start">
               <q-input v-model="data.companyPhone" label="公司電話" />
             </div>
+            <div class="q-gutter-md row">
+              <q-select
+                class="col-5"
+                v-model="data.county"
+                :options="counties"
+                label="選擇縣市"
+                outlined
+                clearable
+                ref="county"
+              />
+              <q-select
+                class="col-5"
+                v-model="data.district"
+                :options="subDistricts"
+                label="選擇區域"
+                outlined
+                clearable
+                ref="district"
+              />
+            </div>
             <div class="q-gutter-md row items-start">
               <q-input v-model="data.address" label="地址" />
             </div>
@@ -215,6 +235,8 @@ export default {
         companyPhone: "",
         avatar: "",
         photo: [],
+        county: "",
+        district: "",
         address: "",
         professionalTitle: "",
         clubTitle: "",
@@ -234,20 +256,38 @@ export default {
 
       imageFiles: [], //儲存上傳檔案資訊，含imageDataUrl（base64Url格式）
       uploadProgress: 0,
+      index : -1
     };
   },
   components: {},
   created() {},
-  mounted() {
-  },
+  mounted() {},
   watch: {},
   computed: {
     ...mapState("fieldrecord", ["currentId"]),
-    ...mapState("phrase", ["professionalTitle"]),
+    ...mapState("phrase", ["professionalTitle", "counties", "districts"]),
+    subDistricts() {
+      let index = this.counties.indexOf(this.data.county);
+      console.log(this.index, index,this.index !== index)
+      // this.$nextTick(() => {
+        if (this.index !== index) {
+          // this.$refs.district.value = "";
+          this.data.district = ""
+          console.log("要改變")
+        }
+      // });
+      this.index = index
+      return this.districts[index] || [];
+      
+    },
   },
   methods: {
     ...mapMutations("fieldrecord", ["setCurrentId"]),
     ...mapActions("fieldrecord", ["addFieldRecord", "updateFieldRecord"]),
+    filterFn(val, update, abort) {
+      console.log(val, update, abort);
+      return val;
+    },
     onSubmit() {
       this.$refs.form.validate().then((success) => {
         if (this.data.name.trim() === "") {
