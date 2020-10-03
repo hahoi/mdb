@@ -3,7 +3,7 @@ import { uid, Notify } from 'quasar'
 import { firebaseDb, firebaseAuth, dbFirestore } from 'boot/firebase'
 
 const state = {
-    tasksDownloaded: true,
+    tasksDownloaded: false,
 
     // FieldRecord: {
     //     'ID1': {
@@ -787,6 +787,9 @@ const actions = {
 
 const getters = {
     FieldReordSorted: (state) => {
+        if(state.sort === 'none') {
+            return state.FieldRecord
+        }
         let FieldReordSorted = {},
             keysOrdered = Object.keys(state.FieldRecord)
 

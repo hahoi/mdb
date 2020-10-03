@@ -19,7 +19,10 @@
       <q-item-section side>
         <!-- {{ task.update }} -->
         <!-- <div class="text-orange fit row wrap justify-start items-center content-center" v-for="star in task.star"> -->
-        <div class="text-orange q-ma-none q-pa-none row" v-for="star in task.star">
+        <div
+          class="text-orange q-ma-none q-pa-none row"
+          v-for="star in task.star"
+        >
           <q-icon name="star" size="0.5rem" />
         </div>
       </q-item-section>
@@ -48,7 +51,7 @@
         <q-card-section>
           <task-list :task="copyTask" :id="id"></task-list>
         </q-card-section>
-        <q-card-actions  align="around">
+        <q-card-actions align="around">
           <q-btn
             dense
             flat
@@ -97,7 +100,11 @@
             @listenToChild="getChildMsg"
           ></task-edit>
         </q-card-section>
-        <q-card-actions align="around">
+        <q-card-actions
+          align="around"
+          class="bg-purple-8 text-white"
+          v-close-popup
+        >
           <q-space />
           <q-btn dense flat icon="close" v-close-popup>離開</q-btn>
         </q-card-actions>
@@ -171,8 +178,10 @@ export default {
               console.log(this.id);
               //刪除圖檔
               this.task.photo.forEach((p) => {
-                console.log(p.findKey);
-                dbStorage.ref().child(p.findKey).delete();
+                if (p.findKey) {
+                  console.log(p.findKey);
+                  dbStorage.ref().child(p.findKey).delete();
+                }
               });
               //刪除資料庫
               this.deleteFieldRecord(this.id);

@@ -51,10 +51,22 @@ import EssentialLink from 'components/EssentialLink.vue'
 
 const linksData = [
   {
+    title: '分區載入資料',
+    // caption: 'quasar.dev',
+    icon: 'school',
+    link: '/PageLoadData'
+  },
+  {
     title: '現場紀錄表',
     // caption: 'quasar.dev',
     icon: 'school',
     link: '/PageFieldRecord'
+  },
+  {
+    title: '模擬資料',
+    // caption: 'quasar.dev',
+    icon: 'code',
+    link: '/PageMocks'
   },
   // {
   //   title: 'Github',

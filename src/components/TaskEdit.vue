@@ -1,5 +1,4 @@
 <template>
-  <div>
     <div
       class="q-gutter-y-md bg-white"
       style="max-width: 600px"
@@ -16,15 +15,16 @@
         <q-tabs
           v-model="tab"
           dense
-          class="text-grey"
+          class="text-cyan-6 text-caption"
           active-color="primary"
-          indicator-color="primary"
+          indicator-color="purple"
           align="justify"
           narrow-indicator
         >
           <q-tab name="information" label="基本資料" />
           <q-tab name="Suggestions" label="見面記事" />
           <q-tab name="other" label="其它" />
+          <q-tab name="uploadPhoto" label="上傳照片" />
         </q-tabs>
 
         <q-separator />
@@ -32,10 +32,12 @@
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="information">
             <div class="q-gutter-md row items-start">
-              <div class="row">
+              <div class="col-2">
                 <q-avatar v-if="task.photo.length > 0">
                   <img :src="task.avatar" />
                 </q-avatar>
+              </div>
+              <div class="col-8">
                 <q-input
                   v-model="task.name"
                   label="姓名"
@@ -126,118 +128,130 @@
               />
             </div>
           </q-tab-panel>
+
+          <q-tab-panel name="uploadPhoto">
+            <template>
+              <div class="q-pa-md">
+                <q-stepper v-model="step" vertical color="primary" animated>
+                  <q-step
+                    :name="1"
+                    title="選擇照片"
+                    icon="add"
+                    :done="step > 1"
+                  >
+                    <input
+                      id="inputimage"
+                      ref="fileInput"
+                      type="file"
+                      @change="handleFileSelect"
+                      style="display: none"
+                      accept="image/*, .pdf"
+                    />
+                    <q-stepper-navigation>
+                      <!-- <q-btn @click="step = 2" color="primary" label="下一步" /> -->
+                      <q-btn color="primary" @click="$refs.fileInput.click()"
+                        >按我選擇照片</q-btn
+                      >
+                    </q-stepper-navigation>
+                  </q-step>
+
+                  <q-step
+                    :name="2"
+                    title="預覽照片"
+                    icon="create_new_folder"
+                    :done="step > 2"
+                  >
+                    <div v-for="(item, key) in imageFiles">
+                      <!-- {{ item.filename }} -->
+                      <div>
+                        <q-img
+                          :src="item.imageDataUrl"
+                          style="max-width: 100px"
+                        ></q-img>
+                      </div>
+                      <!-- <pre>{{item.EXIF}}</pre> -->
+                    </div>
+
+                    <q-stepper-navigation>
+                      <q-circular-progress
+                        :min="40"
+                        :max="70"
+                        :value="uploadProgress"
+                        size="50px"
+                        :thickness="0.22"
+                        color="teal"
+                        track-color="grey-3"
+                        class="q-ma-sm"
+                      />
+                      <q-btn
+                        @click="uploadImage"
+                        color="primary"
+                        label="上傳照片"
+                      />
+                      <q-btn
+                        flat
+                        @click="step = 1"
+                        color="primary"
+                        label="重選照片"
+                        class="q-ml-sm"
+                      />
+                    </q-stepper-navigation>
+                  </q-step>
+                  <q-step :name="3" title="完成" icon="add_comment">
+                    <q-stepper-navigation>
+                      <q-btn
+                        @click="step = 1"
+                        color="primary"
+                        label="繼續上傳"
+                        class="q-ml-sm"
+                      />
+                    </q-stepper-navigation>
+                  </q-step>
+                </q-stepper>
+              </div>
+            </template>
+            <template>
+              <q-list>
+                <q-item clickable v-if="task.photo.length !== 0">
+                  <q-item-section top thumbnail class="q-ml-none">
+                    <div
+                      v-for="(img, key) in task.photo"
+                      class="col text-black q-mb-md vertical-middle"
+                    >
+                      <span @click="delPhoto(img, key)">
+                        <q-icon name="delete" /><q-icon name="close" /></span
+                      ><br />
+                      <img :src="img.linkURL" class="vertical-middle" />
+                      <q-btn flat @click="setAvatar(img.linkURL)"
+                        >設為頭像</q-btn
+                      >
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </template>
+          </q-tab-panel>
         </q-tab-panels>
 
         <!-- ============================================ -->
-        <q-card-actions align="around">
+        <q-card-actions align="around" v-if="tab !=='uploadPhoto'">
           <q-space />
 
           <q-btn label="存檔" type="submit" color="primary" />
-          <q-btn
+          <!-- <q-btn
             label="取消"
             type="reset"
             color="primary"
             flat
             class="q-ml-sm"
-          />
+          /> -->
         </q-card-actions>
         <!-- </q-card> -->
       </q-form>
     </div>
-    <q-card-section
-      >上傳照片
-      <template>
-        <div class="q-pa-md">
-          <q-stepper v-model="step" vertical color="primary" animated>
-            <q-step :name="1" title="選擇照片" icon="add" :done="step > 1">
-              <input
-                id="inputimage"
-                ref="fileInput"
-                type="file"
-                @change="handleFileSelect"
-                style="display: none"
-                accept="image/*, .pdf"
-              />
-              <q-stepper-navigation>
-                <!-- <q-btn @click="step = 2" color="primary" label="下一步" /> -->
-                <q-btn color="primary" @click="$refs.fileInput.click()"
-                  >按我選擇照片</q-btn
-                >
-              </q-stepper-navigation>
-            </q-step>
 
-            <q-step
-              :name="2"
-              title="預覽照片"
-              icon="create_new_folder"
-              :done="step > 2"
-            >
-              <div v-for="(item, key) in imageFiles">
-                <!-- {{ item.filename }} -->
-                <div>
-                  <q-img
-                    :src="item.imageDataUrl"
-                    style="max-width: 100px"
-                  ></q-img>
-                </div>
-                <!-- <pre>{{item.EXIF}}</pre> -->
-              </div>
 
-              <q-stepper-navigation>
-                <q-circular-progress
-                  :min="40"
-                  :max="70"
-                  :value="uploadProgress"
-                  size="50px"
-                  :thickness="0.22"
-                  color="teal"
-                  track-color="grey-3"
-                  class="q-ma-sm"
-                />
-                <q-btn @click="uploadImage" color="primary" label="上傳照片" />
-                <q-btn
-                  flat
-                  @click="step = 1"
-                  color="primary"
-                  label="重選照片"
-                  class="q-ml-sm"
-                />
-              </q-stepper-navigation>
-            </q-step>
-            <q-step :name="3" title="完成" icon="add_comment">
-              <q-stepper-navigation>
-                <q-btn
-                  @click="step = 1"
-                  color="primary"
-                  label="繼續上傳"
-                  class="q-ml-sm"
-                />
-              </q-stepper-navigation>
-            </q-step>
-          </q-stepper>
-        </div>
-      </template>
-    </q-card-section>
 
-    <q-card-section>
-      <q-list>
-        <q-item clickable v-if="task.photo.length !== 0">
-          <q-item-section top thumbnail class="q-ml-none">
-            <div
-              v-for="(img, key) in task.photo"
-              class="col text-white q-mb-md vertical-middle"
-            >
-              <span @click="delPhoto(img, key)">
-                <q-icon name="delete" /><q-icon name="close" />刪除</span
-              ><br />
-              <img :src="img.linkURL" class="vertical-middle" />
-              <span @click="setAvatar(img.linkURL)">設為頭像</span>
-            </div>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card-section>
-  </div>
 </template>
 
 
@@ -273,8 +287,9 @@ export default {
     ...mapState("phrase", ["professionalTitle", "counties", "districts"]),
     subDistricts() {
       let index = this.counties.indexOf(this.task.county);
-      if (this.index !== index) { 
-        if (this.index !== -1) { //第一次載入時不改變
+      if (this.index !== index) {
+        if (this.index !== -1) {
+          //第一次載入時不改變
           this.task.district = "";
         }
       }
@@ -318,7 +333,6 @@ export default {
     },
     //設為頭像
     setAvatar(linkUrl) {
-      //   console.log(linkUrl);
       let vm = this;
       let payload = {
         id: vm.id,
@@ -326,7 +340,9 @@ export default {
           avatar: linkUrl,
         },
       };
+        console.log(payload);
       vm.updateFieldRecord(payload);
+      this.$q.notify("設定頭像修改成功");
     },
     //=========修改儲存================
     onSubmit() {

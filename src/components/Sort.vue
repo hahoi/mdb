@@ -18,6 +18,10 @@
 		  return {
 		    options: [
 		      {
+		      	label: '不排序',
+		      	value: 'none'
+		      },
+		      {
 		      	label: '姓名',
 		      	value: 'name'
 		      },

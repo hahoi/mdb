@@ -12,9 +12,9 @@
         <q-tabs
           v-model="tab"
           dense
-          class="text-grey"
+          class="text-cyan-6"
           active-color="primary"
-          indicator-color="primary"
+          indicator-color="purple"
           align="justify"
           narrow-indicator
         >
@@ -42,7 +42,7 @@
             <div class="q-gutter-md row items-start">
               <q-input v-model="data.companyPhone" label="公司電話" />
             </div>
-            <div class="q-gutter-md row">
+            <div class="q-gutter-md q-mt-md row">
               <q-select
                 class="col-5"
                 v-model="data.county"
@@ -268,12 +268,12 @@ export default {
     ...mapState("phrase", ["professionalTitle", "counties", "districts"]),
     subDistricts() {
       let index = this.counties.indexOf(this.data.county);
-      console.log(this.index, index,this.index !== index)
+      // console.log(this.index, index,this.index !== index)
       // this.$nextTick(() => {
         if (this.index !== index) {
           // this.$refs.district.value = "";
           this.data.district = ""
-          console.log("要改變")
+          // console.log("要改變")
         }
       // });
       this.index = index
@@ -309,6 +309,7 @@ export default {
       });
     },
     onReset() {
+      this.$refs.form.validate()
       this.$emit("listenToChild", false); //回傳關閉視窗;
     },
 

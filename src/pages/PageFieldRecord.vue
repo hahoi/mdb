@@ -7,14 +7,21 @@
         <q-btn fab icon="add" color="info" @click="addTask" />
       </div>
       <div class="q-px-md q-pb-lg absolute full-width column">
-        <!-- <q-scroll-area class="q-scroll-area-tasks"> -->
+        <!-- <q-scroll-area class="q-scroll-area-tasks">  //FieldReordFiltered -->
         <q-list bordered separator>
-          <task-list-edit
-            v-for="(task, key) in FieldReordFiltered"
-            :key="key"
-            :task="task"
-            :id="key"
-          ></task-list-edit>
+          <q-infinite-scroll @load="loadMore" :offset="10">
+            <task-list-edit
+              v-for="(task, key) in showingData"
+              :key="key"
+              :task="task"
+              :id="key"
+            ></task-list-edit>
+            <template v-slot:loading>
+              <div class="row justify-center q-my-md">
+                <q-spinner-dots color="primary" size="40px" />
+              </div>
+            </template>
+          </q-infinite-scroll>
         </q-list>
         <!-- </q-scroll-area> -->
       </div>
@@ -22,7 +29,8 @@
 
     <template v-else>
       <span class="absolute-center">
-        <q-spinner color="primary" size="3em" />
+        <h3>載入資料中請稍後...</h3>
+        <q-spinner color="primary" size="8em" />
       </span>
     </template>
 
@@ -69,6 +77,8 @@
 </template>
 
 <script>
+import Vue from "vue";
+
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 
 export default {
@@ -76,6 +86,8 @@ export default {
   data() {
     return {
       dialogAdd: false,
+      tasks: [],
+      actualMaxPosition: 10,
     };
   },
   components: {
@@ -85,14 +97,40 @@ export default {
     TaskAdd: require("components/TaskAdd.vue").default,
   },
   created() {},
-  mounted() {},
+  mounted() {    
+      this.fbReadData(),
+      this.readProfessionalTitle()
+  },
   watch: {},
   computed: {
     ...mapState("fieldrecord", ["FieldReord", "tasksDownloaded"]),
     ...mapGetters("fieldrecord", ["FieldReordFiltered"]),
+    showingData() {
+      let keys = [];
+      let showTasks = {};
+      let showKeys = [];
+      Object.keys(this.FieldReordFiltered).forEach((key) => {
+        keys.push(key);
+      });
+      showKeys = keys.slice(0, this.actualMaxPosition);
+      showKeys.forEach((key) => {
+        Vue.set(showTasks, key, this.FieldReordFiltered[key]);
+      });
+      // console.log(showTasks);
+      return showTasks;
+    },
   },
   methods: {
     ...mapMutations("fieldrecord", ["setCurrentId"]),
+    ...mapActions("fieldrecord", ["fbReadData"]),
+    ...mapActions("phrase", ["readProfessionalTitle"]),
+
+    loadMore(index, done) {
+      setTimeout(() => {
+        this.actualMaxPosition += 9;
+        done();
+      }, 1000);
+    },
     addTask() {
       this.setCurrentId(""); //先將資料庫中目前的ID清空，不能新增照片
       this.dialogAdd = true;
