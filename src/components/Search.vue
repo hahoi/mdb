@@ -5,7 +5,7 @@
 		
 		outlined
 		class="col"
-		label="Search">
+		label="多關鍵字搜尋，關鍵字用空白分隔">
 
     <template v-slot:append>
       <q-icon v-if="searchField !== ''" name="close" @click="searchField = ''" class="cursor-pointer" />

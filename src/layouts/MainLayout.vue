@@ -15,7 +15,7 @@
           現場紀錄表
         </q-toolbar-title>
 
-        <!-- <div>Quasar v{{ $q.version }}</div> -->
+        <div>{{FindRecordLength}}筆資料</div>
       </q-toolbar>
     </q-header>
 
@@ -30,7 +30,7 @@
           header
           class="text-grey-8"
         >
-          Essential Links
+          功能選單
         </q-item-label>
         <EssentialLink
           v-for="link in essentialLinks"
@@ -48,26 +48,27 @@
 
 <script>
 import EssentialLink from 'components/EssentialLink.vue'
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 
 const linksData = [
   {
-    title: '分區載入資料',
+    title: '查詢修改刪除',
     // caption: 'quasar.dev',
     icon: 'school',
     link: '/PageLoadData'
   },
   {
-    title: '現場紀錄表',
+    title: '新增',
     // caption: 'quasar.dev',
     icon: 'school',
-    link: '/PageFieldRecord'
+    link: '/PageAddRecord'
   },
-  {
-    title: '模擬資料',
-    // caption: 'quasar.dev',
-    icon: 'code',
-    link: '/PageMocks'
-  },
+  // {
+  //   title: '模擬資料',
+  //   // caption: 'quasar.dev',
+  //   icon: 'code',
+  //   link: '/PageMocks'
+  // },
   // {
   //   title: 'Github',
   //   caption: 'github.com/quasarframework',
@@ -114,6 +115,11 @@ export default {
       leftDrawerOpen: false,
       essentialLinks: linksData
     }
+  },
+  computed: {
+    ...mapState("fieldrecord", ["FieldReord", "tasksDownloaded"]),
+    ...mapGetters("fieldrecord", ["FindRecordLength"]),
   }
+
 }
 </script>

@@ -6,8 +6,8 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/Index.vue') },      
       { path: '/PageLoadData', component: () => import('pages/PageLoadData.vue') },      
-      { path: '/PageFieldRecord', component: () => import('pages/PageFieldRecord.vue') },      
-      { path: '/PageMocks', component: () => import('pages/PageMocks.vue') }
+      { path: '/PageAddRecord', component: () => import('pages/PageAddRecord.vue') },      
+      // { path: '/PageMocks', component: () => import('pages/PageMocks.vue') }
     ]
   },
 

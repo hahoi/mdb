@@ -639,6 +639,14 @@ const state = {
     search: '',
     sort: 'name',
     currentId: '',
+    filter: {
+        county: "屏東縣",
+        district: "屏東市",
+        name: ""
+    },
+    county:"",
+    district: "",
+    name: ""
 
 }
 
@@ -658,6 +666,18 @@ const mutations = {
     setCurrentId(state, value) {
         state.currentId = value
     },
+    setFilter(state, value) {
+        state.filter = value
+    },
+    setCounty(state, value) {
+        state.county = value
+    },
+    setDistrict(state, value) {
+        state.district = value
+    },
+    setName(state, value) {
+        state.name = value
+    },
     //Object
     updateFieldRecord(state, payload) {
         Vue.set(state.FieldRecord, payload.id, payload.data)
@@ -673,6 +693,10 @@ const mutations = {
 }
 
 const actions = {
+    setFilter({ commit }, value) {
+        commit('setFilter', value)
+    },
+
     setSearch({ commit }, value) {
         commit('setSearch', value)
     },
@@ -693,7 +717,7 @@ const actions = {
             });
     },
     updateFieldRecord({ }, payload) {
-        console.log("get",payload)
+        console.log("get", payload)
         dbFirestore
             .collection("現場紀錄表")
             .doc(payload.id)
@@ -720,59 +744,248 @@ const actions = {
 
 
 
-    //讀取
+    //讀取資料
     fbReadData({ state, commit }) {
         // let userId = firebaseAuth.currentUser.uid
         // console.log("userId", userId)
-        //監聽資料
-        dbFirestore
-            .collection("現場紀錄表")
-            // .limit(100)
-            .onSnapshot(snapshot => {
-                snapshot.docChanges().forEach((change) => {
+        
+        commit('clearFieldReord')
+        //從名字查找
+        if (state.name) {
+            //監聽資料
+            dbFirestore
+                .collection("現場紀錄表")
+                .where("name", "==", state.name)
+                // .limit(100)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach((change) => {
 
-                    if (change.type === "added") {
-                        let payload = {
-                            id: change.doc.id,
-                            data: change.doc.data()
+                        if (change.type === "added") {
+                            let payload = {
+                                id: change.doc.id,
+                                data: change.doc.data()
+                            }
+                            commit('addFieldRecord', payload)
                         }
-                        commit('addFieldRecord', payload)
-                    }
-                    if (change.type === "modified") {
-                        let payload = {
-                            id: change.doc.id,
-                            data: change.doc.data()
+                        if (change.type === "modified") {
+                            let payload = {
+                                id: change.doc.id,
+                                data: change.doc.data()
+                            }
+                            commit('updateFieldRecord', payload)
+
                         }
-                        commit('updateFieldRecord', payload)
-
-                    }
-                    if (change.type === "removed") {
-                        let payload = {
-                            id: change.doc.id,
+                        if (change.type === "removed") {
+                            let payload = {
+                                id: change.doc.id,
+                            }
+                            commit('deleteFieldRecord', payload)
                         }
-                        commit('deleteFieldRecord', payload)
-                    }
-
-
+                    });
                 });
-            });
 
-        //讀取一次，確定已經全部讀入，再做後續處理
-        dbFirestore
-            .collection("現場紀錄表")
-            .get()
-            .then(qs => {
-                // qs.forEach(doc => {
-                //     console.log(doc)
-                // })
-                commit('setTasksDownloaded', true)
-            }).catch(err => {
-                // showErrorMessage(err.message)
-                this.$q.dialog({
-                    title: "錯誤",
-                    message: err.message,
-                  });
-            });
+            //讀取一次，確定已經全部讀入，再做後續處理
+            dbFirestore
+                .collection("現場紀錄表")
+                .where("name", "==", state.name)
+                .get()
+                .then(qs => {
+                    // qs.forEach(doc => {
+                    //     console.log(doc)
+                    // })
+                    commit('setTasksDownloaded', true)
+                }).catch(err => {
+                    // showErrorMessage(err.message)
+                    this.$q.dialog({
+                        title: "錯誤",
+                        message: err.message,
+                    });
+                });
+
+
+        }else if (state.district) {//縣市範圍
+            console.log(state.county,state.district)
+
+            //監聽資料
+            dbFirestore
+                .collection("現場紀錄表")
+                .where("county", "==", state.county)
+                .where("district", "==", state.district)//縣市範圍
+                // .limit(100)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach((change) => {
+
+                        if (change.type === "added") {
+                            let payload = {
+                                id: change.doc.id,
+                                data: change.doc.data()
+                            }
+                            commit('addFieldRecord', payload)
+                        }
+                        if (change.type === "modified") {
+                            let payload = {
+                                id: change.doc.id,
+                                data: change.doc.data()
+                            }
+                            commit('updateFieldRecord', payload)
+
+                        }
+                        if (change.type === "removed") {
+                            let payload = {
+                                id: change.doc.id,
+                            }
+                            commit('deleteFieldRecord', payload)
+                        }
+                    });
+                });
+
+            //讀取一次
+            dbFirestore
+                .collection("現場紀錄表")
+                .where("county", "==", state.county)
+                .where("district", "==", state.district)//縣市範圍
+                .get()
+                .then(qs => {
+                    // qs.forEach(doc => {
+                    //     console.log(doc)
+                    // })
+                    commit('setTasksDownloaded', true)
+                }).catch(err => {
+                    // showErrorMessage(err.message)
+                    this.$q.dialog({
+                        title: "錯誤",
+                        message: err.message,
+                    });
+                });
+
+
+            // return
+        }else if (state.county) {//縣市
+            console.log(state.county)
+            //監聽資料
+            dbFirestore
+                .collection("現場紀錄表")
+                .where("county", "==", state.county) //縣市
+                // .limit(100)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach((change) => {
+
+                        if (change.type === "added") {
+                            let payload = {
+                                id: change.doc.id,
+                                data: change.doc.data()
+                            }
+                            commit('addFieldRecord', payload)
+                        }
+                        if (change.type === "modified") {
+                            let payload = {
+                                id: change.doc.id,
+                                data: change.doc.data()
+                            }
+                            commit('updateFieldRecord', payload)
+
+                        }
+                        if (change.type === "removed") {
+                            let payload = {
+                                id: change.doc.id,
+                            }
+                            commit('deleteFieldRecord', payload)
+                        }
+                    });
+                });
+
+            //讀取一次
+            dbFirestore
+                .collection("現場紀錄表")
+                .where("county", "==", state.county) //縣市
+                .get()
+                .then(qs => {
+                    // qs.forEach(doc => {
+                    //     console.log(doc)
+                    // })
+                    commit('setTasksDownloaded', true)
+                }).catch(err => {
+                    // showErrorMessage(err.message)
+                    this.$q.dialog({
+                        title: "錯誤",
+                        message: err.message,
+                    });
+                });
+
+
+            // return true
+        }
+
+
+        // //監聽資料
+        // dbFirestore
+        //     .collection("現場紀錄表")
+        //     .where("county", "==", state.county)
+        //     // .limit(100)
+        //     .onSnapshot(snapshot => {
+        //         snapshot.docChanges().forEach((change) => {
+
+        //             if (change.type === "added") {
+        //                 let payload = {
+        //                     id: change.doc.id,
+        //                     data: change.doc.data()
+        //                 }
+        //                 commit('addFieldRecord', payload)
+        //             }
+        //             if (change.type === "modified") {
+        //                 let payload = {
+        //                     id: change.doc.id,
+        //                     data: change.doc.data()
+        //                 }
+        //                 commit('updateFieldRecord', payload)
+
+        //             }
+        //             if (change.type === "removed") {
+        //                 let payload = {
+        //                     id: change.doc.id,
+        //                 }
+        //                 commit('deleteFieldRecord', payload)
+        //             }
+        //         });
+        //     });
+
+        // //讀取一次，確定已經全部讀入，再做後續處理
+        // dbFirestore
+        //     .collection("現場紀錄表")
+        //     .get()
+        //     .then(qs => {
+        //         // qs.forEach(doc => {
+        //         //     console.log(doc)
+        //         // })
+        //         commit('setTasksDownloaded', true)
+        //     }).catch(err => {
+        //         // showErrorMessage(err.message)
+        //         this.$q.dialog({
+        //             title: "錯誤",
+        //             message: err.message,
+        //         });
+        //     });
+
+        // if(state.county){
+        //     console.log(state.county)
+        //     dbFirestore
+        //       .collection("現場紀錄表")
+        //       .where("county", "==", state.county)
+        //       .get()
+        //       .then((qs) => {
+        //         // qs.forEach((doc) => {
+        //         //   console.log(doc.data());
+        //         // });
+        //         commit('setTasksDownloaded', true)
+        //       })
+        //       .catch((err) => {
+        //         // showErrorMessage(err.message)
+        //         this.$q.dialog({
+        //           title: "錯誤",
+        //           message: err.message,
+        //         });
+        //       });
+        // }
 
     }
 
@@ -786,8 +999,11 @@ const actions = {
 }
 
 const getters = {
+    FindRecordLength: (state, getters) => {
+        return Object.keys(getters.FieldReordFiltered).length
+    },
     FieldReordSorted: (state) => {
-        if(state.sort === 'none') {
+        if (state.sort === 'none') {
             return state.FieldRecord
         }
         let FieldReordSorted = {},
