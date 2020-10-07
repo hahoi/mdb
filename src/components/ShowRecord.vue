@@ -6,7 +6,9 @@
         <sort />
         <q-btn fab icon="add" color="info" @click="addTask" />
       </div> -->
+      
       <div class="q-px-md q-pb-lg absolute full-width column">
+        
            <search />
         <!-- <q-scroll-area class="q-scroll-area-tasks">  //FieldReordFiltered -->
         <q-list bordered separator>
@@ -133,7 +135,7 @@ export default {
       this.timer = setTimeout(() => {
         this.actualMaxPosition += 9;
         done();
-      }, 1000);
+      }, 100);
     },
     done() {
       // clearTimeout(this.timer);

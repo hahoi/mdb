@@ -1,5 +1,5 @@
 <template>
-  <q-page style="max-width: 600px">
+  <q-page style="max-width: 600px"> 
     <div class="bg-light-blue-2">
       <div class="q-gutter-xs q-ma-xs row no-wrap">
         <q-select
@@ -48,9 +48,9 @@
         >
       </div>
     </div>
-    <div class="q-mt-xl" v-if="tasksDownloaded" >
+    <template class="q-mt-xl" v-if="taskShow">
     <show-record></show-record>
-    </div>
+    </template>
   </q-page>
 </template>
 
@@ -65,8 +65,9 @@ export default {
       flt: {
         county: "",
         district: "",
-        name: "",
+        name: "",       
       },
+       taskShow: false
     };
   },
   components: {
@@ -113,10 +114,13 @@ export default {
         this.flt.county = "";
       }
       this.setTasksDownloaded(false)
+      // console.log(this.flt.name , this.flt.county )
+      this.taskShow = (this.flt.name === "" && (this.flt.county === "" || this.flt.county === null)) ? false : true
+      // console.log(this.taskShow)
 
       // console.log(this.county,this.district,this.name)
       this.fbReadData()
-      this.readProfessionalTitle();
+      // this.readProfessionalTitle();
     },
   },
 };

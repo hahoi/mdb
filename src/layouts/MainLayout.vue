@@ -1,25 +1,25 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated class="bg-green-10 text-white">
       <q-toolbar>
-        <q-btn
+        <!-- <q-btn
           flat
           dense
           round
           icon="menu"
           aria-label="Menu"
           @click="leftDrawerOpen = !leftDrawerOpen"
-        />
+        /> -->
 
-        <q-toolbar-title>
-          現場紀錄表
+        <q-toolbar-title class="text-center text-weight text-h5">  
+          行動資料庫
         </q-toolbar-title>
 
-        <div>{{FindRecordLength}}筆資料</div>
+        
       </q-toolbar>
     </q-header>
 
-    <q-drawer
+    <!-- <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
       bordered
@@ -38,11 +38,40 @@
           v-bind="link"
         />
       </q-list>
-    </q-drawer>
+    </q-drawer> -->
 
     <q-page-container>
+
       <router-view />
+    
     </q-page-container>
+
+    <q-footer elevated class="bg-green-5 text-white">
+      <q-toolbar>
+        <q-toolbar-title>
+          <div class="row justify-around">
+            <q-btn round color="amber" glossy text-color="black" icon="add" >
+            <q-tooltip>新增資料</q-tooltip>
+            </q-btn>
+
+            <div v-if="FindRecordLength > 0" class="text-h6">{{FindRecordLength}}筆資料</div>
+            <q-btn  round color="deep-orange" glossy text-color="black" icon="account_circle">
+              <q-tooltip>通訊錄維護<br/>請洽分機<br/>6338</q-tooltip>
+            </q-btn>
+            <!-- <q-btn
+              round
+              color="secondary"
+              glossy
+              text-color="black"
+              icon="account_circle"
+              to="users"
+            ></q-btn> -->
+            
+          </div>
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-footer>
+
   </q-layout>
 </template>
 
@@ -62,6 +91,24 @@ const linksData = [
     // caption: 'quasar.dev',
     icon: 'school',
     link: '/PageAddRecord'
+  },
+  {
+    title: '匯入',
+    // caption: 'quasar.dev',
+    icon: 'school',
+    link: '/PageImport'
+  },
+  {
+    title: '模糊搜尋',
+    // caption: 'quasar.dev',
+    icon: 'school',
+    link: '/PageSearch'
+  },
+  {
+    title: '首頁',
+    // caption: 'quasar.dev',
+    icon: 'school',
+    link: '/PageHome'
   },
   // {
   //   title: '模擬資料',
@@ -119,6 +166,7 @@ export default {
   computed: {
     ...mapState("fieldrecord", ["FieldReord", "tasksDownloaded"]),
     ...mapGetters("fieldrecord", ["FindRecordLength"]),
+    ...mapGetters("search", ["FindRecordLength"]),
   }
 
 }

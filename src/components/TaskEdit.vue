@@ -75,13 +75,20 @@
               <q-input v-model="task.address" label="地址" />
             </div>
 
-            <div class="q-gutter-md">
+            <div class="q-gutter-md row items-start">
               <q-select
-                v-model="task.professionalTitle"
+                class="col-9"
+                v-model="task.classify"
                 :options="professionalTitle"
-                label="職業職稱"
+                label="分類"
+                
               />
             </div>
+
+            <div class="q-gutter-md row items-start">
+              <q-input v-model="task.proTitle" label="職業職稱"  />
+            </div>
+
             <div class="q-gutter-md row items-start">
               <q-input v-model="task.clubTitle" label="社團職稱" />
             </div>
@@ -279,7 +286,9 @@ export default {
     };
   },
   components: {},
-  created() {},
+  created() {
+    this.readProfessionalTitle();
+  },
   mounted() {},
   watch: {},
   computed: {
@@ -300,6 +309,7 @@ export default {
   methods: {
     // ...mapMutations("fieldrecord", ["setCurrentId"]),
     ...mapActions("fieldrecord", ["updateFieldRecord"]),
+    ...mapActions("phrase", ["readProfessionalTitle"]),
     //刪除照片
     delPhoto(img, key) {
       let vm = this;

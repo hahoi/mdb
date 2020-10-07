@@ -35,7 +35,6 @@
                 label="選擇縣市"
                 outlined
                 ref="county"
-                
               />
               <q-select
                 class="col-5"
@@ -57,36 +56,46 @@
                 outlined
               />
             </div>
-
-            <div class="q-ma-md row items-start">
-              <q-input v-model="data.mobilePhone" label="手機" outlined />
-            </div>
-            <div class="q-ma-md row items-start">
-              <q-input v-model="data.companyPhone" label="公司電話" outlined />
+            <div class="row q-ma-md row items-start">
+              <div class="col">
+                <q-input v-model="data.mobilePhone" label="手機" outlined />
+              </div>
+              <div class="col">
+                <q-input
+                  v-model="data.companyPhone"
+                  label="公司電話"
+                  outlined
+                />
+              </div>
             </div>
 
             <div class="q-ma-md row items-start">
               <q-input v-model="data.address" label="地址" outlined />
             </div>
 
-            <div class="q-ma-md items-start">
+            <div class="q-ma-md row items-start">
               <q-select
+              class="col-10"
                 v-model="data.classify"
-                :options="classify"
+                :options="professionalTitle"
                 label="分類"
-                 outlined
+                outlined
               />
             </div>
-            
+
             <div class="q-ma-md row items-start">
-              <q-input v-model="data.professionalTitle" label="職業職稱" outlined />
+              <q-input v-model="data.proTitle" label="職業職稱" outlined />
             </div>
 
             <div class="q-ma-md row items-start">
               <q-input v-model="data.clubTitle" label="社團職稱" outlined />
             </div>
             <div class="q-ma-md row items-start">
-              <q-input v-model="data.personalConnections" label="人脈關係" outlined />
+              <q-input
+                v-model="data.personalConnections"
+                label="人脈關係"
+                outlined
+              />
             </div>
           </q-tab-panel>
           <q-tab-panel name="Suggestions">
@@ -130,20 +139,22 @@
         </q-tab-panels>
 
         <!-- <q-card-section> </q-card-section> -->
-        <q-card-actions align="around" >
+        <q-card-actions align="around">
           <q-space />
           <q-btn label="存檔" type="submit" color="primary" />
-          <q-btn
+          <!-- <q-btn label="取消" color="primary"  flat @click="$router.replace('/').catch(err => { })" /> -->
+          <!-- <q-btn
             label="取消"
             type="reset"
             color="primary"
             flat
             class="q-ml-sm"
-          />
+          /> -->
         </q-card-actions>
         <!-- </q-card> -->
       </q-form>
     </div>
+    <div class="" style="max-width: 600px">
     <q-card-section v-if="currentId"
       >上傳照片
       <template>
@@ -218,6 +229,13 @@
         </div>
       </template>
     </q-card-section>
+    <q-card-actions align="around">
+          <q-space />
+          <q-btn label="離開" color="primary" class="bg-accent text-white" flat @click="goAway" />
+         
+        </q-card-actions>
+    </div>
+    
   </div>
 </template>
 
@@ -246,6 +264,8 @@ export default {
         county: "",
         district: "",
         address: "",
+        classify: "",
+        proTitle: "",
         professionalTitle: "",
         clubTitle: "",
         personalConnections: "",
@@ -258,21 +278,22 @@ export default {
         other: "",
         update: "",
         star: 0,
+        email: "",
+        zip: "",
       },
 
       step: 1,
 
       imageFiles: [], //儲存上傳檔案資訊，含imageDataUrl（base64Url格式）
       uploadProgress: 0,
-      index : -1
+      index: -1,
     };
   },
   components: {},
   created() {
-      this.readProfessionalTitle();
+    this.readProfessionalTitle();
   },
-  mounted() {
-  },
+  mounted() {},
   watch: {},
   computed: {
     ...mapState("fieldrecord", ["currentId"]),
@@ -281,15 +302,14 @@ export default {
       let index = this.counties.indexOf(this.data.county);
       // console.log(this.index, index,this.index !== index)
       // this.$nextTick(() => {
-        if (this.index !== index) {
-          // this.$refs.district.value = "";
-          this.data.district = ""
-          // console.log("要改變")
-        }
+      if (this.index !== index) {
+        // this.$refs.district.value = "";
+        this.data.district = "";
+        // console.log("要改變")
+      }
       // });
-      this.index = index
+      this.index = index;
       return this.districts[index] || [];
-      
     },
   },
   methods: {
@@ -297,9 +317,9 @@ export default {
     ...mapActions("fieldrecord", ["addFieldRecord", "updateFieldRecord"]),
     ...mapActions("phrase", ["readProfessionalTitle"]),
 
-    filterFn(val, update, abort) {
-      console.log(val, update, abort);
-      return val;
+    goAway() {
+      this.setCurrentId("")
+      this.$router.replace('/').catch(err => { })
     },
     onSubmit() {
       this.$refs.form.validate().then((success) => {
@@ -310,7 +330,7 @@ export default {
           });
           return false;
         }
-        
+
         if (this.data.county.trim() === "") {
           this.$q.dialog({
             title: "錯誤",
@@ -330,7 +350,7 @@ export default {
       });
     },
     onReset() {
-      this.$refs.form.validate()
+      this.$refs.form.validate();
       this.$emit("listenToChild", false); //回傳關閉視窗;
     },
 

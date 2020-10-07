@@ -1,4 +1,24 @@
 export default {
+
+    //中文字元擷取
+    substr(str, len) {
+        if (!str || !len) { return ''; }
+        //預期計數：中文2位元組，英文1位元組    
+        var a = 0;      //迴圈計數    
+        var i = 0;      //臨時字串    
+        var temp = '';
+        for (i = 0; i < str.length; i++) {
+            if (str.charcodeat(i) > 255) {             //按照預期計數增加2           
+                a += 2;
+            }
+            else {
+                a++;
+            }         //如果增加計數後長度大於限定長度，就直接返回臨時字串        
+            if (a > len) { return temp; }          //將當前內容加到臨時字串        
+            temp += str.charat(i);
+        }     //如果全部是單位元組字元，就直接返回源字串    
+        return str;
+    },
     cutStr(str, len) {
         try {
             if (str.length > len) {
@@ -95,46 +115,46 @@ export default {
     // shift
     //注意它並非回傳shift的成員(值)，而是回傳最終的陣列結果
     // const pureShift = aArray => aArray.slice(1)
-    pureShift(aArray){
-      return aArray.slice(1)     
+    pureShift(aArray) {
+        return aArray.slice(1)
     },
-    
+
     // unshift
     //注意它並非回傳長度，而是回傳最終的陣列結果
     // const pureUnshift = (aArray, newEntry) => [ newEntry, ...aArray ]
-     pureUnshift(aArray, newEntry){
-      return [ newEntry, ...aArray ]
+    pureUnshift(aArray, newEntry) {
+        return [newEntry, ...aArray]
     },
-    
+
     // splice
     // 這方法完全要使用slice與展開運算符(...)來取代，是所有的純粹函式最難的一個。
     // const pureSplice = (aArray, start, deleteCount, ...items) =>
     // [ ...aArray.slice(0, start), ...items, ...aArray.slice(start + deleteCount) ]
     pureSplice(aArray, start, deleteCount, ...items) {
-      return [ ...aArray.slice(0, start), ...items, ...aArray.slice(start + deleteCount) ]
+        return [...aArray.slice(0, start), ...items, ...aArray.slice(start + deleteCount)]
     },
-    
+
     // sort
     //無替代語法，只能拷貝出新陣列作sort
     // const pureSort = (aArray, compareFunction) => [ ...aArray ].sort(compareFunction)
     pureSort(aArray, compareFunction) {
-      return [ ...aArray ].sort(compareFunction)
+        return [...aArray].sort(compareFunction)
     },
-    
+
     // reverse
     //無替代語法，只能拷貝出新陣列作reverse
     // const pureReverse = aArray => [ ...aArray ].reverse()
     pureReverse(aArray) {
-      return [ ...aArray ].reverse()
+        return [...aArray].reverse()
     },
-    
+
     // delete
     // 刪除(delete)其中一個成員，再組合所有子字串:
     // const pureDelete = (aArray, index) => aArray.slice(0,index).concat(aArray.slice(index+1))
-    pureDelete (aArray, index) {
-       return aArray.slice(0,index).concat(aArray.slice(index+1))
+    pureDelete(aArray, index) {
+        return aArray.slice(0, index).concat(aArray.slice(index + 1))
     },
-    
+
 
 
 

@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import fieldrecord from './store-field-record'
 import phrase from './store-phrase'
+import search from './store-search'
+// import search from './store-search'
 // import example from './module-example'
 
 Vue.use(Vuex)
@@ -20,7 +22,8 @@ export default function (/* { ssrContext } */) {
     modules: {
       // example
       fieldrecord,
-      phrase
+      phrase,
+      search
     },
 
     // enable strict mode (adds overhead!)

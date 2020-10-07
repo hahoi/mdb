@@ -637,16 +637,18 @@ const state = {
 
     FieldRecord: {},
     search: '',
-    sort: 'name',
+    sort: 'none',
     currentId: '',
     filter: {
         county: "屏東縣",
         district: "屏東市",
         name: ""
     },
-    county:"",
+    county: "",
     district: "",
-    name: ""
+    name: "",
+
+    dbDataStore: {},
 
 }
 
@@ -689,6 +691,9 @@ const mutations = {
         // console.log(payload.id, payload.data)
         Vue.set(state.FieldRecord, payload.id, payload.data)
     },
+    setdbDataStore(state, value) {
+        state.dbDataStore = Object.assign({}, value)
+    },
 
 }
 
@@ -702,7 +707,8 @@ const actions = {
     },
     setSort({ commit }, value) {
         commit('setSort', value)
-    },//增加一筆
+    },
+    //增加一筆
     addFieldRecord({ commit, dispatch }, data) { //建議跟mutations同名，較好記
         dbFirestore
             .collection("現場紀錄表")
@@ -748,7 +754,7 @@ const actions = {
     fbReadData({ state, commit }) {
         // let userId = firebaseAuth.currentUser.uid
         // console.log("userId", userId)
-        
+
         commit('clearFieldReord')
         //從名字查找
         if (state.name) {
@@ -803,8 +809,8 @@ const actions = {
                 });
 
 
-        }else if (state.district) {//縣市範圍
-            console.log(state.county,state.district)
+        } else if (state.district) {//縣市範圍
+            // console.log(state.county,state.district)
 
             //監聽資料
             dbFirestore
@@ -860,8 +866,8 @@ const actions = {
 
 
             // return
-        }else if (state.county) {//縣市
-            console.log(state.county)
+        } else if (state.county) {//縣市
+            // console.log(state.county)
             //監聽資料
             dbFirestore
                 .collection("現場紀錄表")
@@ -1051,16 +1057,16 @@ const getters = {
 
                     //搜尋每個欄位
                     Object.keys(task).forEach((key) => {
-                        //搜尋文字型態個欄位
-                        if (typeof task[key] === 'string') {
-                            let item = task[key]
-                            // console.log(key,task[key])
-                            let searchLowerCase = keyword.toLowerCase()
-                            if (item.includes(searchLowerCase)) {
-                                // FieldReordFiltered[id] = task
-                                arr_flag[index] = true; //先把符合的記下來
+                            //搜尋文字型態個欄位
+                            if (typeof task[key] === 'string') {
+                                let item = task[key]
+                                // console.log(key,task[key])
+                                let searchLowerCase = keyword.toLowerCase()
+                                if (item.includes(searchLowerCase)) {
+                                    // FieldReordFiltered[id] = task
+                                    arr_flag[index] = true; //先把符合的記下來
+                                }
                             }
-                        }
                     })
                 })
 

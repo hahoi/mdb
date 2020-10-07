@@ -2,9 +2,9 @@
   <div>
     <q-btn @click="dowork">模擬資料</q-btn>
     <q-btn @click="saveToFirestore">寫入資料庫</q-btn>
-    <q-btn @click="proTitle">補充職業類別</q-btn>
+    <!-- <q-btn @click="proTitle">補充職業類別</q-btn>
     
-    <q-btn @click="doUpdate">更新資料庫</q-btn>
+    <q-btn @click="doUpdate">更新資料庫</q-btn> -->
     <!-- <pre> {{ mockData }}</pre> -->
   </div>
 </template>
@@ -27,17 +27,18 @@ export default {
   methods: {
     saveToFirestore() {
       this.mockData.forEach((data) => {
-        console.log(data);
+        // console.log(data);
         dbFirestore
           .collection("現場紀錄表")
           .add(data)
           .then((ref) => {
-            console.log("資料庫新增成功！", ref.id);
+            // console.log("資料庫新增成功！", ref.id);
           })
           .catch((error) => {
             console.error("資料庫儲存失敗！", error);
           });
       });
+      console.log("ok");
     },
     dowork() {
       const convert = require("chinese_convert");
@@ -46,7 +47,8 @@ export default {
       const Random = Mock.Random;
       let posts = [];
 
-      for (let i = 0; i < 2; i++) {
+      //產生多少筆資料
+      for (let i = 0; i < 5000; i++) {
         let county = Mock.mock({
           "array|1": [
             "台北市",
@@ -649,7 +651,7 @@ export default {
           ],
         });
 
-        let professionalTitle = Mock.mock({
+        let proTitle = Mock.mock({
           "array|1": [
           "副總經理",
           "記者",
@@ -687,22 +689,20 @@ export default {
 
 
         let post = {
-          name: convert.cn2tw(Random.cname()),
-          mobilePhone: Random.cword("0123456789", 9, 9),
-          companyPhone: Random.cword("0123456789", 7, 7),
-          avatar: avatar.array,
-          photo: photoArray,
-          county: county.array,
-          district: district.array,
-          address:
-            county.array +
-            district.array +
-            Random.cword(2, 2) +
-            "路" +
-            Random.cword("0123456789", 1, 3) +
-            "號",
-          classify:classify.array,
-          professionalTitle: professionalTitle.array,
+
+            name: convert.cn2tw(Random.cname()),
+            proTitle: proTitle.array,
+            zip: "",          
+            mobilePhone: Random.cword("0123456789", 9, 9),
+            companyPhone: Random.cword("0123456789", 7, 7),
+            email: Random.email(),
+            avatar: avatar.array,
+            photo: photoArray,
+            county: county.array,
+            district: district.array,
+            address:  county.array + district.array + Random.cword(2, 2) + "路" + Random.cword("0123456789", 1, 3) + "號",
+            classify:classify.array,
+            professionalTitle: "",
           clubTitle: convert.cn2tw(Random.ctitle()),
           personalConnections: convert.cn2tw(Random.ctitle()),
           meetNotes: convert.cn2tw(Random.csentence(10.25)),
@@ -714,10 +714,14 @@ export default {
           other: convert.cn2tw(Random.ctitle()),
           update: Random.now(),
           star: Random.integer(0, 5),
+
+
+
         };
         posts.push(post);
       }
       this.mockData = posts;
+      console.log(this.mockData.length)
 
       //   var data = Mock.mock({
       //     "list|2": [
