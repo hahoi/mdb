@@ -6,16 +6,16 @@
 <script>
 import { mapActions } from "vuex";
 export default {
-  name: 'App',
+  name: "App",
   methods: {
-    // ...mapActions("fieldrecord", ["fbReadData"]),
+    // ...mapActions("search", ["LoadSaveAllData"]),
     // ...mapActions("phrase", ["readProfessionalTitle"]),
   },
   mounted() {
-      // this.fbReadData(),
-      // this.readProfessionalTitle()
-	  }
-}
+    // this.LoadSaveAllData();
+    // this.readProfessionalTitle()
+  },
+};
 </script>
 <style >
 </style>

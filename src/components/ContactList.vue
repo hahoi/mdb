@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white text-black">
+  <div class="bg-white text-black" style="max-width: 600px; margin: auto">
     <q-card-section>
       <q-list>
         <q-item clickable>
@@ -158,7 +158,7 @@
         <q-separator spaced v-if="task.other.length !== 0" />
         <!-- 星級 --><!-- 紅點 -->
         <div class="q-gutter-md q-my-md row items-start">
-          <q-rating v-model="task.star" size="2em" color="primary" readonly />
+          <q-rating v-model="task.star" size="2em" color="primary" readonly v-if="task.star > 0"/>
           <q-icon name="stop_circle" class="text-red" style="font-size: 2rem" v-if="task.RedDot"/>
         </div>
 
@@ -192,7 +192,9 @@ export default {
   },
   components: {},
   created() {},
-  mounted() {},
+  mounted() {
+    console.log(this.task)
+  },
   watch: {},
   computed: {},
   methods: {

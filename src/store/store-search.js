@@ -3,7 +3,7 @@ import { dbFirestore } from 'boot/firebase'
 
 const state = {
     tasksDownloaded: false,
-
+     
     FieldRecord: {},
     search: '',
     sort: 'none',
@@ -38,16 +38,36 @@ const mutations = {
     setRedDot(state, value) {
         state.RedDot = value
     },
+    //特別針對photo link 的更新
+    // setFieldRecordPhoto(state, payload) {
+    //     state.FieldRecord[payload.id].photo.push(payload.link)
+    //     // console.log("state.FieldRecord["+payload.id+"]",state.FieldRecord[payload.id])
+    // },
+    // setAvatar(state, payload){
+   
+    //     state.FieldRecord[payload.id]['avatar'] = payload.data
+    //     // console.log(state.FieldRecord[payload.id]['avatar'])
+    // },
+    // setPhoto(state,id,photoLink){
+    //     state.FieldRecord[id]['photo'].push(photoLink)
+    //     console.log("state.FieldRecord",state.FieldRecord[payload.id])
+    // },
+    // setPhoto(state,payload){
+    //     console.log(payload)
+    //     Vue.set(state.FieldRecord, payload.id, payload.data)
+    // },
     //Object
     updateFieldRecord(state, payload) {
         Vue.set(state.FieldRecord, payload.id, payload.data)
+        // console.log("state.FieldRecord",state.FieldRecord[payload.id])
     },
-    deleteFieldRecord(state, payload) {
-        Vue.delete(state.FieldRecord, payload.id)
+    deleteFieldRecord(state, id) {
+        Vue.delete(state.FieldRecord, id)
+        
     },
     addFieldRecord(state, payload) {
-        // console.log(payload.id, payload.data)
         Vue.set(state.FieldRecord, payload.id, payload.data)
+        // console.log("addFieldRecord",state.FieldRecord[payload.id])
     },
 
 }
@@ -75,6 +95,7 @@ const actions = {
                     id: ref.id,
                     data: data,
                 };
+                // 更新 state.FieldRecord，更新畫面
                 commit("addFieldRecord", payload);
                 console.log("資料庫新增成功！", ref.id);
             })
@@ -82,13 +103,41 @@ const actions = {
                 console.error("資料庫儲存失敗！", error);
             });
     },
-    updateFieldRecord({ }, payload) {
-        console.log("get", payload)
+    // //上傳照片更新
+    // updateDbPhoto({ commit }, payload) {
+    //     console.log("db",payload.data)
+
+    //     dbFirestore
+    //         .collection("現場紀錄表")
+    //         .doc(payload.id)
+    //         .update(payload.data)
+    //         .then(() => {
+    //             let avatar ={
+    //                 id: payload.id,
+    //                 data: payload.data.avatar
+    //             }
+    //             commit('setAvatar',avatar)
+    //             let photo={
+    //                 id: payload.id,
+    //                 data: payload.data.photo
+    //             }
+    //             commit('setPhoto',photo   )
+    //             console.log("資料庫修改成功！");
+    //         })
+    //         .catch(error => {
+    //             console.error("資料庫儲存失敗！", error);
+    //         });
+
+    // },
+    //一般更新
+    updateFieldRecord({ commit }, payload) {
+        // console.log(payload)
         dbFirestore
             .collection("現場紀錄表")
             .doc(payload.id)
             .update(payload.data)
             .then(() => {
+                // 更新 state.FieldRecord，更新畫面
                 commit("updateFieldRecord", payload);
                 console.log("資料庫修改成功！");
             })
@@ -97,14 +146,14 @@ const actions = {
             });
 
     },
-
-    deleteFieldRecord({ }, id) {
+    //刪除
+    deleteFieldRecord({ commit }, id) {
         dbFirestore
             .collection("現場紀錄表")
             .doc(id)
             .delete()
             .then(() => {
-                commit("deleteFieldRecord", payload);
+                commit("deleteFieldRecord", id);
                 console.log("資料刪除成功！");
             })
 
@@ -112,54 +161,26 @@ const actions = {
 
 
 
-    // //監聽資料
-    monitor({ getters, commit }) {
-
-        // dbFirestore
-        //     .collection("現場紀錄表")
-        //     // .doc(key)
-        //     .limit(1)
-        //     .onSnapshot((snapshot) => {
-        //         snapshot.docChanges().forEach((change) => {
-        //             if (change.type === "added") {
-        //                 let payload = {
-        //                     id: change.doc.id,
-        //                     data: change.doc.data(),
-        //                 };
-        //                 commit("addFieldRecord", payload);
-        //                 console.log("add", payload.id, payload.data.name);
-        //             }
-        //             if (change.type === "modified") {
-        //                 let payload = {
-        //                     id: change.doc.id,
-        //                     data: change.doc.data(),
-        //                 };
-        //                 commit("updateFieldRecord", payload);
-        //                 console.log("modified", payload.id, payload.data.name);
-        //             }
-        //             if (change.type === "removed") {
-        //                 let payload = {
-        //                     id: change.doc.id,
-        //                 };
-        //                 commit("deleteFieldRecord", payload);
-        //                 console.log("removed", payload.id, payload.data.name);
-        //             }
-        //         });
-        //     });
-
-
-        // Object.keys(getters.FieldReordFiltered).forEach((key) => {
-        //     dbFirestore
-        //         .collection("現場紀錄表")
-        //         .doc(key)
-        //         .onSnapshot((snapshot) => {
-        //             console.log(snapshot)
-        //         })
-        //         .catch((err) => {
-        //             console.log(err.message);
-        //         });
-        // });
-    },
+    // //一開始全部資料載入，會當機 =======
+    // LoadSaveAllData({ state, commit }) {
+    //     dbFirestore
+    //         .collection("現場紀錄表")
+    //         .get()
+    //         .then((qs) => {
+    //             qs.forEach((doc) => {
+    //                 //   Vue.set(state.FieldRecord, doc.id, doc.data());
+    //                 let payload = {
+    //                     id: doc.id,
+    //                     data: doc.data()
+    //                 }
+    //                 commit('addFieldRecord', payload)
+    //             });
+    //             commit('setTasksDownloaded', true)
+    //         })
+    //         .catch((err) => {
+    //             console.log(err.message);
+    //         });
+    // },
 
 
 
@@ -170,7 +191,7 @@ const getters = {
     FindRecordLength: (state, getters) => {
         return Object.keys(getters.FieldReordFiltered).length
     },
-    FieldReordSorted: (state) => {
+    FieldReordSorted: (state,) => {
         if (state.sort === 'none') {
             return state.FieldRecord
         }
@@ -183,6 +204,10 @@ const getters = {
             // if (sA > sB) return 1
             // else if (sA < sB) return -1
             // else return 0
+            if(!sA || !sB){
+                console.log("sA",sA,"sB".sB)
+                return 0
+            }
             return sA.localeCompare(sB, "zh-hant"); //適合中文的排序
         })
 
@@ -192,18 +217,18 @@ const getters = {
 
         return FieldReordSorted
     },
-    FieldReordFiltered: (state, getters) => {
+    FieldReordFiltered: (state, getters ) => {
         // if (!state.search) {
         //     return false
         // }
         let FieldReordSorted = getters.FieldReordSorted
         let FieldReordFiltered = {}
-        
+
         if (state.search) {
             let searchWord = state.search.trim();
             //過濾條件用空白分割成字串，用正則可一個或多個空白去分割
             let arraySearchWord = searchWord.split(/\s+/);
-            
+
             Object.keys(FieldReordSorted).forEach((id) => {
                 let task = FieldReordSorted[id]
 
@@ -226,16 +251,16 @@ const getters = {
 
                         //搜尋星星，and 要先符合                        
                         // if (task['star'] >= state.star) {
-                            //搜尋文字型態個欄位
-                            if (typeof task[key] === 'string') {
-                                let item = task[key]
-                                // console.log(key,task[key])
-                                let searchLowerCase = keyword.toLowerCase()
-                                if (item.includes(searchLowerCase)) {
-                                    // FieldReordFiltered[id] = task
-                                    arr_flag[index] = true; //先把符合的記下來                                    
-                                }
+                        //搜尋文字型態個欄位
+                        if (typeof task[key] === 'string') {
+                            let item = task[key]
+                            // console.log(key,task[key])
+                            let searchLowerCase = keyword.toLowerCase()
+                            if (item.includes(searchLowerCase)) {
+                                // FieldReordFiltered[id] = task
+                                arr_flag[index] = true; //先把符合的記下來                                    
                             }
+                        }
                         // }
 
                     })
