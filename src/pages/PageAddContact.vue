@@ -1,21 +1,9 @@
 <template>
   <q-page class="bg-cyan-1" style="max-width: 600px; margin: auto">
-    <q-form
-      ref="form"
-      @submit.prevent="onSubmit"
-      @reset="onReset"
-      
-    >
+    <q-form ref="form" @submit.prevent="onSubmit" @reset="onReset">
       <q-bar class="bg-cyan-10">
         <q-space />
-        <q-btn
-              label="繼續新增"
-              type="submit"
-              color="primary"
-              @click="KeepAdd"
-              v-if="currentId"
-            />
-        <q-btn  v-else label="存檔" type="submit" color="primary" icon="save"/>
+
         <q-btn
           flat
           icon="close"
@@ -172,7 +160,25 @@
             </div>
           </q-tab-panel>
         </q-tab-panels>
-
+        <q-card-actions align="around" class="bg-cyan-1">
+          <q-space />
+          <q-btn
+            label="繼續新增"
+            type="submit"
+            color="primary"
+            @click="KeepAdd"
+            v-if="currentId"
+            class="btn-fixed-width"
+          />
+          <q-btn
+            v-else
+            label="存檔"
+            type="submit"
+            color="primary"
+            icon="save"
+            class="btn-fixed-width"
+          />
+        </q-card-actions>
         <!-- <div
           class="fit row wrap justify-end items-center"
           style="margin: 0; padding: 0"
@@ -610,12 +616,12 @@ export default {
               //pure push copy
               vm.data.photo = [...vm.data.photo, data];
 
-              vm.data.avatar = vm.data.photo[0].linkURL, //第一張照片設為頭像
+              (vm.data.avatar = vm.data.photo[0].linkURL), //第一張照片設為頭像
                 // console.log(vm.data.avatar)
-              vm.data.updateDate = new Date();
-                // 存入照片資料
-                //   vm.data.photo[0].avatar = true; //第一張照片設為頭像
-                console.log(vm.data);
+                (vm.data.updateDate = new Date());
+              // 存入照片資料
+              //   vm.data.photo[0].avatar = true; //第一張照片設為頭像
+              console.log(vm.data);
               let payload = {
                 id: vm.currentId,
                 data: vm.data, //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
@@ -638,5 +644,8 @@ export default {
 .q-tab__label,
 input {
   font-size: 18px;
+}
+.btn-fixed-width {
+  width: 200px;
 }
 </style>

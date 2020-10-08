@@ -17,6 +17,10 @@
     <q-btn @click="doPaginate">分頁</q-btn>
     <!-- {{this.writeToDbArray[1]}} -->
     {{ i }}
+
+    <q-separator />
+    <q-btn @click="readKeyFun">讀取資料庫doc Key</q-btn>
+    <q-btn @click="updateFun">添加updateDate更新時間</q-btn>
   </div>
 </template>
 
@@ -33,30 +37,51 @@ export default {
       i: 0,
       pageSize: 100,
       dbData: [],
+      dbKey: []
     };
   },
   components: {},
   created() {},
   mounted() {
-    // dbFirestore
-    //             .collection("現場紀錄表")
-    //             .get()
-    //             .then(qs => {
-    //                 qs.forEach(doc => {
-    //                     // console.log(doc)
-    //                     this.i++
-    //                 })
-    //             }).catch(err => {
-    //                 // showErrorMessage(err.message)
-    //                 this.$q.dialog({
-    //                     title: "錯誤",
-    //                     message: err.message,
-    //                 });
-    //             });
+
   },
   watch: {},
   computed: {},
   methods: {
+    readKeyFun(){
+      dbFirestore
+        .collection("現場紀錄表")
+        .get()
+        .then((qs) => {
+          qs.forEach((doc) => {
+            this.dbKey.push(doc.id); //只存id
+          })
+           console.log(this.dbKey.length)           
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+       
+
+    },
+    updateFun(){
+      for(let i=0 ;  i < this.dbKey.length; i++){
+            
+        dbFirestore
+        .collection("現場紀錄表")
+        .doc(this.dbKey[i])
+        .update({
+          updateDate: new Date()
+        })
+        .then(() => {
+                console.log("資料庫更新成功！",this.dbKey[i]);
+            })
+            .catch(error => {
+                console.error("資料庫更新失敗！", error);
+            });
+
+        }
+    },
     doPaginate() {
       let rt = this.paginate();
       console.log(rt);

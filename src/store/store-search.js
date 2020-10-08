@@ -103,33 +103,8 @@ const actions = {
                 console.error("資料庫儲存失敗！", error);
             });
     },
-    // //上傳照片更新
-    // updateDbPhoto({ commit }, payload) {
-    //     console.log("db",payload.data)
 
-    //     dbFirestore
-    //         .collection("現場紀錄表")
-    //         .doc(payload.id)
-    //         .update(payload.data)
-    //         .then(() => {
-    //             let avatar ={
-    //                 id: payload.id,
-    //                 data: payload.data.avatar
-    //             }
-    //             commit('setAvatar',avatar)
-    //             let photo={
-    //                 id: payload.id,
-    //                 data: payload.data.photo
-    //             }
-    //             commit('setPhoto',photo   )
-    //             console.log("資料庫修改成功！");
-    //         })
-    //         .catch(error => {
-    //             console.error("資料庫儲存失敗！", error);
-    //         });
-
-    // },
-    //一般更新
+    //更新
     updateFieldRecord({ commit }, payload) {
         // console.log(payload)
         dbFirestore
@@ -142,7 +117,7 @@ const actions = {
                 console.log("資料庫修改成功！");
             })
             .catch(error => {
-                console.error("資料庫儲存失敗！", error);
+                console.error("資料庫更新失敗！", error);
             });
 
     },

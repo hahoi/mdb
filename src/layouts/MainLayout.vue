@@ -1,8 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated class="bg-green-10 text-white">
-      <!-- <q-toolbar>
-        <q-btn
+      <q-toolbar>
+        <!--   <q-btn
           flat
           dense
           round
@@ -17,7 +17,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer
+    <!-- <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
       bordered
@@ -31,7 +31,7 @@
           v-bind="link"
         />
       </q-list>
-    </q-drawer>
+    </q-drawer> -->
 
     <q-page-container>
       <keep-alive>
@@ -44,7 +44,6 @@
       <q-toolbar>
         <q-toolbar-title>
           <div class="row justify-around">
-
             <q-btn
               round
               color="deep-orange"
@@ -56,11 +55,12 @@
               <!-- <q-tooltip></q-tooltip> -->
             </q-btn>
 
-
-            <div v-if="FindRecordLength > 0" class="text-h6">
-              {{ FindRecordLength }} <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
-            </div>
-
+            
+              <div v-if="FindRecordLength > 0" class="text-h6">
+                {{ FindRecordLength }}
+                <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
+              </div>
+            
 
             <q-btn
               round
@@ -73,7 +73,6 @@
               <q-tooltip>新增資料</q-tooltip>
             </q-btn>
 
-            
             <!-- <q-btn
               round
               color="secondary"
@@ -138,12 +137,13 @@ export default {
   computed: {
     // ...mapState("fieldrecord", ["FieldReord", "tasksDownloaded"]),
     // ...mapGetters("fieldrecord", ["FindRecordLength"]),
+    ...mapState("search", ["FieldReord", "tasksDownloaded"]),
     ...mapGetters("search", ["FindRecordLength"]),
   },
-  methods:{
-    home(){
+  methods: {
+    home() {
       location.reload();
-    }
-  }
+    },
+  },
 };
 </script>

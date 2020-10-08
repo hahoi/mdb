@@ -591,7 +591,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .q-tab__label,
 input {
   font-size: 18px;

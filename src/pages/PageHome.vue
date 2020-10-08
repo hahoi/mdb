@@ -112,13 +112,12 @@ export default {
   },
   created() {},
   mounted() {
-    //  console.log(this.$route.meta)
     this.getData(); //登入時，將所有資料下載儲存
   },
 
   watch: {},
   computed: {
-    ...mapState("search", ["FieldRecord"]),
+    ...mapState("search", ["FieldRecord","tasksDownloaded"]),
     ...mapGetters("search", ["FindRecordLength", "FieldReordFiltered"]),
 
     //螢幕顯示可捲動資料
@@ -143,7 +142,7 @@ export default {
 
     async doSearch() {
       // if(!this.SearchText){ //null 或 undefine
-
+      
       let dbData = {};
       if (this.star > 0 && this.RedDot) {
         //同時搜尋星級、紅點
@@ -169,11 +168,11 @@ export default {
         }
         dbData = Object.assign({}, this.dbData);
 
-        this.$q.notify({
-          color: "purple",
-          message: "過濾資料中....",
-          position: "left",
-        });
+        // this.$q.notify({
+        //   color: "purple",
+        //   message: "過濾資料中....",
+        //   position: "left",
+        // });
       }
       if (Object.keys(dbData).length === 0) {
         this.$q.dialog({
@@ -187,6 +186,8 @@ export default {
       //開始過濾，顯示在畫面上
       this.setSearch(this.SearchText);
       // this.$q.notify("過濾資料中....");
+
+
     },
     addTask() {},
 
@@ -206,7 +207,8 @@ export default {
       this.Downloading = true;
       await dbFirestore
         .collection("現場紀錄表")
-        // .orderBy("updateDate")
+        .orderBy("updateDate","desc")
+        // .limit(10)
         .get()
         .then((qs) => {
           qs.forEach((doc) => {
