@@ -1,15 +1,15 @@
 import Vue from 'vue'
-import { dbFirestore } from 'boot/firebase'
+import { uid, Notify } from 'quasar'
+import { firebaseDb, firebaseAuth, dbFirestore } from 'boot/firebase'
 
 const state = {
     tasksDownloaded: false,
-     
+
+
     FieldRecord: {},
     search: '',
     sort: 'none',
     currentId: '',
-    star: 0,
-
 
 }
 
@@ -32,13 +32,9 @@ const mutations = {
     setCurrentId(state, value) {
         state.currentId = value
     },
-    setStar(state, value) {
-        state.star = value
+    setFilter(state, value) {
+        state.filter = value
     },
-    setRedDot(state, value) {
-        state.RedDot = value
-    },
-    
     //Object
     updateFieldRecord(state, payload) {
         Vue.set(state.FieldRecord, payload.id, payload.data)
@@ -46,12 +42,12 @@ const mutations = {
     },
     deleteFieldRecord(state, id) {
         Vue.delete(state.FieldRecord, id)
-        
     },
     addFieldRecord(state, payload) {
         Vue.set(state.FieldRecord, payload.id, payload.data)
         // console.log("addFieldRecord",state.FieldRecord[payload.id])
     },
+    
 
 }
 
@@ -124,13 +120,16 @@ const actions = {
 
 
 
+
+
+
 }
 
 const getters = {
     FindRecordLength: (state, getters) => {
         return Object.keys(getters.FieldReordFiltered).length
     },
-    FieldReordSorted: (state,) => {
+    FieldReordSorted: (state) => {
         if (state.sort === 'none') {
             return state.FieldRecord
         }
@@ -143,10 +142,6 @@ const getters = {
             // if (sA > sB) return 1
             // else if (sA < sB) return -1
             // else return 0
-            if(!sA || !sB){
-                console.log("sA",sA,"sB".sB)
-                return 0
-            }
             return sA.localeCompare(sB, "zh-hant"); //適合中文的排序
         })
 
@@ -156,18 +151,14 @@ const getters = {
 
         return FieldReordSorted
     },
-    FieldReordFiltered: (state, getters ) => {
-        // if (!state.search) {
-        //     return false
-        // }
+    FieldReordFiltered: (state, getters) => {
         let FieldReordSorted = getters.FieldReordSorted
         let FieldReordFiltered = {}
+        let searchWord = state.search.trim();
+        //過濾條件用空白分割成字串，用正則可一個或多個空白去分割
+        let arraySearchWord = searchWord.split(/\s+/);
 
         if (state.search) {
-            let searchWord = state.search.trim();
-            //過濾條件用空白分割成字串，用正則可一個或多個空白去分割
-            let arraySearchWord = searchWord.split(/\s+/);
-
             Object.keys(FieldReordSorted).forEach((id) => {
                 let task = FieldReordSorted[id]
 
@@ -187,21 +178,16 @@ const getters = {
 
                     //搜尋每個欄位
                     Object.keys(task).forEach((key) => {
-
-                        //搜尋星星，and 要先符合                        
-                        // if (task['star'] >= state.star) {
-                        //搜尋文字型態個欄位
-                        if (typeof task[key] === 'string') {
-                            let item = task[key]
-                            // console.log(key,task[key])
-                            let searchLowerCase = keyword.toLowerCase()
-                            if (item.includes(searchLowerCase)) {
-                                // FieldReordFiltered[id] = task
-                                arr_flag[index] = true; //先把符合的記下來                                    
+                            //搜尋文字型態個欄位
+                            if (typeof task[key] === 'string') {
+                                let item = task[key]
+                                // console.log(key,task[key])
+                                let searchLowerCase = keyword.toLowerCase()
+                                if (item.includes(searchLowerCase)) {
+                                    // FieldReordFiltered[id] = task
+                                    arr_flag[index] = true; //先把符合的記下來
+                                }
                             }
-                        }
-                        // }
-
                     })
                 })
 

@@ -5,8 +5,8 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: '', component: () => import('pages/PageHome.vue'),
-        component: () => import('pages/PageHome.vue'),
+        path: '', component: () => import('pages/Index.vue'),
+        component: () => import('pages/Index.vue'),
         meta: {
           keepAlive: true
         }
@@ -17,14 +17,20 @@ const routes = [
       // { path: '/PageImport', component: () => import('pages/PageImport.vue') },
       // { path: '/PageMocks', component: () => import('pages/PageMocks.vue') },
       // { path: '/PageSearch', component: () => import('pages/PageSearch.vue') },
-      {
-        path: '/PageHome',
-        component: () => import('pages/PageHome.vue'),
-        meta: {
-          keepAlive: true
-        }
-      },
-      { path: '/PageAddContact', component: () => import('pages/PageAddContact.vue') },
+      // {
+      //   path: '/PageHome20201010',
+      //   component: () => import('pages/PageHome20201010.vue'),
+      //   meta: {
+      //     keepAlive: true
+      //   }
+      // },
+      // { path: '/PageAddContact', component: () => import('pages/PageAddContact.vue') },
+      // { path: '/PageHome20201011', component: () => import('pages/PageHome20201011.vue') },
+      { path: '/PageLoadData20201012', component: () => import('pages/PageLoadData20201012.vue') },
+      { path: '/PageLoadData20201013', component: () => import('pages/PageLoadData20201013.vue') },
+
+      
+
     ]
   },
 

@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import fieldrecord from './store-field-record'
+// import fieldrecord from './store-field-record'
 import phrase from './store-phrase'
-import search from './store-search'
 // import search from './store-search'
+import LoadData from './store-load-data'
 // import example from './module-example'
 
 Vue.use(Vuex)
@@ -21,9 +21,10 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       // example
-      fieldrecord,
+      // fieldrecord,
       phrase,
-      search
+      // search,
+      LoadData,
     },
 
     // enable strict mode (adds overhead!)

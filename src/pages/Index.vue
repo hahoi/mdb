@@ -1,9 +1,11 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page class="flex flex-center" >
+    <div @click="$router.push('/PageLoadData20201013').catch(err => { })">
     <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-full.svg"
+      alt="行動資料庫"
+      src="~assets/quasar-logo-full.svg"           
     >
+    </div>
   </q-page>
 </template>
 

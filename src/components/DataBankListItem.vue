@@ -8,12 +8,22 @@
       </q-item-section>
 
       <!-- <q-item-section class="col-6"> -->
-      <q-item-section>
-        <q-item-label>{{ task.name }}</q-item-label>
-        <!-- <q-item-label caption lines="2">
-          <span class="text-weight-bold">{{ task.address }}</span>
-          {{ task.professionalTitle }}-{{ task.clubTitle }}
-        </q-item-label> -->
+      <q-item-section class="col-6">
+        <q-item-label
+          >{{ task.name }}
+          <q-icon
+            name="stop_circle"
+            class="text-red"
+            style="font-size: 0.5rem"
+            v-if="task.RedDot"
+          />
+        </q-item-label>
+        <q-item-label caption lines="1">
+          <span class="text-weight-bold" style="font-size: 1rem">{{
+            task.proTitle
+          }}</span>
+          <!-- {{ task.professionalTitle }}-{{ task.clubTitle }} -->
+        </q-item-label>
       </q-item-section>
 
       <q-item-section side>
@@ -31,7 +41,7 @@
 
     <q-separator inset="item" />
 
-    <!-- 列表顯示資料============================== -->
+    <!-- 顯示詳細資料視窗=========================== -->
     <q-dialog
       v-model="dialogList"
       :maximized="true"
@@ -39,40 +49,35 @@
       transition-show="slide-up"
       transition-hide="slide-down"
     >
-      <q-card class="bg-teal text-white">
-        <q-bar>
-          <q-space />
-          <q-btn dense flat icon="close" v-close-popup
-            >關閉
+      <q-card class="bg-grey-1">
+        <q-bar >
+          <q-btn flat icon="close"  class="bg-black text-white" @click.stop.prevent="dialogList=false"   >離開
             <q-tooltip content-class="bg-white text-primary">Close</q-tooltip>
           </q-btn>
-        </q-bar>
 
-        <q-card-section>
-          <task-list :task="copyTask" :id="id"></task-list>
-        </q-card-section>
-        <q-card-actions align="around">
+          <q-space />
           <q-btn
-            dense
             flat
             icon="edit"
             @click="onEdit"
             v-close-popup
-            class="bg-purple text-white"
+            class="bg-positive text-white"
             >修改</q-btn
           >
           <q-btn
-            dense
             flat
             icon="delete"
             @click="onDelete"
             v-close-popup
-            class="bg-red text-white"
+            class="bg-negative text-white"
             >刪除</q-btn
           >
-          <q-space />
-          <q-btn dense flat icon="close" v-close-popup>關閉</q-btn>
-        </q-card-actions>
+        </q-bar>
+
+        <q-card-section>
+          <!-- 顯示每筆詳細資料 -->
+          <data-bank-list :task="copyTask" :id="id"></data-bank-list>
+        </q-card-section>
       </q-card>
     </q-dialog>
 
@@ -84,31 +89,22 @@
       transition-show="slide-up"
       transition-hide="slide-down"
     >
-      <q-card class="bg-purple text-white">
+      <q-card class="bg-grey-1 text-white">
         <q-bar>
           <q-btn flat icon="close" v-close-popup class="bg-black text-white"
             >離開
             <q-tooltip content-class="bg-white text-primary">Close</q-tooltip>
           </q-btn>
-
           <q-space />
         </q-bar>
 
         <q-card-section>
-          <task-edit
+          <data-bank-edit
             :task="editTask"
             :id="id"
             @listenToChild="getChildMsg"
-          ></task-edit>
+          ></data-bank-edit>
         </q-card-section>
-        <q-card-actions
-          align="around"
-          class="bg-purple-8 text-white"
-          v-close-popup
-        >
-          <q-space />
-          <q-btn dense flat icon="close" v-close-popup>離開</q-btn>
-        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
@@ -133,17 +129,17 @@ export default {
     };
   },
   components: {
-    TaskList: require("components/TaskList.vue").default,
-    TaskEdit: require("components/TaskEdit.vue").default,
+    DataBankList: require("components/DataBankList.vue").default,
+    DataBankEdit: require("components/DataBankEdit.vue").default,
   },
   created() {},
   mounted() {},
   watch: {},
   computed: {
-    ...mapState("fieldrecord", ["search"]),
+    ...mapState("LoadData", ["search"]),
   },
   methods: {
-    ...mapActions("fieldrecord", ["deleteFieldRecord", "updateFieldRecord"]),
+    ...mapActions("LoadData", ["deleteFieldRecord", "updateFieldRecord"]),
     onEdit() {
       // this.$q.notify("修改這筆資料");
       //深複製copy一份進行編輯
@@ -178,12 +174,14 @@ export default {
             .onOk(() => {
               console.log(this.id);
               //刪除圖檔
-              this.task.photo.forEach((p) => {
-                if (p.findKey) {
-                  console.log(p.findKey);
-                  dbStorage.ref().child(p.findKey).delete();
-                }
-              });
+              if (this.task.photo.length > 0) {
+                this.task.photo.forEach((p) => {
+                  if (p.findKey) {
+                    console.log(p.findKey);
+                    dbStorage.ref().child(p.findKey).delete();
+                  }
+                });
+              }
               //刪除資料庫
               this.deleteFieldRecord(this.id);
               this.dialogList = false;
@@ -216,6 +214,7 @@ export default {
           Object.keys(task).forEach((key) => {
             //搜尋文字型態個欄位
             if (key == "photo") return; //照片不搜尋取代
+            if (key == "avatar") return; //頭像照片不搜尋取代
             if (typeof task[key] === "string") {
               let item = task[key];
               // console.log(key,task[key])

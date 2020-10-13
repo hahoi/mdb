@@ -1,88 +1,48 @@
 <template>
   <q-page style="max-width: 600px; margin: auto">
     <template>
-      <div class="row q-ma-md q-gutter-xs">
+      <div class="row q-ma-md q-gutter-x-xs">
         <!-- <search /> -->
-        <q-select
-          class="col-12"
-          v-model="county"
-          :options="counties"
-          label="選擇縣市"
-          clearable
-          outlined
-        />
-        <q-select
-          class="col-12"
-          v-model="classify"
-          :options="professionalTitle"
-          label="分類"
-          clearable
-          outlined
-        />
         <q-input
-          class="col-12"
-          bottom-slots
+          class="col-8"
+          clearable
           outlined
-          v-model="name"
-          label="姓名"
-          maxlength="5"
-        >
-          <template v-slot:append>
-            <q-icon
-              v-if="name !== ''"
-              name="close"
-              @click="name = ''"
-              class="cursor-pointer"
-            />
-          </template>
-        </q-input>
+          color=""
+          v-model="SearchText"
+          label="多個關鍵字搜尋"
+          bg-color=""
+        />
+
+        <q-btn
+          :loading="Downloading"
+          color="info"
+          label="搜尋"
+          @click="doSearch"
+          class="col-3"
+          icon="search"
+        />
       </div>
       <div class="row q-ma-md q-gutter-x-md">
-        <div class="col-8" @click="ratingFn">
-          <q-rating
-            v-model="star"
-            size="2em"
-            :max="5"
-            color="primary"
-            icon="star_border"
-            icon-selected="star"
-          />
+        <div class="col-8">
+          <q-rating v-model="star" size="2em" :max="5" color="primary" />
         </div>
         <div class="col-2">
           <!-- <q-toggle v-model="RedDot" color="red" /> -->
           <!-- <q-radio v-model="RedDot" val="true" label="" color="red" @click="toggle"/> -->
           <div v-if="RedDot" @click="toggle">
-            <q-icon
-              name="brightness_1"
-              class="text-red"
-              style="font-size: 2rem"
-            />
+            <q-icon name="fiber_manual_record" class="text-red" style="font-size: 2rem;" />
           </div>
           <div v-else @click="toggle">
-            <q-icon
-              name="panorama_fish_eye"
-              class="text-red"
-              style="font-size: 2rem; outline"
-            />
+            <q-icon name="panorama_fish_eye" class="text-gray" style="font-size: 2rem;" />
           </div>
         </div>
+
       </div>
 
-      <div class="col-12 q-ma-md">
-        <q-btn
-          color="info"
-          label="搜尋"
-          @click="ReadDataMultipleConditions"
-          class="full-width"
-          icon="search"
-          size="lg"
-        />
-      </div>
-
-      <div class="q-px-md q-pb-lg absolute full-width column">
-
-<search />
-
+      <div
+        class="q-px-md q-pb-lg absolute full-width column"
+        v-if="!Downloading"
+      >
         <!-- <q-scroll-area class="q-scroll-area-tasks">  //FieldReordFiltered -->
         <q-list bordered separator>
           <q-infinite-scroll @load="loadMore" :offset="10">
@@ -106,6 +66,22 @@
         </q-list>
         <!-- </q-scroll-area> -->
       </div>
+    </template>
+
+    <template v-if="Downloading">
+      <span class="absolute-center">
+        <!-- <q-spinner color="primary" /> -->
+        <q-circular-progress
+          indeterminate
+          size="4em"
+          :thickness="0.4"
+          font-size="50px"
+          color="lime"
+          track-color="grey-3"
+          center-color="grey-8"
+          class="q-ma-md"
+        />
+      </span>
     </template>
 
     <!-- 向上捲動 回到頂部 -->
@@ -133,31 +109,24 @@ export default {
       actualMaxPosition: 10, //一次捲動10筆資料
       timer: null,
       index: 1,
-      dbData: {}, //登入時，將所有資料下載儲存
-
-      county: "",
-      name: "",
-      classify: "",
       star: 0,
       RedDot: false,
+      dbData: {}, //登入時，將所有資料下載儲存
     };
   },
   components: {
     search: require("components/Search.vue").default,
     ContactListItem: require("components/ContactListItem.vue").default,
   },
-  created() {
-    this.readProfessionalTitle();
-  },
+  created() {},
   mounted() {
-    // this.getData(); //登入時，將所有資料下載儲存
+    this.getData(); //登入時，將所有資料下載儲存
   },
 
   watch: {},
   computed: {
-    ...mapState("search", ["FieldRecord", "tasksDownloaded"]),
+    ...mapState("search", ["FieldRecord","tasksDownloaded"]),
     ...mapGetters("search", ["FindRecordLength", "FieldReordFiltered"]),
-    ...mapState("phrase", ["professionalTitle", "counties", "districts"]),
 
     //螢幕顯示可捲動資料
     showingData() {
@@ -179,24 +148,13 @@ export default {
     ...mapMutations("search", ["setFieldReord", "setSearch", "setStar"]),
     ...mapActions("search", ["monitor"]),
 
-    ...mapMutations("fieldrecord", [
-      "setDistrict",
-      "setCounty",
-      "setName",
-      "setTasksDownloaded",
-    ]),
-    ...mapActions("phrase", ["readProfessionalTitle"]),
-
-    toggle() {
-      this.RedDot = !this.RedDot;
-      console.log(this.RedDot);
-    },
-    ratingFn() {
-      console.log(this.star);
-    },
+toggle(){
+  this.RedDot = !this.RedDot
+  console.log(this.RedDot)
+},
     async doSearch() {
       // if(!this.SearchText){ //null 或 undefine
-
+      
       let dbData = {};
       if (this.star > 0 && this.RedDot) {
         //同時搜尋星級、紅點
@@ -240,7 +198,10 @@ export default {
       //開始過濾，顯示在畫面上
       this.setSearch(this.SearchText);
       // this.$q.notify("過濾資料中....");
+
+
     },
+    addTask() {},
 
     //登入時，將所有資料下載儲存
     async getData() {
@@ -258,7 +219,7 @@ export default {
       this.Downloading = true;
       await dbFirestore
         .collection("現場紀錄表")
-        .orderBy("updateDate", "desc")
+        .orderBy("updateDate","desc")
         // .limit(10)
         .get()
         .then((qs) => {
@@ -334,59 +295,6 @@ export default {
 
       return dbData;
     },
-
-    //多條件
-    async ReadDataMultipleConditions() {
-      let dbData = {};
-      let star = this.star;
-      let name = this.name.trim();
-      let county = !this.county ? "" : this.county;
-      let classify = !this.classify ? "" : this.classify;
-
-      console.log("name", name);
-      console.log("star", star);
-      console.log("RedDot", this.RedDot);
-      console.log("county", county);
-      console.log("classify", classify);
-
-      if (name !== "" && county === "" && classify === "" && star === 0) {
-        console.log("A");
-
-        let dbData = {};
-        // this.i = 0;
-        this.Downloading = true;
-        await dbFirestore
-          .collection("現場紀錄表")
-          // .where("star", "==", this.star)
-          // .where("RedDot", "==", this.RedDot)
-          // .where("county", "==", this.flt.county) //縣市
-          // .where("classify", "==", this.flt.classify) //分類
-          .where("name", ">=", name)
-          .where("name", "<=", name + "\uf8ff")
-          .get()
-          .then((qs) => {
-            console.log(qs);
-            if (qs.empty) {
-              console.log("查不到");
-              return false;
-            }
-            qs.forEach((doc) => {
-              console.log(doc.data().name);
-              Vue.set(dbData, doc.id, doc.data());
-            });
-            this.Downloading = false;
-            console.log(dbData);
-            
-          })
-          .catch((err) => {
-            console.log(err.message);
-          });
-          this.setFieldReord(dbData);
-          this.setSearch(name);
-        // return dbData;
-      }
-    },
-
     loadMore(index, done) {
       //   console.log("index", index);
       this.timer = setTimeout(() => {
