@@ -26,7 +26,7 @@ const routes = [
       // },
       // { path: '/PageAddContact', component: () => import('pages/PageAddContact.vue') },
       // { path: '/PageHome20201011', component: () => import('pages/PageHome20201011.vue') },
-      { path: '/PageLoadData20201012', component: () => import('pages/PageLoadData20201012.vue') },
+      // { path: '/PageLoadData20201012', component: () => import('pages/PageLoadData20201012.vue') },
       { path: '/PageLoadData20201013', component: () => import('pages/PageLoadData20201013.vue') },
 
       
@@ -40,6 +40,9 @@ const routes = [
     path: '*',
     component: () => import('pages/Error404.vue')
   }
+]
+
+export const powerRouter = [
 ]
 
 export default routes

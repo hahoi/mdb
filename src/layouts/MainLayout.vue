@@ -12,7 +12,7 @@
             @click="leftDrawerOpen = !leftDrawerOpen"
           /> -->
 
-          <q-toolbar-title class="text-center text-weight text-h5">
+          <q-toolbar-title class="text-center text-weight text-h5" @click="goHome">
             行動資料庫
           </q-toolbar-title>
           <!-- 新增按鈕 -->
@@ -22,6 +22,7 @@
             color="info"
             @click="dialogAdd = true"
             size="lg"
+            class="q-my-xs"
           />
         </q-toolbar>
       </q-header>
@@ -53,7 +54,7 @@
         <q-toolbar>
           <q-toolbar-title>
             <div class="row justify-around">
-              <div v-if="FindRecordLength > 0" class="text-h6 text-black">
+              <div v-if="FindRecordLength > 0 " class="text-h6 text-black">
                 {{ FindRecordLength }}
                 <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
               </div>
@@ -157,12 +158,18 @@ export default {
     // ...mapState("fieldrecord", ["FieldReord", "tasksDownloaded"]),
     // ...mapGetters("fieldrecord", ["FindRecordLength"]),
     ...mapState("LoadData", ["FieldReord", "tasksDownloaded"]),
-    ...mapGetters("LoadData", ["FindRecordLength"]),
+    ...mapGetters("LoadData", ["FindRecordLength","FieldRecordLength"]),
   },
   methods: {
+    ...mapMutations("LoadData", ["clearFieldReord","setSearch"]),
     home() {
       location.reload();
     },
+    goHome(){
+      this.clearFieldReord()
+      this.setSearch("")
+      this.$router.push('/').catch(err => { })
+    }
   },
 };
 </script>
