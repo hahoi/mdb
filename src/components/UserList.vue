@@ -37,12 +37,13 @@
     </q-item>
 
     <!-- <q-separator spaced /> -->
+    <!-- {{userId}} -->
   </div>
 </template>
 
 <script>
 import { date } from "quasar";
-import { dbFirestore, dbFunctions } from "boot/firebase";
+import { firebaseAuth,dbFirestore, dbFunctions } from "boot/firebase";
 
 export default {
   name: "",
@@ -52,12 +53,15 @@ export default {
       first: true,
       AllUsers: [],
       options: [],
+      userId: ""
     };
   },
   components: {},
   created() {},
   mounted() {
-    this.ListAllUsers();
+    // this.ListAllUsers();
+    // this.userId = firebaseAuth.currentUser.uid;
+    //   console.log(userId)
   },
   watch: {},
   computed: {
@@ -82,6 +86,7 @@ export default {
         })
         .then(() => {
           console.log("資料庫修改成功！", this.item.states);
+        //   this.$q.notify("資料庫修改成功！")
         })
         .catch((error) => {
           console.error("資料庫更新失敗！", error);

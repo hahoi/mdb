@@ -37,6 +37,7 @@
       <q-separator dark />
 
       <q-card-actions>
+        <q-btn flat label="忘記密碼？" @click="sendPasswordResetEmail" />
         <q-space />
 
         <q-btn
@@ -84,6 +85,41 @@ export default {
       if (this.$refs.form.validate()) {
         this.loginUser(this.formData);
       }
+    },
+    //發送密碼重置電子郵件
+    sendPasswordResetEmail() {
+      // let userId = firebaseAuth.currentUser.uid;
+      // console.log(userId)
+      let vm = this;
+
+      this.$q
+        .dialog({
+          title: "提示",
+          message: "輸入註冊的Email",
+          prompt: {
+            model: "",
+            type: "text", // optional
+          },
+          cancel: true,
+          persistent: true,
+        })
+        .onOk((data) => {
+          // console.log(">>>> OK, received", data);
+          firebaseAuth
+            .sendPasswordResetEmail(data)
+            .then(function () {
+              vm.$q.notify(`已發送${data}密碼重置電子郵件`);
+            })
+            .catch(function (error) {
+              // An error happened.
+            });
+        })
+        .onCancel(() => {
+          // console.log('>>>> Cancel')
+        })
+        .onDismiss(() => {
+          // console.log('I am triggered on both OK and Cancel')
+        });
     },
   },
 };

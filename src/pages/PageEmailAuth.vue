@@ -53,6 +53,6 @@ export default {
 .auth-tabs {
   max-width: 400px;
   width: 100%;
-  margin: 10vw auto;
+  margin: 5vw auto;
 }
 </style>
