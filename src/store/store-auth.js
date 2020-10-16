@@ -1,7 +1,7 @@
 import { LocalStorage, Loading } from 'quasar'
 import { firebaseAuth, dbFirestore } from 'boot/firebase'
 import { powerRouter } from 'src/router/routes'
-
+import { showErrorMessage } from "src/utils/function-show-error-message";
 
 const state = {
 	loggedIn: false,
@@ -9,8 +9,6 @@ const state = {
 	newMenu: [],
 	allRoles: [],
 	userData: {},
-	DepartmentArray: [],
-	DepartmentObject: {}
 }
 
 const mutations = {
@@ -28,12 +26,6 @@ const mutations = {
 	},
 	setUserData(state, value) {
 		state.userData = value
-	},
-	setDepartmentArray(state, value) {
-		state.DepartmentArray = value
-	},
-	setDepartmentObject(state, value) {
-		state.DepartmentObject = value
 	},
 	clearUserData(state) {
 		state.userData = {}
@@ -57,6 +49,8 @@ const actions = {
 	// 	commit('setNewMenu', value)
 	// },
 	registerUser({ }, payload) {
+		let vm = this
+
 		Loading.show()
 		firebaseAuth.createUserWithEmailAndPassword(payload.email, payload.password)
 			.then(response => {
@@ -65,24 +59,24 @@ const actions = {
 				firebaseAuth.currentUser.sendEmailVerification()
 					.then(() => {
 						// response.user.emailVerified  的狀態是 false
-						this.$q.notify("請到註冊的郵件信箱收信，點擊連結回傳確認。", "註冊成功")
+						showErrorMessage("請到註冊的郵件信箱收信，點擊連結回傳確認。", "註冊成功")
 					})
 					.catch(error => {
-						this.$q.notify("寄發認證郵件錯誤" + error)
+						showErrorMessage("寄發認證郵件錯誤" + error)
 					})
 				//================新增=================
 				// payload.authId = response.user.uid;
 				payload.createAt = new Date(); //後台寫入物件日期
 				payload.changeAt = new Date();
 				// payload.emailVerified = false
-				payload.role = []
+				payload.role = ['Index'] //這個要隨不同系統去調整，還未審核通過前可route 路由
 				payload.memo = ""
 				payload.states = false
 				delete payload.password //password 不保存在自訂user資料庫中
 
 				// console.log("payload",payload);
 				dbFirestore
-					.collection("MenuUsers")
+					.collection("MDBUsers")
 					.doc(response.user.uid)
 					.set(payload)
 					.then(() => {
@@ -107,24 +101,27 @@ const actions = {
 				if (errorCode == "auth/operation-not-allowed") {
 					errorCode = "未啟用「電子郵件/密碼」登入方式！";
 				}
-				// this.$q.notify(error.message)
-				this.$q.notify(errorCode)
+				// showErrorMessage(error.message)
+				showErrorMessage(errorCode)
 
 			})
 	},
 	loginUser({ state }, payload) {
-		Loading.show()
+		// Loading.show()
 		firebaseAuth.signInWithEmailAndPassword(payload.email, payload.password)
 			.then(response => {
 				console.log("login:", response)
+				console.log(firebaseAuth.currentUser.uid)
 			})
 			.catch(error => {
-				this.$q.notify(error.message)
+				showErrorMessage(error.message)
+				// console.log(error.message)
 			})
 	},
 	logoutUser() {
 		console.log('logoutUser')
 		firebaseAuth.signOut()
+		console.log(firebaseAuth.currentUser.uid)
 	},
 
 	//從入口App.vue就開始監聽，mounted＝>this.handleAuthStateChange()
@@ -145,30 +142,21 @@ const actions = {
 				var isAnonymous = user.isAnonymous;
 				var uid = user.uid;
 				var providerData = user.providerData;
-				console.log("displayName:", displayName)
-				console.log("email:", email)
-				console.log("emailVerified:", emailVerified)
-				console.log("photoURL:", photoURL)
-				console.log("isAnonymous:", isAnonymous)
-				console.log("uid:", uid)
-				console.log("providerData:", providerData)
-				console.log(JSON.stringify(user, null, '  '))
-
-				// const domain = user.email.split("@")[1];
-				// if (domain === "pthg.gov.tw") {
-				// 	console.log("====================login sussed=================================");
-				// } else {
-				// 	this.$q.notify("不是屏東縣政府G Suite帳號");
-				// 	firebaseAuth.signOut();
-				// 	return false
-				// }
+				// console.log("displayName:", displayName)
+				// console.log("email:", email)
+				// console.log("emailVerified:", emailVerified)
+				// console.log("photoURL:", photoURL)
+				// console.log("isAnonymous:", isAnonymous)
+				// console.log("uid:", uid)
+				// console.log("providerData:", providerData)
+				// console.log(JSON.stringify(user, null, '  '))
 
 
 				if (user.emailVerified) {
 					dispatch('getUserData', user.uid)
 					// dispatch('tasks/fbReadData', null, { root: true })
 				} else {
-					this.$q.notify("你註冊的Email帳號尚未驗證！請到註冊的郵件信箱收信，點擊連結回傳確認。", "注意")
+					showErrorMessage("你註冊的Email帳號尚未驗證！請到註冊的郵件信箱收信，點擊連結回傳確認。", "注意")
 					return false
 				}
 			}
@@ -188,13 +176,13 @@ const actions = {
 	// 依權限設定路由、功能表選項
 	getUserData({ commit, state }, userid) {
 		dbFirestore
-			.collection("MenuUsers").doc(userid)
+			.collection("MDBUsers").doc(userid)
 			.get()
 			.then(doc => {
 				let UserData = {
 					// authId: doc.data().authId,
 					email: doc.data().email,
-					department: doc.data().department,
+					// department: doc.data().department,
 					name: doc.data().name,
 					role: doc.data().role,
 					// emailVerified: doc.data().emailVerified,
@@ -206,7 +194,7 @@ const actions = {
 			})
 			.then(() => {
 				if (!state.userData.states) {
-					this.$q.notify(`你的Email帳號${state.userData.name}已註冊並回傳認證，但目前是停用狀態，請洽系統管理員。`, "注意")
+					showErrorMessage(`你的Email帳號${state.userData.name}已註冊並回傳認證，但目前未設定使用此系統或停用狀態，請洽系統管理員。`, "注意")
 					firebaseAuth.signOut()
 				} else {
 					let newrouter = powerRouter //路由換成主要功能的路由
@@ -222,7 +210,7 @@ const actions = {
 					})
 					newrouter[0].children = newchildren //使用者權限的路由
 					console.log(newrouter[0].children)
-					let essentialLinks = newrouter[0].children.map((item) => {
+					let newMenu = newrouter[0].children.map((item) => {
 						let menu = {
 							title: item.meta.title,
 							// caption: item.meta.title,
@@ -234,7 +222,7 @@ const actions = {
 					});
 
 					// 為使用者添加權限路由及功能表
-					commit('setNewMenu', essentialLinks)
+					commit('setNewMenu', newMenu)
 					commit('setNewRouter', newrouter)
 					this.$router.addRoutes(newrouter) //添加动态路由
 
@@ -247,29 +235,7 @@ const actions = {
 	},
 
 
-	//讀取機關單位
-	getDepartment({ commit, state }) {
-		let departArray = []
-
-		dbFirestore
-			.collection("SettingData")
-			.doc("Department") //單位
-			.get()
-			.then((doc) => {
-				let depart = doc.data().depart;
-				depart
-					.sort(function (a, b) {
-						return a.order - b.order; //小的排在前面，注意字串排序，用減號 不是 <
-					})
-					.forEach((item, inx) => {
-						departArray.push(item.title);
-					});
-				commit('setDepartmentObject', depart)
-				commit('setDepartmentArray', departArray)
-				// console.log(state.DepartmentArray)
-				// console.log(state.DepartmentObject)
-			})
-	},
+	
 
 	//讀取所有的權限
 	getAllRoles({ commit, state }) {

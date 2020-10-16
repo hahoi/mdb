@@ -4,12 +4,16 @@ import TwCity from 'src/utils/tw-city'
 
 
 const state = {
+    Cassify:[],
     professionalTitle: [],
     counties : TwCity.counties,  //縣市
     districts: TwCity.districts, //範圍：鄉鎮區里
 }
 
 const mutations = {
+    setCassify(state, payload) {
+        state.Cassify =[...payload]
+    },
     
     setProfessionalTitle(state, payload) {
         state.professionalTitle = [...payload]
@@ -18,6 +22,41 @@ const mutations = {
 }
 
 const actions = {
+        //更新
+        UpdateCassify({ commit }, payload) {
+            // console.log(payload)
+            let data= {
+                "分類": payload
+            }
+            dbFirestore
+                .collection("SettingData")
+                .doc("分類")
+                .update(data)
+                .then(() => {
+                    // 更新 state.Cassify，更新畫面
+                    commit("setCassify", payload);
+                    console.log("資料庫修改成功！");
+                })
+                .catch(error => {
+                    console.error("資料庫更新失敗！", error);
+                });
+    
+        },
+
+    ReadCassify({  commit }) {
+
+        dbFirestore
+            .collection("SettingData")
+            .doc("分類")
+            .get()
+            .then(doc => {
+                // console.log(doc.data().分類)
+                commit('setCassify', doc.data().分類)
+            }).catch(err => {
+               console.log(err.message)
+            });
+
+    },
     
     readProfessionalTitle({ commit }) {
 

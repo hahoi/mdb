@@ -1,175 +1,100 @@
 <template>
-  <div>
-    <q-layout view="lHh Lpr lFf">
-      <q-header elevated class="primary text-white">
-        <q-toolbar>
-          <!-- <q-btn
-            flat
-            dense
-            round
-            icon="menu"
-            aria-label="Menu"
-            @click="leftDrawerOpen = !leftDrawerOpen"
-          /> -->
+  <q-layout view="hHh lpR fFf">
+    <q-header elevated>
+      <q-toolbar>
+        <q-btn
+          v-if="loggedIn"
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="leftDrawerOpen = !leftDrawerOpen"
+        />
 
-          <q-toolbar-title class="text-center text-weight text-h5" @click="goHome">
-            行動資料庫
-          </q-toolbar-title>
-          <!-- 新增按鈕 -->
-          <q-btn
-            fab
-            icon="add"
-            color="info"
-            @click="dialogAdd = true"
-            size="lg"
-            class="q-my-xs"
-          />
-        </q-toolbar>
-      </q-header>
+        <q-toolbar-title
+          class="flex justify-center text-center text-weight text-h5"
+        >
+          行動資料庫
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-header>
 
-      <!-- <q-drawer
-        v-model="leftDrawerOpen"
-        show-if-above
-        bordered
-        content-class="bg-grey-1"
-      >
-        <q-list>
-          <q-item-label header class="text-grey-8"> 功能選單 </q-item-label>
+    <q-drawer
+      v-if="loggedIn"
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      content-class="bg-grey-1"
+    >
+      <q-list>
+        <template v-if="newMenu.length === 0">
+          <q-item>
+            <q-item-label>尚未設定使用此系統，請洽系統管理員！</q-item-label>
+          </q-item>
+        </template>
+        <template v-else>
+          <q-item-label
+            header
+            class="text-grey-8 fit row justify-start items-center bg-brown-1"
+          >
+            <img alt="行動資料庫" src="~assets/MDB64.png" />
+            <div
+              class="text-weight text-h5 q-ml-md"
+              style="font-family: 'Dancing Script', cursive"
+            >
+              Mobile Data Bank
+            </div>
+          </q-item-label>
+          <q-separator />
+          <q-item class="bg-brown-1">
+            <q-item-section avatar>
+              <q-icon name="account_circle" />
+            </q-item-section>
+            <q-item-section class="text-h5">
+              {{ userData.name }}
+            </q-item-section>
+            <q-item-section side>
+              <q-btn push label="登出" color="cyan" @click="logoutUser" />
+            </q-item-section>
+          </q-item>
+          <q-separator />
+          <q-item-label class="q-ma-md"> </q-item-label>
           <EssentialLink
-            v-for="link in essentialLinks"
+            v-for="link in newMenu"
             :key="link.title"
             v-bind="link"
           />
-        </q-list>
-      </q-drawer> -->
+        </template>
+      </q-list>
+    </q-drawer>
 
-      <q-page-container>
-        <keep-alive>
-          <router-view v-if="$route.meta.keepAlive" />
-        </keep-alive>
-        <router-view v-if="!$route.meta.keepAlive" />
-      </q-page-container>
-
-      <q-footer elevated class="bg-white">
-        <q-toolbar>
-          <q-toolbar-title>
-            <div class="row justify-around">
-              <div v-if="FindRecordLength > 0 " class="text-h6 text-black">
-                {{ FindRecordLength }}
-                <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
-              </div>
-            </div>
-          </q-toolbar-title>
-
-        </q-toolbar>
-          
-      </q-footer>
-    </q-layout>
-
-    <!-- 新增資料視窗============================== -->
-    <q-dialog
-      v-model="dialogAdd"
-      :maximized="true"
-      persistent
-      transition-show="slide-up"
-      transition-hide="slide-down"
-    >
-      <q-card class="bg-grey-1 text-white">
-        <q-bar>
-          <q-btn flat icon="close" v-close-popup class="bg-black text-white"
-            >離開
-            <q-tooltip content-class="bg-white text-primary">Close</q-tooltip>
-          </q-btn>
-          <q-space />
-        </q-bar>
-
-        <q-card-section>
-          <!-- 新增資料元件 -->
-          <data-bank-add />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
-  </div>
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
 </template>
 
 <script>
-import EssentialLink from "components/EssentialLink.vue";
-import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-
-const linksData = [
-  {
-    title: "第一版",
-    // caption: 'quasar.dev',
-    icon: "school",
-    link: "/PageLoadData",
-  },
-  {
-    title: "新增",
-    // caption: 'quasar.dev',
-    icon: "school",
-    link: "/PageAddRecord",
-  },
-  {
-    title: "匯入",
-    // caption: 'quasar.dev',
-    icon: "school",
-    link: "/PageImport",
-  },
-  {
-    title: "模糊搜尋",
-    // caption: 'quasar.dev',
-    icon: "school",
-    link: "/PageSearch",
-  },
-  {
-    title: "第二版",
-    // caption: 'quasar.dev',
-    icon: "school",
-    link: "/PageHome20201010",
-  },
-  {
-    title: "第三版",
-    // caption: 'quasar.dev',
-    icon: "school",
-    link: "/PageHome20201011",
-  },
-  {
-    title: "第四版",
-    // caption: 'quasar.dev',
-    icon: "school",
-    link: "/PageLoadData20201012",
-  },
-];
+import { mapState, mapActions } from "vuex";
+import { powerRouter } from "../router/routes";
 
 export default {
   name: "MainLayout",
   components: {
-    EssentialLink,
-    DataBankAdd: require("components/DataBankAdd.vue").default,
+    EssentialLink: require("components/EssentialLink.vue").default,
   },
   data() {
     return {
       leftDrawerOpen: false,
-      essentialLinks: linksData,
-      dialogAdd: false,
+      // essentialLinks: linksData,
     };
   },
   computed: {
-    // ...mapState("fieldrecord", ["FieldReord", "tasksDownloaded"]),
-    // ...mapGetters("fieldrecord", ["FindRecordLength"]),
-    ...mapState("LoadData", ["FieldReord", "tasksDownloaded"]),
-    ...mapGetters("LoadData", ["FindRecordLength","FieldRecordLength"]),
+    ...mapState("auth", ["loggedIn", "newMenu", "userData"]),
   },
   methods: {
-    ...mapMutations("LoadData", ["clearFieldReord","setSearch"]),
-    home() {
-      location.reload();
-    },
-    goHome(){
-      this.clearFieldReord()
-      this.setSearch("")
-      this.$router.push('/').catch(err => { })
-    }
+    ...mapActions("auth", ["logoutUser"]),
   },
 };
 </script>

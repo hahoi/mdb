@@ -5,17 +5,15 @@
 </template>
 <script>
 import { mapActions } from "vuex";
+
 export default {
-  name: "App",
+  name: 'App',
   methods: {
-    // ...mapActions("search", ["LoadSaveAllData"]),
-    // ...mapActions("phrase", ["readProfessionalTitle"]),
+    ...mapActions("auth", ["handleAuthStateChange","getDepartment","getAllRoles"]),
   },
   mounted() {
-    // this.LoadSaveAllData();
-    // this.readProfessionalTitle()
-  },
-};
+      this.handleAuthStateChange()
+      this.getAllRoles()
+	  }
+}
 </script>
-<style >
-</style>

@@ -18,9 +18,9 @@ module.exports = function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
-      'firebase',
-      
+      'firebase',      
       'axios',
+      'router-auth',
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -77,8 +77,10 @@ module.exports = function (/* ctx */) {
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
       iconSet: 'material-icons', // Quasar icon set
-      lang: 'en-us', // Quasar language pack
-      config: {},
+      lang: 'zh-hant', // Quasar language pack
+      config: {
+        notify: { /* look at QUASARCONFOPTIONS from the API card (bottom of page) */ }
+      },
 
       // Possible values for "importStrategy":
       // * 'auto' - (DEFAULT) Auto-import needed Quasar components & directives
@@ -96,7 +98,8 @@ module.exports = function (/* ctx */) {
       plugins: [
         'Notify',
         'Dialog',
-        'LocalStorage',]
+        'LocalStorage',
+      ]
     },
 
     // animations: 'all', // --- includes all animations
@@ -113,9 +116,9 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `fieldrecordsheet`,
-        short_name: `fieldrecordsheet`,
-        description: `Field Record sheet`,
+        name: `mdb`,
+        short_name: `mdb`,
+        description: `mobile data bank`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -180,7 +183,7 @@ module.exports = function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'fieldrecordsheet'
+        appId: 'mdb'
       },
 
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration

@@ -3,6 +3,7 @@ import { uid, Notify } from 'quasar'
 import { firebaseDb, firebaseAuth, dbFirestore } from 'boot/firebase'
 
 const state = {
+    mdb: false,
     tasksDownloaded: false,
 
 
@@ -14,6 +15,10 @@ const state = {
 }
 
 const mutations = {
+    
+    setMDB(state, value) {
+        state.mdb = value
+    },
     clearFieldReord(state) {
         state.FieldRecord = {}
     },

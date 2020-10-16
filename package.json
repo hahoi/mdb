@@ -1,8 +1,8 @@
 {
-  "name": "fieldrecordsheet",
+  "name": "mdb",
   "version": "0.0.1",
-  "description": "Field Record sheet",
-  "productName": "fieldrecordsheet",
+  "description": "Mobile Data Bank",
+  "productName": "mdb",
   "author": "haho <haho@hotmail.com>",
   "private": true,
   "scripts": {
@@ -11,12 +11,8 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
-    "chinese_convert": "^1.0.8",
     "core-js": "^3.6.5",
-    "exif-js": "^2.3.0",
-    "firebase": "^7.21.1",
-    "firebase-tools": "^8.11.2",
-    "mockjs": "^1.1.0",
+    "firebase": "^7.23.0",
     "quasar": "^1.0.0"
   },
   "devDependencies": {
