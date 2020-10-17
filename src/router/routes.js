@@ -26,9 +26,15 @@ export const powerRouter = [
     children: [
       {
         path: '/index', component: () => import('pages/Index.vue'),
-        meta: { title: '行動資料(首頁)', role: 'Index', icon: 'home', divider: true }
+        meta: { title: 'Home', role: 'Index', icon: 'home', divider: true }
 
       },
+      {
+        path: '/MDB',
+        component: () => import('pages/PageMDBHome.vue'),
+        meta: { title: '行動資料庫', role: 'MDB', icon: 'view_list', divider: true }
+      },      
+
       {
         path: '/auth',
         component: () => import('pages/PageEmailAuth.vue'),
@@ -37,7 +43,7 @@ export const powerRouter = [
       {
         path: '/users',
         component: () => import('pages/PageUsers'),
-        meta: { title: '使用者管理', role: 'PageUsers', icon: 'group', divider: true }
+        meta: { title: '使用者管理', role: 'users', icon: 'group', divider: true }
       },      
       // {
       //   path: '/backup',

@@ -1,15 +1,21 @@
 <template>
   <div>
-    <q-item class="">
+    <q-item class="" >
       <q-item-section avatar>
-        <q-toggle
+        <q-item-label lines="1">
+          <span class="">使用系統</span>
+        </q-item-label>
+        <span class="text-grey-8"> <q-checkbox color="positive" v-model="item.states"   /></span>
+        <!-- <q-toggle
           v-model="item.states"
           checked-icon="check"
           color="green"
           unchecked-icon="clear"
-          :toggle="checkOk()"
-        />
+        /> -->
       </q-item-section>
+
+          <!-- :toggle="checkOk()" -->
+      
 
       <q-item-section top>
         <q-item-label lines="1">
@@ -23,20 +29,25 @@
         </q-item-label>
 
         <q-item-label lines="1">
-          <span class="text-weight-medium">註冊</span>
           <span class="text-grey-8"> {{ createAt }}</span>
+          <span class="text-weight-medium">註冊</span>
+        </q-item-label>
+
+        <q-item-label lines="1">          
+          <span class="text-grey-8">管理使用者</span>
+          <span class=""> <q-checkbox v-model="ManaUser" color="info"/></span>
         </q-item-label>
       </q-item-section>
 
-      <q-item-section top side>
-        <div class="text-grey-8 q-gutter-xs">
-          <q-btn size="12px" flat dense round icon="delete" @click="delFn" />
-          <!-- <q-btn size="12px" flat dense round icon="more_vert" /> -->
+      <q-item-section side>
+        <div class="text-grey-8 q-gutter-xs flex column">
+          <q-btn size="18px" flat dense round icon="delete" @click="delFn()" />
+          <q-btn size="18px" flat dense round icon="save" color="primary" @click="SaveFn()"/>
         </div>
       </q-item-section>
     </q-item>
 
-    <!-- <q-separator spaced /> -->
+    <q-separator spaced />
     <!-- {{userId}} -->
   </div>
 </template>
@@ -50,10 +61,11 @@ export default {
   props: ["item"],
   data() {
     return {
-      first: true,
       AllUsers: [],
       options: [],
-      userId: ""
+      userId: "",
+      ManaUser: false,
+      useOK: false,
     };
   },
   components: {},
@@ -63,7 +75,11 @@ export default {
     // this.userId = firebaseAuth.currentUser.uid;
     //   console.log(userId)
   },
-  watch: {},
+  watch: {
+    ManaUser(){
+      console.log(this.ManaUser)
+    }
+  },
   computed: {
     createAt() {
       return date.formatDate(
@@ -73,16 +89,19 @@ export default {
     },
   },
   methods: {
+    SaveFn(){
+      console.log(this.item)
+    },
     checkOk() {
-      console.log(this.item.id, this.first);
-      //   if(this.first) {
-      //         return
-      //   }
+      // console.log(this.item.id, this.first);
+      //可以使用的路由
+      let role = this.item.states ? ["Index","MDB"] : ["Index"]
       dbFirestore
         .collection("MDBUsers")
         .doc(this.item.id)
         .update({
           states: this.item.states,
+          role: role
         })
         .then(() => {
           console.log("資料庫修改成功！", this.item.states);
@@ -91,6 +110,9 @@ export default {
         .catch((error) => {
           console.error("資料庫更新失敗！", error);
         });
+    },
+    ManaUserFn(){
+      console.log(this.ManaUser)
     },
     delFn() {
       if (this.item.id == "") {

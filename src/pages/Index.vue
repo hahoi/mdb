@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex flex-center column">
     
-    <div  >
+    <div class="" @click="go">
       <img alt="行動資料庫" src="~assets/MDB.png" />
     </div>
     <div
@@ -15,6 +15,17 @@
 
 <script>
 export default {
-  name: 'PageIndex'
+  name: 'PageIndex',
+  mounted() {
+    setTimeout(() => {
+        this.go()
+      }, 3000);
+  },
+
+  methods: {
+    go() {
+      this.$router.push("/MDB").catch((err) => {});
+    },
+  },
 }
 </script>

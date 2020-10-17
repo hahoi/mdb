@@ -2,6 +2,7 @@
   <q-page style="max-width: 500px; margin: auto">
     <q-list bordered class="rounded-borders">
       <q-item-label header class="text-h6">使用者管理</q-item-label>
+      <q-separator spaced />
       <user-list v-for="item in dbData" :key="item.email" :item="item"> </user-list>
     </q-list>
   </q-page>

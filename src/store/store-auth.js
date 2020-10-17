@@ -54,7 +54,7 @@ const actions = {
 		Loading.show()
 		firebaseAuth.createUserWithEmailAndPassword(payload.email, payload.password)
 			.then(response => {
-				console.log('response: ', response)
+				// console.log('response: ', response)
 				//註冊成功，送出回傳認證，顯示提示視窗
 				firebaseAuth.currentUser.sendEmailVerification()
 					.then(() => {
@@ -110,8 +110,9 @@ const actions = {
 		// Loading.show()
 		firebaseAuth.signInWithEmailAndPassword(payload.email, payload.password)
 			.then(response => {
-				console.log("login:", response)
-				console.log(firebaseAuth.currentUser.uid)
+				// console.log("login:", response)
+				// console.log(firebaseAuth.currentUser.uid)
+
 			})
 			.catch(error => {
 				showErrorMessage(error.message)
@@ -194,7 +195,7 @@ const actions = {
 			})
 			.then(() => {
 				if (!state.userData.states) {
-					showErrorMessage(`你的Email帳號${state.userData.name}已註冊並回傳認證，但目前未設定使用此系統或停用狀態，請洽系統管理員。`, "注意")
+					showErrorMessage(`你的Email帳號${state.userData.name}已註冊並回傳認證，但目前不能使用或停用狀態，請洽系統管理員。`, "注意")
 					firebaseAuth.signOut()
 				} else {
 					let newrouter = powerRouter //路由換成主要功能的路由
@@ -209,7 +210,7 @@ const actions = {
 						}
 					})
 					newrouter[0].children = newchildren //使用者權限的路由
-					console.log(newrouter[0].children)
+					// console.log(newrouter[0].children)
 					let newMenu = newrouter[0].children.map((item) => {
 						let menu = {
 							title: item.meta.title,
@@ -217,7 +218,7 @@ const actions = {
 							icon: item.meta.icon,
 							link: item.path,
 						};
-						console.log(menu)
+						// console.log(menu)
 						return menu;
 					});
 
