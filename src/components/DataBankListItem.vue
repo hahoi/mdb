@@ -30,9 +30,9 @@
         <!-- {{ task.update }} -->
         <!-- <div class="text-orange fit row wrap justify-start items-center content-center" v-for="star in task.star"> -->
         <template v-for="star in task.star">
-        <div class="text-orange q-ma-none q-pa-none row">
-          <q-icon name="star" size="0.5rem" />
-        </div>
+          <div class="text-orange q-ma-none q-pa-none row">
+            <q-icon name="star" size="0.5rem" />
+          </div>
         </template>
       </q-item-section>
     </q-item>
@@ -49,12 +49,25 @@
       transition-hide="slide-down"
     >
       <q-card class="bg-grey-1">
-        <q-bar >
-          <q-btn flat icon="close"  class="bg-black text-white" @click.stop.prevent="dialogList=false"   >離開
+        <q-bar>
+          <q-btn
+            flat
+            icon="close"
+            class="bg-black text-white"
+            @click.stop.prevent="dialogList = false"
+            >離開
             <q-tooltip content-class="bg-white text-primary">Close</q-tooltip>
           </q-btn>
 
           <q-space />
+          <q-btn
+            flat
+            icon="print"
+            @click="onPrint"
+            v-close-popup
+            class="bg-info text-white"
+            >列印</q-btn
+          >
           <q-btn
             flat
             icon="edit"
@@ -106,6 +119,28 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- 列印視窗============================== -->
+    <q-dialog
+      v-model="dialogPrint"
+      :maximized="true"
+      persistent
+      transition-show="slide-up"
+      transition-hide="slide-down"
+    >
+      <q-card class="bg-grey-1 text-white">
+        <q-bar>
+          <q-btn flat icon="close" v-close-popup class="bg-black text-white"
+            >離開
+          </q-btn>
+          <q-space />
+        </q-bar>
+
+        <q-card-section>
+            <data-bank-print :task="printTask" ></data-bank-print>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -122,14 +157,17 @@ export default {
     return {
       dialogList: false,
       dialogEdit: false,
+      dialogPrint: false,
       maximizedToggle: true,
       copyTask: null,
       editTask: {},
+      printTask: {},
     };
   },
   components: {
     DataBankList: require("components/DataBankList.vue").default,
     DataBankEdit: require("components/DataBankEdit.vue").default,
+    DataBankPrint: require("components/DataBankPrint.vue").default,
   },
   created() {},
   mounted() {},
@@ -150,7 +188,13 @@ export default {
     getChildMsg(val) {
       this.dialogEdit = val;
     },
-    onSave() {},
+
+    //列印
+    onPrint() {
+      this.printTask = deepCopy(this.task);
+      // console.log(this.printTask)
+      this.dialogPrint = true;
+    },
 
     onDelete({ reset }) {
       if (this.id == "") {

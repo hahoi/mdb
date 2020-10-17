@@ -155,14 +155,14 @@ export default {
       let rawData = ""
       Object.keys(this.FieldReordFiltered).forEach((key) => {
         let x = this.FieldReordFiltered[key];
+
         let RedDot = x.RedDot ? "●" : ""
         let star = x.star +"星"
-        rawData += `${x.name},${x.mobilePhone},${x.companyPhone},${x.county},${x.district},${x.address},${x.classify},${x.proTitle},${x.professionalTitle},${x.clubTitle},${x.personalConnections},${x.meetNotes},${x.suggestions},${x.petitionMatters},${x.diet},${x.interest},${x.topic},${x.other},${star},${RedDot}\r\n`;
+        rawData += `${x.name},${x.mobilePhone},${x.companyPhone},${x.county},${x.district},${x.address},${x.classify},${x.proTitle},${x.professionalTitle},${x.clubTitle},${x.personalConnections},${x.meetNotes.replace(/\n/g,"")},${x.suggestions.replace(/\n/g,"")},${x.petitionMatters.replace(/\n/g,"")},${x.diet},${x.interest},${x.topic},${x.other},${star},${RedDot}\r\n`; 
       });
-      console.log(rawData);
+      // console.log(rawData);
 
-      //匯出檔案
-      const txtfileName = formattedString + ".txt"
+      //匯出csv 檔案
       const csvfileName = formattedString + ".csv"
       const status = exportFile(csvfileName, rawData, mimeType);
 
@@ -172,6 +172,61 @@ export default {
       } else {
         showErrorMessage("匯出檔案失敗" + status);
       }
+
+
+
+if(true){
+      // //匯出txt檔案
+      // const txtfileName = formattedString + ".txt"
+      // let TxtRawData = ""
+      // Object.keys(this.FieldReordFiltered).forEach((key) => {
+      //   let x = this.FieldReordFiltered[key];
+      //   // str.replace(/\n/g,"")
+      //   let name =  x.name.padEnd(10)
+      //   let mobilePhone =  x.mobilePhone.padEnd(12)
+      //   let companyPhone =  x.companyPhone.padEnd(12)
+      //   let county =  x.county.padEnd(5)
+      //   let district =  x.district.padEnd(5)
+      //   let address =  x.address.padEnd(30)
+      //   let classify =  x.classify.padEnd(8)
+      //   let proTitle =  x.proTitle.padEnd(16)
+      //   let professionalTitle =  x.professionalTitle.padEnd(16)
+      //   let clubTitle =  x.clubTitle.padEnd(16)
+      //   let personalConnections =  x.personalConnections.padEnd(20)
+      //   let meetNotes =  x.meetNotes.replace(/\n/g,"").padEnd(50)
+      //   let suggestions =  x.suggestions.replace(/\n/g,"").padEnd(50)
+      //   let petitionMatters =  x.petitionMatters.replace(/\n/g,"").padEnd(50)
+      //   let diet =  x.diet.padEnd(20)
+      //   let interest =  x.interest.padEnd(20)
+      //   let topic =  x.topic.padEnd(20)
+      //   let other =  x.other.padEnd(10)
+      //   let star = x.star +"星"        
+      //   let RedDot = x.RedDot ? "●" : ""
+      //   TxtRawData += `${name}${mobilePhone}${companyPhone}${county}${district}${address}${classify}${proTitle}${professionalTitle}${clubTitle}${personalConnections}${meetNotes}${suggestions}${petitionMatters}${diet}${interest}${topic}${other}${star}${RedDot}\r\n`; 
+      // });
+      // console.log(TxtRawData);
+
+
+
+
+      // const status1 = exportFile(txtfileName, TxtRawData, mimeType);
+
+      // if (status1 === true) {
+      //   showErrorMessage(`匯出 ${txtfileName} 完成`, "提醒");
+      //   this.menuDialog = false;
+      // } else {
+      //   showErrorMessage("匯出檔案失敗" + status);
+      // }
+
+
+
+
+}
+
+
+
+
+
     },
   },
 };
