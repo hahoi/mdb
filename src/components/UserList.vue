@@ -1,21 +1,17 @@
 <template>
   <div>
-    <q-item class="" >
+    <q-item class="">
       <q-item-section avatar>
         <q-item-label lines="1">
           <span class="">使用系統</span>
         </q-item-label>
-        <span class="text-grey-8"> <q-checkbox color="positive" v-model="item.states"   /></span>
-        <!-- <q-toggle
-          v-model="item.states"
-          checked-icon="check"
-          color="green"
-          unchecked-icon="clear"
-        /> -->
+        <span class="text-grey-8">
+          <q-checkbox color="positive" v-model="item.states"
+        /></span>
+
       </q-item-section>
 
-          <!-- :toggle="checkOk()" -->
-      
+      <!-- :toggle="checkOk()" -->
 
       <q-item-section top>
         <q-item-label lines="1">
@@ -33,16 +29,26 @@
           <span class="text-weight-medium">註冊</span>
         </q-item-label>
 
-        <q-item-label lines="1">          
+        <q-item-label lines="1">
           <span class="text-grey-8">管理使用者</span>
-          <span class=""> <q-checkbox v-model="ManaUser" color="info"/></span>
+          <span class="">
+            <q-checkbox v-model="item.sysMana" color="info"
+          /></span>
         </q-item-label>
       </q-item-section>
 
       <q-item-section side>
         <div class="text-grey-8 q-gutter-xs flex column">
           <q-btn size="18px" flat dense round icon="delete" @click="delFn()" />
-          <q-btn size="18px" flat dense round icon="save" color="primary" @click="SaveFn()"/>
+          <q-btn
+            size="18px"
+            flat
+            dense
+            round
+            icon="save"
+            color="primary"
+            @click="SaveFn()"
+          />
         </div>
       </q-item-section>
     </q-item>
@@ -54,7 +60,7 @@
 
 <script>
 import { date } from "quasar";
-import { firebaseAuth,dbFirestore, dbFunctions } from "boot/firebase";
+import { firebaseAuth, dbFirestore, dbFunctions } from "boot/firebase";
 
 export default {
   name: "",
@@ -63,23 +69,12 @@ export default {
     return {
       AllUsers: [],
       options: [],
-      userId: "",
-      ManaUser: false,
-      useOK: false,
     };
   },
   components: {},
   created() {},
-  mounted() {
-    // this.ListAllUsers();
-    // this.userId = firebaseAuth.currentUser.uid;
-    //   console.log(userId)
-  },
-  watch: {
-    ManaUser(){
-      console.log(this.ManaUser)
-    }
-  },
+  mounted() {},
+  watch: {},
   computed: {
     createAt() {
       return date.formatDate(
@@ -89,31 +84,38 @@ export default {
     },
   },
   methods: {
-    SaveFn(){
-      console.log(this.item)
-    },
-    checkOk() {
-      // console.log(this.item.id, this.first);
-      //可以使用的路由
-      let role = this.item.states ? ["Index","MDB"] : ["Index"]
+    SaveFn() {
+      // console.log(this.item.sysMana, this.item.states);
+      let role = ["Index"]
+      if (this.item.states) {
+        //可以使用的路由
+         role = ["Index", "MDB"];
+      }
+
+      if (this.item.sysMana) {
+        //可以使用的路由
+         role = ["Index", "MDB", "users", "settings"];
+      }
       dbFirestore
         .collection("MDBUsers")
         .doc(this.item.id)
         .update({
           states: this.item.states,
-          role: role
+          role: role,
+          sysMana: this.item.sysMana
         })
         .then(() => {
           console.log("資料庫修改成功！", this.item.states);
-        //   this.$q.notify("資料庫修改成功！")
+          //   this.$q.notify("資料庫修改成功！")
         })
         .catch((error) => {
           console.error("資料庫更新失敗！", error);
         });
+
+
     },
-    ManaUserFn(){
-      console.log(this.ManaUser)
-    },
+
+    //刪除使用者
     delFn() {
       if (this.item.id == "") {
         return false;
@@ -133,6 +135,7 @@ export default {
               cancel: true,
             })
             .onOk(() => {
+              //users資料庫刪除
               dbFirestore
                 .collection("MDBUsers")
                 .doc(this.item.id)
@@ -141,7 +144,8 @@ export default {
                   this.$q.notify(`${this.item.name}已刪除`);
                   this.$router.go(-1);
                 });
-                this.DeleteUsers(this.item.id)
+              //firebase authentication 刪除
+              this.DeleteUsers(this.item.id);
             });
         });
     },
@@ -162,6 +166,7 @@ export default {
         });
       });
     },
+    //從cloud function 中刪除 使用者
     DeleteUsers(id) {
       const AdminDeleteUsers = dbFunctions.httpsCallable("AdminDeleteUsers");
       AdminDeleteUsers({ uid: id }).then((result) => {

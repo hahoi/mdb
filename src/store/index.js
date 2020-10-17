@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import phrase from './store-phrase'
 import LoadData from './store-load-data'
 import auth from './store-auth'
+import settings from './store-settings'
 
 // import example from './module-example'
 
@@ -24,7 +25,8 @@ export default function (/* { ssrContext } */) {
       // example
       phrase,
       LoadData,
-      auth
+      auth,
+      settings,
     },
 
     // enable strict mode (adds overhead!)

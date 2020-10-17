@@ -72,6 +72,7 @@ const actions = {
 				payload.role = ['Index'] //這個要隨不同系統去調整，還未審核通過前可route 路由
 				payload.memo = ""
 				payload.states = false
+				payload.sysMana = false
 				delete payload.password //password 不保存在自訂user資料庫中
 
 				// console.log("payload",payload);
@@ -189,7 +190,8 @@ const actions = {
 					// emailVerified: doc.data().emailVerified,
 					memo: doc.data().memo,
 					telephone: doc.data().telephone,
-					states: doc.data().states
+					states: doc.data().states,
+					sysMana : doc.data().sysMana
 				};
 				commit('setUserData', UserData)
 			})

@@ -26,7 +26,7 @@ export const powerRouter = [
     children: [
       {
         path: '/index', component: () => import('pages/Index.vue'),
-        meta: { title: 'Home', role: 'Index', icon: 'home', divider: true }
+        meta: { title: '首頁', role: 'Index', icon: 'home', divider: true }
 
       },
       {
@@ -44,7 +44,12 @@ export const powerRouter = [
         path: '/users',
         component: () => import('pages/PageUsers'),
         meta: { title: '使用者管理', role: 'users', icon: 'group', divider: true }
-      },      
+      },     
+      {
+        path: '/settings',
+        component: () => import('pages/PageSettings'),
+        meta: { title: '系統設定', role: 'settings', icon: 'group', divider: true }
+      },            
       // {
       //   path: '/backup',
       //   component: () => import('pages/PageBackup'),
