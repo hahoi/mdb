@@ -1,9 +1,11 @@
 import { LocalStorage } from 'quasar'
+import { dbFirestore } from 'boot/firebase'
+
 
 const state = {
 	settings: {
 		announcement: "",
-		delay: 3,
+		delay: 3000,
 		sysTitle: "行動資料庫"
 	}
 }
@@ -61,6 +63,7 @@ const actions = {
 			.doc("系統參數")
 			.get()
 			.then(doc => {
+				// console.log("restore系統參數",doc.data())
 				commit('setSettings', doc.data())
 			}).catch(err => {
 				console.log(err.message)

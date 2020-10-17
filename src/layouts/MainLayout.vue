@@ -72,11 +72,42 @@
     <q-page-container>
       <router-view />
     </q-page-container>
-  </q-layout>
+
+
+        <q-footer elevated class="bg-white">
+        <q-toolbar v-if="mdb">
+          <q-toolbar-title>
+            <div class="row justify-center">
+              <div>
+                <!-- <q-btn
+                v-if="loggedIn"
+                  flat
+                  icon="more_vert"
+                  color="grey"
+                  @click=""
+                  size="lg"
+                  class="q-my-xs"
+                /> -->
+              </div>
+              <!-- <q-space /> -->
+
+              <div v-if="FindRecordLength > 0" class="text-h6 text-black">
+                {{ FindRecordLength }}
+                <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
+              </div>
+
+              <!-- <q-btn flat v-if="loggedIn" @click="logoutUser"  icon="account_circle" color="grey"/> -->
+            </div>
+          </q-toolbar-title>
+        </q-toolbar>
+      </q-footer>
+
+        </q-layout>
+
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { powerRouter } from "../router/routes";
 
 export default {
@@ -92,6 +123,9 @@ export default {
   },
   computed: {
     ...mapState("auth", ["loggedIn", "newMenu", "userData"]),
+    ...mapState("LoadData", ["FieldReord", "tasksDownloaded", "mdb"]),
+    ...mapGetters("LoadData", ["FindRecordLength", "FieldRecordLength"]),
+
   },
   methods: {
     ...mapActions("auth", ["logoutUser"]),

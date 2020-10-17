@@ -48,7 +48,7 @@ export const powerRouter = [
       {
         path: '/settings',
         component: () => import('pages/PageSettings'),
-        meta: { title: '系統設定', role: 'settings', icon: 'group', divider: true }
+        meta: { title: '系統設定', role: 'settings', icon: 'api', divider: true }
       },            
       // {
       //   path: '/backup',

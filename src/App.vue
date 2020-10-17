@@ -10,10 +10,13 @@ export default {
   name: 'App',
   methods: {
     ...mapActions("auth", ["handleAuthStateChange","getDepartment","getAllRoles"]),
+    ...mapActions('settings', ['getSettings']),
+
   },
   mounted() {
       this.handleAuthStateChange()
       this.getAllRoles()
+      this.getSettings()
 	  }
 }
 </script>

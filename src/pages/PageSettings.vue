@@ -5,7 +5,7 @@
 			class="q-mb-md"
 			bordered
 			padding>
-		  <q-item-label header>Settings</q-item-label>
+		  <q-item-label header>設定</q-item-label>
 
 		  <q-item tag="label" v-ripple>
 		    <q-item-section>
@@ -25,7 +25,7 @@
 		    <q-item-section side >
 		      <q-input
 		      	v-model="delay"
-		      	color="blue" />
+		      	color="blue" />毫秒
 		    </q-item-section>
 		  </q-item>
 

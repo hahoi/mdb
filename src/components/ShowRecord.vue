@@ -43,8 +43,9 @@
 
 <script>
 import Vue from "vue";
-import { date } from "quasar";
+import { date , exportFile} from "quasar";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { showErrorMessage } from "src/utils/function-show-error-message";
 
 export default {
   name: "",
@@ -100,17 +101,19 @@ export default {
     done() {
       // clearTimeout(this.timer);
     },
-    exportFun() {
+    exportFun() {      
+      const mimeType = "text/plain;charset=utf-8";
       let timeStamp = Date.now();
       let formattedString =
         "MDB" + date.formatDate(timeStamp, "YYYYMMDDHHmmss");
-      console.log(formattedString);
-      console.log(this.FieldReordFiltered);
+      // console.log(formattedString);
+      // console.log(this.FieldReordFiltered);
       let title = [
         "姓名",
         "手機",
         "公司電話",
         "縣市",
+        "區域",
         "地址",
         "分類",
         "職業職稱",
@@ -131,8 +134,6 @@ export default {
         name: "",
         mobilePhone: "",
         companyPhone: "",
-        avatar: "",
-        photo: [],
         county: "",
         district: "",
         address: "",
@@ -148,28 +149,29 @@ export default {
         interest: "",
         topic: "",
         other: "",
-        update: "",
         star: 0,
-        email: "",
-        zip: "",
         RedDot: false,
-        updateDate: null,
       };
+      let rawData = ""
+      Object.keys(this.FieldReordFiltered).forEach((key) => {
+        let x = this.FieldReordFiltered[key];
+        let RedDot = x.RedDot ? "●" : ""
+        let star = x.star +"星"
+        rawData += `${x.name},${x.mobilePhone},${x.companyPhone},${x.county},${x.district},${x.address},${x.classify},${x.proTitle},${x.professionalTitle},${x.clubTitle},${x.personalConnections},${x.meetNotes},${x.suggestions},${x.petitionMatters},${x.diet},${x.interest},${x.topic},${x.other},${star},${RedDot}\r\n`;
+      });
+      console.log(rawData);
 
-      // childrenArray.forEach((x) => {
-      //   rawData += `${x.name},${x.email},${x.jobTitle},${x.telephone},${x.Extension},${x.memo}\r\n`;
-      // });
-      // // console.log(rawData)
+      //匯出檔案
+      const txtfileName = formattedString + ".txt"
+      const csvfileName = formattedString + ".csv"
+      const status = exportFile(csvfileName, rawData, mimeType);
 
-      // //匯出檔案
-      // const status = exportFile(filename, rawData, mimeType);
-
-      // if (status === true) {
-      //   showErrorMessage(`匯出 ${filename} 完成`, "提醒");
-      //   this.menuDialog = false;
-      // } else {
-      //   showErrorMessage("匯出檔案失敗" + status);
-      // }
+      if (status === true) {
+        showErrorMessage(`匯出 ${csvfileName} 完成`, "提醒");
+        this.menuDialog = false;
+      } else {
+        showErrorMessage("匯出檔案失敗" + status);
+      }
     },
   },
 };
