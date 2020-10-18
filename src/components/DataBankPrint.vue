@@ -1,185 +1,101 @@
 <template>
-  <div class="bg-white text-black" style="max-width: 600px; margin: auto">
-      <q-card-section>
-         <q-btn v-print="'#oContent'" label="列印" />
-      </q-card-section>
+  <div
+    class="bg-white text-black"
+    style="width: 649px; height: 978px; margin: auto"
+  >
     <q-card-section>
-      <q-list id="oContent">
-        <q-item clickable>
-          <q-item-section avatar class="col-5">
-            <q-avatar v-if="task.avatar.length !== 0">
-              <img :src="task.avatar" />
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.name">{{ task.name }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced />
-        <q-item clickable v-if="task.mobilePhone.length !== 0">
-          <q-item-section avatar class="col-5"> 手機： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.mobilePhone">{{
-              task.mobilePhone
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.mobilePhone.length !== 0" />
-
-        <q-item clickable v-if="task.companyPhone.length !== 0">
-          <q-item-section avatar class="col-5"> 公司電話： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.companyPhone">{{
-              task.companyPhone
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.companyPhone.length !== 0" />
-
-        <q-item clickable v-if="task.county.length !== 0">
-          <q-item-section class="col-5">
-            <q-item-label v-html="task.county"></q-item-label>
-          </q-item-section>
-          <q-item-section class="col-5">
-            <q-item-label v-html="task.district"></q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.county.length !== 0" />
-
-        <q-item clickable v-if="task.address.length !== 0">
-          <q-item-section avatar class="col-5"> 地址： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.address">{{
-              task.address
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.address.length !== 0" />
-
-        <q-item clickable v-if="task.classify.length !== 0">
-          <q-item-section avatar class="col-5"> 分類： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.classify">{{
-              task.classify
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.address.length !== 0" />
-
-        <q-item clickable v-if="task.proTitle.length !== 0">
-          <q-item-section avatar class="col-5"> 職業職稱： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.proTitle">{{
-              task.proTitle
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.proTitle.length !== 0" />
-
-        <q-item clickable v-if="task.clubTitle.length !== 0">
-          <q-item-section avatar class="col-5"> 社團職稱： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.clubTitle">{{
-              task.clubTitle
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.clubTitle.length !== 0" />
-
-        <q-item clickable v-if="task.personalConnections.length !== 0">
-          <q-item-section avatar class="col-5"> 人脈關係： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.personalConnections">{{
-              task.personalConnections
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.personalConnections.length !== 0" />
-
-        <q-item clickable v-if="task.meetNotes.length !== 0">
-          <q-item-section avatar class="col-5"> 見面記事： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.meetNotes">{{
-              task.meetNotes
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.meetNotes.length !== 0" />
-
-        <q-item clickable v-if="task.suggestions.length !== 0">
-          <q-item-section avatar class="col-5"> 建言事項： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.suggestions">{{
-              task.suggestions
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.suggestions.length !== 0" />
-
-        <q-item clickable v-if="task.petitionMatters.length !== 0">
-          <q-item-section avatar class="col-5"> 陳情事項： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.petitionMatters">{{
-              task.petitionMatters
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.petitionMatters.length !== 0" />
-
-        <q-item clickable v-if="task.diet.length !== 0">
-          <q-item-section avatar class="col-5"> 飲食： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.diet">{{ task.diet }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.diet.length !== 0" />
-
-        <q-item clickable v-if="task.interest.length !== 0">
-          <q-item-section avatar class="col-5"> 興趣： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.interest">{{
-              task.interest
-            }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.interest.length !== 0" />
-
-        <q-item clickable v-if="task.topic.length !== 0">
-          <q-item-section avatar class="col-5"> 話題： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.topic">{{ task.topic }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.topic.length !== 0" />
-
-        <q-item clickable v-if="task.other.length !== 0">
-          <q-item-section avatar class="col-5"> 其他： </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="task.other">{{ task.other }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-separator spaced v-if="task.other.length !== 0" />
-        <!-- 星級 --><!-- 紅點 -->
-        <div class="q-gutter-md q-my-md row items-start">
-          <q-rating v-model="task.star" size="2em" color="primary" readonly v-if="task.star > 0"/>
-          <q-icon name="stop_circle" class="text-red" style="font-size: 2rem" v-if="task.RedDot"/>
-        </div>
-
-        <q-item clickable v-if="task.photo.length !== 0">
-          <q-item-section top thumbnail class="q-ml-none">
-            <div v-for="img in task.photo">
-              <img :src="img.linkURL" @click="viewPhoto(img.linkURL)" />
-            </div>
-          </q-item-section>
-        </q-item>
-      </q-list>
+      <q-btn v-print="'#oContent'" label="列印" size="xl" />
     </q-card-section>
 
-    <q-dialog v-model="showPhoto">
-      <q-card>
-        <img :src="photoUrl" />
-      </q-card>
-    </q-dialog>
+    <q-card-section>
+      <!-- border:1px solid #000000; -->
+      <div id="oContent" style="">
+        <q-markup-table separator="cell" flat bordered>
+          <tbody>
+            <tr>
+              <td width="25%">姓名</td>
+              <td width="25%">{{ task.name }}</td>
+              <td width="50%" colspan="2" rowspan="5" align="center">
+                <img :src="task.avatar" style="max-width: 300px;max-height:200px"/>
+              </td>
+            </tr>
+            <tr>
+              <td>手機</td>
+              <td>{{ task.mobilePhone }}</td>
+            </tr>
+            <tr>
+              <td>公司電話</td>
+              <td>{{ task.mobilePhone }}</td>
+            </tr>
+            <tr>
+              <td>分類</td>
+              <td>{{ task.classify }}</td>
+            </tr>
+            <tr>
+              <td>縣市</td>
+              <td>{{ task.county }}</td>
+            </tr>
+            <tr>
+              <td>地址</td>
+              <td colspan="3">{{ task.address }}</td>
+            </tr>
+            <tr>
+              <td>職業職稱</td>
+              <td colspan="3">{{ task.proTitle }}</td>
+            </tr>
+            <tr>
+              <td>社團職稱</td>
+              <td colspan="3">{{ task.clubTitle }}</td>
+            </tr>
+            <tr>
+              <td>人脈關係</td>
+              <td colspan="3">{{ task.personalConnections }}</td>
+            </tr>
+            <tr>
+              <td>見面記事</td>
+              <td colspan="3">{{
+              task.meetNotes
+            }}</td>
+            </tr>
+            <tr>
+              <td>建言事項</td>
+              <td colspan="3">{{
+              task.suggestions
+            }}</td>
+            </tr>
+            <tr>
+              <td>陳情事項</td>
+              <td colspan="3">{{
+              task.petitionMatters
+            }}</td>
+            </tr>
+
+            <tr>
+              <td width="25%">飲食</td>
+              <td width="25%">{{ task.diet }}</td>
+              <td width="25%">興趣</td>
+              <td width="25%">{{
+              task.interest
+            }}</td>
+            </tr>
+            <tr>
+              <td width="25%">話題</td>
+              <td width="25%">{{ task.topic }}</td>
+              <td width="25%">其他</td>
+              <td width="25%">{{ task.other }}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>{{task.star}}星</td>
+              <td></td>
+              <td>{{task.RedDot ? "●" : ""}}</td>
+            </tr>
+          </tbody>
+        </q-markup-table>
+      </div>
+    </q-card-section>
+
+
   </div>
 </template>
 
