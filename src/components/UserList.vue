@@ -1,6 +1,7 @@
 <template>
   <div>
-    <q-item class="">
+    <!-- 7880000@gmail.com 00000000(要修改)  管理者  -->
+    <q-item class="" v-if="item.name !=='7880000'">
       <q-item-section avatar>
         <q-item-label lines="1">
           <span class="">使用系統</span>

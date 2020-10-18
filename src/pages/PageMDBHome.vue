@@ -1,6 +1,9 @@
 <template>
   <q-page style="max-width: 600px; margin: auto">
-    <q-card class="rounded-borders q-ma-md q-mt-lg bg-grey-1" @click="cloudSearch = true">
+    <q-card
+      class="rounded-borders q-ma-md q-mt-lg bg-grey-1"
+      @click="cloudSearch = true"
+    >
       <q-card-section>
         <div class="row q-ma-md q-gutter-xs text-h6">
           <q-select
@@ -94,12 +97,10 @@
     </template>
     <!-- v-if="conditions !== ''" -->
     <template v-else>
-      <div class="q-mt-xl q-pt-xl" ref="showRecord" v-if="conditions !== '' ">
+      <div class="q-mt-xl q-pt-xl" ref="showRecord" v-if="conditions !== ''">
         <show-record></show-record>
       </div>
     </template>
-
-    
 
     <!-- 新增資料視窗============================== -->
     <template>
@@ -126,11 +127,7 @@
         </q-card>
       </q-dialog>
     </template>
-    <q-page-sticky
-      position="top-right"
-      :scroll-offset="0"
-      :offset="[-13, -18]"
-    >
+    <q-page-sticky position="top-right" :scroll-offset="0" :offset="[-13, -18]">
       <div class="flex justify-end q-ma-md">
         <!-- 新增按鈕 -->
         <q-btn
@@ -178,10 +175,12 @@ export default {
     // this.readProfessionalTitle();
     this.ReadCassify();
   },
-  mounted() {},
+  mounted() {
+    this.clearFieldReord();
+  },
   watch: {},
   computed: {
-    ...mapState("LoadData", ["FindRecordLength","tasksDownloaded"]),
+    ...mapState("LoadData", ["FindRecordLength", "tasksDownloaded"]),
     ...mapState("phrase", ["professionalTitle", "Cassify", "counties"]),
 
     //顯示查詢字串
@@ -211,6 +210,7 @@ export default {
       "setSearch",
       "setTasksDownloaded",
       "clearFieldReord",
+      "setMDB",
     ]),
     ...mapActions("LoadData", ["setFilter", "setSearch"]),
     ...mapActions("phrase", ["readProfessionalTitle", "ReadCassify"]),
@@ -230,7 +230,7 @@ export default {
       //  let showRecord = vm.$refs.showRecord
       // vm.scrollToElement()
       //清空顯示資料
-      this.cloudSearch = false
+      this.cloudSearch = false;
       this.clearFieldReord();
       //顯示查詢字串
       this.setSearch(this.conditionsSetSearch);

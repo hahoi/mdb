@@ -13,7 +13,7 @@
     </div>
     <div v-else>
       <q-card style="" class=" q-ma-md">
-        <q-card-section class="fit flex row items-start text-h6">
+        <q-card-section class="fit flex row items-start text-h6" v-html="this.settings.announcement">
           {{ this.settings.announcement }}
         </q-card-section>
       </q-card>
