@@ -5,10 +5,11 @@
         <img alt="行動資料庫" src="~assets/MDB.png" />
       </div>
       <div
-        class="text-h5 text-weight"
+        class="text-h5 text-weight text-center"
         style="font-family: 'Dancing Script', cursive"
       >
-        Mobile Data Bank
+        Mobile Data Bank<br />
+        <span class="text-caption">V 1.0</span>
       </div>
     </div>
     <div v-else>

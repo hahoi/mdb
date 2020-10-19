@@ -74,7 +74,8 @@ export default {
   },
   components: {},
   created() {},
-  mounted() {},
+  mounted() {
+  },
   watch: {},
   computed: {
     createAt() {
@@ -156,12 +157,27 @@ export default {
       const AdminListUsers = dbFunctions.httpsCallable("AdminListUsers");
       AdminListUsers().then((result) => {
         // console.log(result.data);
+
+        // console.log("displayName:", result.data.displayName)
+				// console.log("email:", email)
+				// console.log("emailVerified:", emailVerified)
+				// console.log("photoURL:", photoURL)
+				// console.log("isAnonymous:", isAnonymous)
+				// console.log("uid:", uid)
+				// console.log("isAnonymous:", providerData)
+				// console.log(JSON.stringify(user, null, '  '))
         result.data.forEach((x) => {
           let data = {
             uid: x.uid,
             name: x.displayName,
             email: x.email,
+            emailVerified: x.emailVerified,
+            photoURL: x.photoURL,
+            isAnonymous: x.isAnonymous,
+            providerData: x.providerData,
+            userData: JSON.stringify(x, null, '  '),
           };
+          // console.log(x.name, x.lastSignInTime,x.creationTime)
           this.AllUsers.push(data);
           this.options.push(x.email);
         });

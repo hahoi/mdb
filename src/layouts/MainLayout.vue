@@ -65,6 +65,16 @@
             :key="link.title"
             v-bind="link"
           />
+
+          <q-item clickable @click="visitOurWebsite">
+            <q-item-section  avatar>
+              <q-icon name="help" />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-h5">使用說明</q-item-label>
+            </q-item-section>
+          </q-item>
         </template>
       </q-list>
     </q-drawer>
@@ -73,13 +83,12 @@
       <router-view />
     </q-page-container>
 
-
-        <q-footer elevated class="bg-white">
-        <q-toolbar v-if="mdb">
-          <q-toolbar-title>
-            <div class="row justify-center">
-              <div>
-                <!-- <q-btn
+    <q-footer elevated class="bg-white">
+      <q-toolbar v-if="mdb">
+        <q-toolbar-title>
+          <div class="row justify-center">
+            <div>
+              <!-- <q-btn
                 v-if="loggedIn"
                   flat
                   icon="more_vert"
@@ -88,27 +97,26 @@
                   size="lg"
                   class="q-my-xs"
                 /> -->
-              </div>
-              <!-- <q-space /> -->
-
-              <div v-if="FindRecordLength > 0" class="text-h6 text-black">
-                {{ FindRecordLength }}
-                <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
-              </div>
-
-              <!-- <q-btn flat v-if="loggedIn" @click="logoutUser"  icon="account_circle" color="grey"/> -->
             </div>
-          </q-toolbar-title>
-        </q-toolbar>
-      </q-footer>
+            <!-- <q-space /> -->
 
-        </q-layout>
+            <div v-if="FindRecordLength > 0" class="text-h6 text-black">
+              {{ FindRecordLength }}
+              <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
+            </div>
 
+            <!-- <q-btn flat v-if="loggedIn" @click="logoutUser"  icon="account_circle" color="grey"/> -->
+          </div>
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-footer>
+  </q-layout>
 </template>
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { powerRouter } from "../router/routes";
+import { openURL } from "quasar";
 
 export default {
   name: "MainLayout",
@@ -124,11 +132,13 @@ export default {
   computed: {
     ...mapState("auth", ["loggedIn", "newMenu", "userData"]),
     ...mapState("LoadData", ["FieldReord", "tasksDownloaded", "mdb"]),
-    ...mapGetters("LoadData", ["FindRecordLength", "FieldRecordLength"]),
-
+    ...mapGetters("LoadData", ["FindRecordLength"]),
   },
   methods: {
     ...mapActions("auth", ["logoutUser"]),
+			visitOurWebsite() {
+				openURL('https://hahoi.github.io/mdbhelp/')
+			},
   },
 };
 </script>
