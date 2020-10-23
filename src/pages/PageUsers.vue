@@ -80,7 +80,7 @@ export default {
         item.lastSignInTime = t;
       });
 
-      console.log(this.dbData);
+      // console.log(this.dbData);
     },
     findMetaData(uid) {
       // console.log(uid)

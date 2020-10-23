@@ -51,6 +51,7 @@
               label="選擇縣市"
               outlined
               clearable
+            popup-content-class="text-h6"
             />
             <q-select
               class="col"
@@ -60,6 +61,7 @@
               outlined
               clearable
               ref="district"
+            popup-content-class="text-h6"
             />
           </div>
           <div class="q-ma-md row items-start">
@@ -73,6 +75,7 @@
               :options="Cassify"
               label="分類"
               outlined
+            popup-content-class="text-h6"
             />
               <div class="flex col q-ml-md">
                 <q-btn
@@ -101,7 +104,7 @@
             />
           </div>
         </q-tab-panel>
-        <q-tab-panel name="Suggestions">
+        <q-tab-panel name="Suggestions" >
           <div class="q-ma-md">
             <q-input
               v-model="task.meetNotes"
@@ -109,6 +112,7 @@
               autogrow
               outlined
               type="textarea"
+              :input-style="{ 'font-size': '18px' }"
             />
           </div>
           <div class="q-ma-md">
@@ -118,6 +122,7 @@
               autogrow
               outlined
               type="textarea"
+              :input-style="{ 'font-size': '18px' }"
             />
           </div>
           <div class="q-ma-md">
@@ -127,6 +132,7 @@
               autogrow
               outlined
               type="textarea"
+              :input-style="{ 'font-size': '18px' }"
             />
           </div>
         </q-tab-panel>

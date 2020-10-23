@@ -9,7 +9,7 @@
         v-ripple
       >
         <!-- <q-item-section avatar>{{ key }}</q-item-section> -->
-        <q-item-section>{{ member }}</q-item-section>
+        <q-item-section class="text-h6">{{ member }}</q-item-section>
       </q-item>
     </q-list>
     <div class="flex row q-gutter-xs">

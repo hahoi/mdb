@@ -2,7 +2,7 @@
   <div>
     <template>
       <div class="q-px-md q-mb-xl q-pb-xl absolute full-width column">
-        <q-btn label="匯出" @click="exportFun" />
+        <q-btn  class="text-h6" label="匯出" @click="exportFun" />
         <search />
         <!-- <q-scroll-area class="q-scroll-area-tasks">  //FieldReordFiltered -->
         <q-list bordered separator>

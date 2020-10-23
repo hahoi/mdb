@@ -8,7 +8,7 @@
       </q-item-section>
 
       <!-- <q-item-section class="col-6"> -->
-      <q-item-section class="col-6">
+      <q-item-section class="col-6 text-h6">
         <q-item-label
           >{{ task.name }}
           <q-icon

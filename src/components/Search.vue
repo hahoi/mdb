@@ -4,7 +4,7 @@
 		@keyup.esc="searchField = ''"
 		
 		outlined
-		class="col"
+		class="col text-h6"
 		label="本機搜尋">
 
     <template v-slot:append>
