@@ -9,12 +9,12 @@
 
     <q-card-section>
       <!-- border:1px solid #000000; -->
-      <div id="printContent"  class="text-h6">
+      <div id="printContent" class="text-h6">
         <q-markup-table separator="cell" flat bordered>
-          <tbody >
+          <tbody>
             <tr>
-              <td width="25%"  style="font-size:18px">姓名</td>
-              <td width="25%"  style="font-size:18px">{{ task.name }}</td>
+              <td width="20%" style="font-size: 18px">姓名</td>
+              <td width="30%" style="font-size: 18px">{{ task.name }}</td>
               <td width="50%" colspan="2" rowspan="5" align="center">
                 <img
                   :src="task.avatar"
@@ -23,67 +23,137 @@
               </td>
             </tr>
             <tr>
-              <td style="font-size:18px">手機</td>
-              <td style="font-size:18px">{{ task.mobilePhone }}</td>
+              <td style="font-size: 18px">手機</td>
+              <td style="font-size: 18px">{{ task.mobilePhone }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">公司電話</td>
-              <td style="font-size:18px">{{ task.mobilePhone }}</td>
+              <td style="font-size: 18px">公司電話</td>
+              <td style="font-size: 18px">{{ task.mobilePhone }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">分類</td>
-              <td style="font-size:18px">{{ task.classify }}</td>
+              <td style="font-size: 18px">分類</td>
+              <td style="font-size: 18px">{{ task.classify }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">縣市</td>
-              <td style="font-size:18px">{{ task.county }}</td>
+              <td style="font-size: 18px">縣市</td>
+              <td style="font-size: 18px">{{ task.county }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">地址</td>
-              <td colspan="3" style="font-size:18px">{{ task.address }}</td>
+              <td style="font-size: 18px">地址</td>
+              <td colspan="3" style="font-size: 18px">{{ task.address }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">職業職稱</td>
-              <td colspan="3" style="font-size:18px">{{ task.proTitle }}</td>
+              <td style="font-size: 18px">Email</td>
+              <td colspan="3" style="font-size: 18px">{{ task.email }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">社團職稱</td>
-              <td colspan="3" style="font-size:18px">{{ task.clubTitle }}</td>
+              <td style="font-size: 18px">職業職稱</td>
+              <td colspan="3" style="font-size: 18px">{{ task.proTitle }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">人脈關係</td>
-              <td colspan="3" style="font-size:18px">{{ task.personalConnections }}</td>
+              <td style="font-size: 18px">社團職稱</td>
+              <td colspan="3" style="font-size: 18px">{{ task.clubTitle }}</td>
             </tr>
             <tr>
-              <td style="font-size:18px">見面記事</td>
-              <td colspan="3" style="font-size:18px">{{ task.meetNotes }}</td>
+              <td style="font-size: 18px">人脈關係</td>
+              <td colspan="3" style="font-size: 18px">
+                {{ task.personalConnections }}
+              </td>
             </tr>
             <tr>
-              <td style="font-size:18px">建言事項</td>
-              <td colspan="3" style="font-size:18px">{{ task.suggestions }}</td>
+              <td style="font-size: 18px">見面記事</td>
+              <td colspan="3" style="font-size: 18px">
+                <div
+                  style="
+                    width: 100%;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                    font-size: 18px;
+                  "
+                >
+                  {{ task.meetNotes }}
+                </div>
+              </td>
             </tr>
             <tr>
-              <td style="font-size:18px">陳情事項</td>
-              <td colspan="3" style="font-size:18px">{{ task.petitionMatters }}</td>
+              <td style="font-size: 18px">建言事項</td>
+              <td colspan="3">
+                <div
+                  style="
+                    width: 100%;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                    font-size: 18px;
+                  "
+                >
+                  {{ task.suggestions }}
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 18px">陳情事項</td>
+              <td colspan="3" style="font-size: 18px">
+                <div
+                  style="
+                    width: 100%;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                    font-size: 18px;
+                  "
+                >
+                  {{ task.petitionMatters }}
+                </div>
+              </td>
             </tr>
 
             <tr>
-              <td width="25%" style="font-size:18px">飲食</td>
-              <td width="25%" style="font-size:18px">{{ task.diet }}</td>
-              <td width="25%" style="font-size:18px">興趣</td>
-              <td width="25%" style="font-size:18px">{{ task.interest }}</td>
+              <td width="20%" style="font-size: 18px">飲食</td>
+              <td colspan="3" style="font-size: 18px">{{ task.diet }}</td>
             </tr>
             <tr>
-              <td width="25%" style="font-size:18px">話題</td>
-              <td width="25%" style="font-size:18px">{{ task.topic }}</td>
-              <td width="25%" style="font-size:18px">其他</td>
-              <td width="25%" style="font-size:18px">{{ task.other }}</td>
+              <td width="20%" style="font-size: 18px">興趣</td>
+              <td colspan="3" style="font-size: 18px">{{ task.interest }}</td>
+            </tr>
+            <tr>
+              <td width="20%" style="font-size: 18px">話題</td>
+              <td colspan="3" style="font-size: 18px">
+                <div
+                  style="
+                    width: 100%;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                    font-size: 18px;
+                  "
+                >
+                  {{ task.topic }}
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td width="20%" style="font-size: 18px">其他</td>
+              <td colspan="3">
+                <div
+                  style="
+                    width: 100%;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                    font-size: 18px;
+                  "
+                >
+                  {{ task.other }}
+                </div>
+              </td>
             </tr>
             <tr>
               <td></td>
-              <td style="font-size:18px">{{ task.star }}星</td>
+              <td style="font-size: 18px">{{ task.star }}星</td>
               <td></td>
-              <td style="font-size:18px">{{ task.RedDot ? "●" : "" }}</td>
+              <td style="font-size: 18px">{{ task.RedDot ? "●" : "" }}</td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -119,6 +189,14 @@ export default {
 </script>
 
 <style>
+.warp {
+  width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-all;
+  font-size: 18px;
+}
+
 @media print {
   #printContent {
     margin: 5mm; /* this affects the margin in the printer settings */

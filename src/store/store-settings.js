@@ -3,23 +3,29 @@ import { dbFirestore } from 'boot/firebase'
 
 
 const state = {
+	// version : "",
 	settings: {
 		announcement: "",
 		delay: 3000,
-		sysTitle: "行動資料庫"
+		sysTitle: "行動資料庫",
+		version:"",
 	}
 }
 
 const mutations = {
+	// setVersion(state, value) {
+	// 	state.version = value
+	// },
 	setAnnouncement(state, value) {
 		state.settings.announcement = value
 	},
 	setDelay(state, value) {
 		state.settings.delay = value
 	},
-	setSysTitle(state, value) {
-		state.settings.sysTitle = value
+	setDelay(state, value) {
+		state.settings.delay = value
 	},
+
 	setSettings(state, settings) {
 		Object.assign(state.settings, settings)
 	}

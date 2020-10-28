@@ -6,36 +6,7 @@
       <user-list v-for="item in dbData" :key="item.email" :item="item">
       </user-list>
     </q-list>
-    <q-btn @click="mergeUserData">最近登入</q-btn>
-    <!-- {{ AllUsers }} -->
-    <q-dialog v-model="lastSignIn">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">最近登入</div>
-        </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-list bordered separator v-for="item in dbData" :key="item.email">
-            <q-item clickable v-ripple>
-              <q-item-section>
-                <q-item-label lines="1">
-                  <span class="text-weight-medium text-h6">{{
-                    item.name
-                  }}</span>
-                </q-item-label>
-                <q-item-label lines="1">
-                  <span class="text-grey-8">{{ item.lastSignInTime }}</span>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="OK" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 
@@ -48,70 +19,77 @@ export default {
   data() {
     return {
       dbData: [],
-      AllUsers: [],
-      options: [],
-      lastSignIn: false,
     };
   },
   components: {
     UserList: require("components/UserList.vue").default,
   },
   created() {
-    this.ListAllUsers();
-    this.readDbData();
+    // 將firestore user使用者 與Authentication使用者 結合
+    this.mergeUserData()
   },
-  mounted() {
-    // this.mergeUserData()
-  },
+  mounted() { },
   watch: {},
   computed: {},
   methods: {
-    mergeUserData() {
-      this.lastSignIn = true;
-      // await this.ListAllUsers()
-      this.dbData.forEach((item) => {
-        let d = this.findMetaData(item.id);
-        // console.log(d)
+    // 將firestore user使用者 與Authentication使用者 結合
+    async mergeUserData(){
+      //Authentication 所有使用者
+      let allUsers =  await this.ListAllUsers()
+      //firestore 使用者資料
+      let dbUsers = await this.readDbData()
+      
+      //結合
+      dbUsers.forEach((item) => {
+        //傳入allUser 陣列 及 ID，找到最近登入時間
+        let d = this.findMetaData(allUsers, item.id);
         let t = date.formatDate(
           d.user.metadata.lastSignInTime,
           "YYYY-MM-DD HH:mm:ss"
         );
-        // console.log(t)
-        item.lastSignInTime = t;
+        //加入 firestore Users 中
+        item.lastSignInTime = t;        
       });
-
-      // console.log(this.dbData);
+      //結合好的Array，傳址給 this.dbData ，模版用
+      this.dbData = dbUsers
     },
-    findMetaData(uid) {
+
+    //找到uid相同，傳回auth User 資料
+    findMetaData(allUsers , uid) {
       // console.log(uid)
-      return this.AllUsers.find((item) => {
+      return allUsers.find((item) => {
         // console.log(uid, item.user.uid)
         return item.user.uid == uid;
       });
     },
-    readDbData() {
+
+    //需寫成非同步，才能傳回資料
+    async readDbData() {
       let dbData = [];
-      dbFirestore
+      await dbFirestore
         .collection("MDBUsers")
         .get()
         .then((qs) => {
           qs.forEach((doc) => {
-            // console.log(doc.data().name);
-            this.dbData.push({
+            dbData.push({
               id: doc.id,
               ...doc.data(),
             });
           });
+          // console.log(dbData) 
+          return dbData // 這邊需要傳回
         })
         .catch((err) => {
           console.log(err.message);
         });
+
+        return dbData // 這裡再傳回
     },
 
     //從cloud function 中讀取 Authentication 使用者
     ListAllUsers() {
       const AdminListUsers = dbFunctions.httpsCallable("AdminListUsers");
-      AdminListUsers().then((result) => {
+      return AdminListUsers().then((result) => {
         // console.log(result.data);
 
         // console.log("displayName:", result.data.displayName)
@@ -122,15 +100,15 @@ export default {
         // console.log("uid:", uid)
         // console.log("isAnonymous:", providerData)
         // console.log(JSON.stringify(user, null, '  '))
+        let userdata = []
         result.data.forEach((x) => {
           let data = {
             userData: JSON.stringify(x, null, "  "), //變成字串好閱讀，知道有哪些物件參數
             user: x,
           };
-
-          this.AllUsers.push(data);
-          this.options.push(x.email);
+          userdata.push(data)
         });
+        return userdata
       });
     },
     listUserData() {

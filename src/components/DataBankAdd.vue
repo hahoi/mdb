@@ -40,6 +40,15 @@
                 />
               </div>
             </div>
+            <div class="q-ma-md row items-start">
+              <q-input
+                v-model="data.email"
+                label="Email"
+                lazy-rules
+                :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.']"
+                outlined
+              />
+            </div>
             <div class="q-ma-md row">
               <q-select
                 class="col q-mr-md"
@@ -48,7 +57,7 @@
                 label="選擇縣市"
                 outlined
                 ref="county"
-            popup-content-class="text-h6"
+                popup-content-class="text-h6"
               />
               <q-select
                 class="col"
@@ -58,7 +67,7 @@
                 outlined
                 clearable
                 ref="district"
-            popup-content-class="text-h6"
+                popup-content-class="text-h6"
               />
             </div>
             <div class="q-ma-md row items-start">
@@ -72,7 +81,7 @@
                 :options="Cassify"
                 label="分類"
                 outlined
-            popup-content-class="text-h6"
+                popup-content-class="text-h6"
               />
               <div class="flex col q-ml-md">
                 <q-btn
@@ -447,6 +456,11 @@ export default {
       this.setCurrentId("");
       // this.$router.replace('/').catch(err => { })
       this.$router.go(-1);
+    },
+
+    isValidEmailAddress(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(String(email).toLowerCase());
     },
     onSubmit() {
       this.$refs.form.validate().then((success) => {

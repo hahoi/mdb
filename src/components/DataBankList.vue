@@ -33,6 +33,16 @@
         </q-item>
         <q-separator spaced v-if="task.companyPhone.length !== 0" />
 
+        <q-item clickable v-if="task.email.length !== 0">
+          <q-item-section avatar class="col-5  text-grey-8"> Email： </q-item-section>
+          <q-item-section>
+            <q-item-label v-html="task.email">{{
+              task.email
+            }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-separator spaced v-if="task.email.length !== 0" />
+
         <q-item clickable v-if="task.county.length !== 0">
           <q-item-section class="col-5  text-grey-8">
             <q-item-label v-html="task.county"></q-item-label>
@@ -174,6 +184,10 @@
 
     <q-dialog v-model="showPhoto">
       <q-card>
+        <q-card-section class="row items-center q-py-none bg-grey-5">
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
         <img :src="photoUrl" />
       </q-card>
     </q-dialog>

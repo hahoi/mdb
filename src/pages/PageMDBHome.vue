@@ -7,24 +7,26 @@
       <q-card-section>
         <div class="row q-ma-md q-gutter-xs text-h6">
           <q-select
-            class="col-12"
+            class="col-12 text-h6"
             v-model="county"
             :options="counties"
             label="選擇縣市"
             clearable
             outlined
+            popup-content-class="text-h6"
           />
           <q-select
-            class="col-12"
+            class="col-12 text-h6"
             v-model="classify"
             :options="Cassify"
             label="分類"
             clearable
             outlined
+            popup-content-class="text-h6"
           />
           <!-- 例:(王 王大 王大軍 <=正確)（大 大軍 <= 錯誤） -->
           <q-input
-            class="col-12"
+            class="col-12 text-h6"
             bottom-slots
             outlined
             v-model="name"
@@ -97,10 +99,45 @@
     </template>
     <!-- v-if="conditions !== ''" -->
     <template v-else>
-      <div class="q-mt-xl q-pt-xl" ref="showRecord" v-if="conditions !== ''">
+      <div class="q-mt-xl q-pt-xl" ref="showRecord" >
         <show-record></show-record>
       </div>
     </template>
+
+        <q-dialog v-model="inception">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">沒有輸入查詢條件</div>
+        </q-card-section>
+        <q-card-section class="row items-center q-gutter-sm">
+          <q-btn
+            flat
+            label="列出全部資料"
+            color=""
+            v-close-popup
+            @click="listAllRecord"
+          />
+          <q-btn v-close-popup label="關閉" color="primary" />
+
+          <!-- <q-dialog v-model="secondDialog">
+            <q-card>
+              <q-card-section>
+                <div class="text-h6">
+                  下載全部資料若資料筆數過大，需要一些時間，仍要繼續...
+                </div>
+              </q-card-section>
+              <q-card-section
+                align="right"
+                class="bg-white text-teal q-gutter-sm"
+              >
+                <q-btn v-close-popup="2" label="確定" @click="listAllRecord" />
+                <q-btn v-close-popup="2" label="不要" />
+              </q-card-section>
+            </q-card>
+          </q-dialog> -->
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
     <!-- 新增資料視窗============================== -->
     <template>
@@ -164,6 +201,9 @@ export default {
       classify: "",
       star: 0,
       RedDot: false,
+
+      inception: false,
+      secondDialog: false,
     };
   },
   components: {
@@ -241,6 +281,8 @@ export default {
       let county = !this.county ? "" : this.county;
       let classify = !this.classify ? "" : this.classify;
       let RedDot = this.RedDot;
+
+      //查詢條件空白
       if (
         name === "" &&
         county === "" &&
@@ -248,10 +290,11 @@ export default {
         star === 0 &&
         RedDot === false
       ) {
-        this.$q.dialog({
-          title: "",
-          message: "請輸入查詢條件！",
-        });
+        this.inception = true;
+        // this.$q.dialog({
+        //   title: "",
+        //   message: "請輸入查詢條件！",
+        // });
         return false;
       }
 
@@ -1240,6 +1283,40 @@ export default {
       let offset = el.offsetTop - el.scrollHeight;
       let duration = 1000;
       setScrollPosition(target, offset, duration);
+    },
+    
+    //沒有下查詢條件列出所有紀錄
+    async listAllRecord() {
+      let vm = this;
+      this.cloudSearch = false;
+      this.clearFieldReord();
+
+      let dbData = {};
+      this.Downloading = true;
+      await dbFirestore
+        .collection("現場紀錄表")
+        .get()
+        .then((qs) => {
+          if (qs.empty) {
+            this.$q.dialog({
+              title: "",
+              message: "查不到",
+            });
+            this.Downloading = false;
+            return false;
+          }
+          qs.forEach((doc) => {
+            // console.log(doc.data().name);
+            Vue.set(dbData, doc.id, doc.data());
+          });
+          this.Downloading = false;
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+      this.setFieldReord(dbData);
+      await vm.scrollToElement();
+      return true;
     },
   }, // methods end
 };
