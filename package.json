@@ -9,15 +9,15 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.9.10",
     "axios": "^0.18.1",
     "core-js": "^3.6.5",
     "firebase": "^7.23.0",
-    "quasar": "^1.0.0",
+    "quasar": "^1.14.3",
     "vue-print-nb": "^1.5.0"
   },
   "devDependencies": {
-    "@quasar/app": "^2.0.0",
+    "@quasar/app": "^2.1.6",
     "workbox-webpack-plugin": "^5.0.0"
   },
   "browserslist": [

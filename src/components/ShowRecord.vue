@@ -89,7 +89,7 @@ export default {
       this.timer = setTimeout(() => {
         this.actualMaxPosition += 9;
         done();
-      }, 100);
+      }, 50);
     },
     done() {
       // clearTimeout(this.timer);
