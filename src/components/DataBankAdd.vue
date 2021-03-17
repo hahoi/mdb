@@ -40,12 +40,12 @@
                 />
               </div>
             </div>
+                <!-- :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.']" -->
             <div class="q-ma-md row items-start">
               <q-input
                 v-model="data.email"
                 label="Email"
                 lazy-rules
-                :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.']"
                 outlined
               />
             </div>
@@ -480,13 +480,13 @@ export default {
           return false;
         }
 
-        if (this.data.classify.trim() === "") {
-          this.$q.dialog({
-            title: "提示",
-            message: "請選擇分類",
-          });
-          return false;
-        }
+        // if (this.data.classify.trim() === "") {
+        //   this.$q.dialog({
+        //     title: "提示",
+        //     message: "請選擇分類",
+        //   });
+        //   return false;
+        // }
 
         if (success) {
           //檢查欄位規則是正确的

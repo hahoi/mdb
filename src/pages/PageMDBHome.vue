@@ -98,13 +98,13 @@
       </div>
     </template>
     <!-- v-if="conditions !== ''" -->
-    <template v-else>
+    <template v-else >
       <div class="q-mt-xl q-pt-xl" ref="showRecord" >
         <show-record></show-record>
       </div>
     </template>
 
-        <q-dialog v-model="inception">
+    <q-dialog v-model="inception">
       <q-card>
         <q-card-section>
           <div class="text-h6">沒有輸入查詢條件</div>
@@ -220,7 +220,8 @@ export default {
   },
   watch: {},
   computed: {
-    ...mapState("LoadData", ["FindRecordLength", "tasksDownloaded"]),
+    ...mapState("LoadData", [ "tasksDownloaded"]),
+    ...mapGetters("LoadData", ["FindRecordLength"]),
     ...mapState("phrase", ["professionalTitle", "Cassify", "counties"]),
 
     //顯示查詢字串

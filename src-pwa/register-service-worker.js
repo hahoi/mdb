@@ -30,15 +30,15 @@ register(process.env.SERVICE_WORKER_FILE, {
 
   updated(/* registration */) {
     // console.log('New content is available; please refresh.')
-    Notify.create({
-      message: '系統更新...',
-      icon: 'cloud_download',
-      // closeBtn: 'labels.update',
-      timeout: 5000,
-      onDismiss() {
-        // location.reload(true)
-      }
-    })
+    // Notify.create({
+    //   message: '系統更新...',
+    //   icon: 'cloud_download',
+    //   // closeBtn: 'labels.update',
+    //   timeout: 5000,
+    //   onDismiss() {
+    //     // location.reload(true)
+    //   }
+    // })
   },
 
   offline() {

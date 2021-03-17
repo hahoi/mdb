@@ -43,15 +43,16 @@
               <q-input v-model="task.companyPhone" label="公司電話" outlined />
             </div>
           </div>
-            <div class="q-ma-md row items-start">
-              <q-input
-                v-model="task.email"
-                label="Email"
-                lazy-rules
-                :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.']"
-                outlined
-              />
-            </div>
+          
+          <!-- :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.',]" -->
+          <div class="q-ma-md row items-start">
+            <q-input
+              v-model="task.email"
+              label="Email"
+              lazy-rules
+              outlined
+            />
+          </div>
           <div class="q-ma-md row">
             <q-select
               class="col q-mr-md"
@@ -86,16 +87,16 @@
               outlined
               popup-content-class="text-h6"
             />
-              <div class="flex col q-ml-md">
-                <q-btn
-                  color="white"
-                  text-color="black"
-                  stretch
-                  label="編輯分類"
-                  @click="dialogCassify = true"
-                  @listenToChild="dialogCassify = false"
-                />
-              </div>
+            <div class="flex col q-ml-md">
+              <q-btn
+                color="white"
+                text-color="black"
+                stretch
+                label="編輯分類"
+                @click="dialogCassify = true"
+                @listenToChild="dialogCassify = false"
+              />
+            </div>
           </div>
 
           <div class="q-ma-md row items-start">
@@ -188,100 +189,99 @@
         </q-tab-panel>
 
         <q-tab-panel name="uploadPhoto">
-          <template>
-            <div class="q-pa-md">
-              <q-stepper v-model="step" vertical color="primary" animated>
-                <q-step :name="1" title="選擇照片" icon="add" :done="step > 1">
-                  <input
-                    id="inputimage"
-                    ref="fileInput"
-                    type="file"
-                    @change="handleFileSelect"
-                    style="display: none"
-                    accept="image/*, .pdf"
-                  />
-                  <q-stepper-navigation>
-                    <!-- <q-btn @click="step = 2" color="primary" label="下一步" /> -->
-                    <q-btn color="primary" @click="$refs.fileInput.click()"
-                      >按我選擇照片</q-btn
-                    >
-                  </q-stepper-navigation>
-                </q-step>
+          <!-- <div> 不使用
+            <q-uploader :factory="factoryFn" style="max-width: 250px" />
+          </div> -->
+          <div class="q-pa-md">
+            <q-stepper v-model="step" vertical color="primary" animated>
+              <q-step :name="1" title="選擇照片" icon="add" :done="step > 1">
+                <input
+                  id="inputimage"
+                  ref="fileInput"
+                  type="file"
+                  @change="handleFileSelect"
+                  style="display: none"
+                  accept="image/*, .pdf"
+                />
+                <q-stepper-navigation>
+                  <!-- <q-btn @click="step = 2" color="primary" label="下一步" /> -->
+                  <q-btn color="primary" @click="$refs.fileInput.click()"
+                    >按我選擇照片</q-btn
+                  >
+                </q-stepper-navigation>
+              </q-step>
 
-                <q-step
-                  :name="2"
-                  title="預覽照片"
-                  icon="create_new_folder"
-                  :done="step > 2"
-                >
-                  <div v-for="(item, key) in imageFiles">
-                    <!-- {{ item.filename }} -->
-                    <div>
-                      <q-img
-                        :src="item.imageDataUrl"
-                        style="max-width: 100px"
-                      ></q-img>
-                    </div>
-                    <!-- <pre>{{item.EXIF}}</pre> -->
+              <q-step
+                :name="2"
+                title="預覽照片"
+                icon="create_new_folder"
+                :done="step > 2"
+              >
+                <div v-for="(item, key) in imageFiles">
+                  <!-- {{ item.filename }} -->
+                  <div>
+                    <q-img
+                      :src="item.imageDataUrl"
+                      style="max-width: 100px"
+                    ></q-img>
                   </div>
+                  <!-- <pre>{{item.EXIF}}</pre> -->
+                </div>
 
-                  <q-stepper-navigation>
-                    <q-circular-progress
-                      :min="40"
-                      :max="70"
-                      :value="uploadProgress"
-                      size="50px"
-                      :thickness="0.22"
-                      color="teal"
-                      track-color="grey-3"
-                      class="q-ma-sm"
-                    />
-                    <q-btn
-                      @click="uploadImage"
-                      color="primary"
-                      label="上傳照片"
-                    />
-                    <q-btn
-                      flat
-                      @click="step = 1"
-                      color="primary"
-                      label="重選照片"
-                      class="q-ml-sm"
-                    />
-                  </q-stepper-navigation>
-                </q-step>
-                <q-step :name="3" title="完成" icon="add_comment">
-                  <q-stepper-navigation>
-                    <q-btn
-                      @click="step = 1"
-                      color="primary"
-                      label="繼續上傳"
-                      class="q-ml-sm"
-                    />
-                  </q-stepper-navigation>
-                </q-step>
-              </q-stepper>
+                <q-stepper-navigation>
+                  <q-circular-progress
+                    :min="40"
+                    :max="70"
+                    :value="uploadProgress"
+                    size="50px"
+                    :thickness="0.22"
+                    color="teal"
+                    track-color="grey-3"
+                    class="q-ma-sm"
+                  />
+                  <q-btn
+                    @click="uploadImage"
+                    color="primary"
+                    label="上傳照片"
+                  />
+                  <q-btn
+                    flat
+                    @click="step = 1"
+                    color="primary"
+                    label="重選照片"
+                    class="q-ml-sm"
+                  />
+                </q-stepper-navigation>
+              </q-step>
+              <q-step :name="3" title="完成" icon="add_comment">
+                <q-stepper-navigation>
+                  <q-btn
+                    @click="step = 1"
+                    color="primary"
+                    label="繼續上傳"
+                    class="q-ml-sm"
+                  />
+                </q-stepper-navigation>
+              </q-step>
+            </q-stepper>
 
-              <q-list>
-                <q-item clickable v-if="task.photo.length !== 0">
-                  <q-item-section top thumbnail class="q-ml-none">
-                    <div
-                      v-for="(img, key) in task.photo"
-                      class="col text-black q-mb-md vertical-middle"
-                    >
-                      <span @click="delPhoto(img, key)">
-                        <q-icon name="delete" /><q-icon name="close" /></span
-                      ><br />
-                      <img :src="img.linkURL" class="vertical-middle" />
-                      <q-btn flat @click="setAvatar(img.linkURL)"
-                        >設為頭像</q-btn
-                      >
-                    </div>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </template>
+            <q-list>
+              <q-item clickable v-if="task.photo.length !== 0">
+                <q-item-section top thumbnail class="q-ml-none">
+                  <div
+                    v-for="(img, key) in task.photo"
+                    class="col text-black q-mb-md vertical-middle"
+                  >
+                    <span @click="delPhoto(img, key)">
+                      <q-icon name="delete" /><q-icon name="close" /></span
+                    ><br />
+                    <img :src="img.linkURL" class="vertical-middle" />
+                    <q-btn flat @click="setAvatar(img.linkURL)">設為頭像</q-btn>
+                  </div>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
         </q-tab-panel>
       </q-tab-panels>
 
@@ -299,9 +299,7 @@
       <!-- </q-card> -->
     </q-form>
 
-
-
-        <!-- 編輯分類視窗============================== -->
+    <!-- 編輯分類視窗============================== -->
     <q-dialog
       v-model="dialogCassify"
       persistent
@@ -362,7 +360,7 @@ export default {
   },
   components: {
     CassifyEdit: require("components/CassifyEdit.vue").default,
-    },
+  },
   created() {
     // this.readProfessionalTitle();
   },
@@ -370,8 +368,12 @@ export default {
   watch: {},
   computed: {
     ...mapState("LoadData", ["currentId"]),
-    ...mapState("phrase", ["professionalTitle", "counties", "districts"
-      ,"Cassify"]),
+    ...mapState("phrase", [
+      "professionalTitle",
+      "counties",
+      "districts",
+      "Cassify",
+    ]),
     subDistricts() {
       let index = this.counties.indexOf(this.task.county);
       if (this.index !== index) {
@@ -665,7 +667,58 @@ export default {
         );
       });
     },
-  },
+
+// 測試OK，不過因沒有壓縮及傳送％，故暫不使用
+    factoryFn(files){
+      let vm = this
+      
+      const findKey = "/現場紀錄表/" + vm.id + "/" + files[0].name;  
+      console.log(files[0].name)
+      const uploadTask = dbStorage.ref().child(findKey).put(files[0]);
+        uploadTask.on(
+          "state_changed",
+          function (snapshot) {
+            //非同步處理
+            vm.uploadProgress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          },
+          function (error) {
+            console.log(error);
+            alert("上傳圖片有錯誤！");
+          },
+          function () {
+            //成功
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+              let data = {
+                linkURL: downloadURL,
+                findKey: findKey,
+              };
+              console.log(data);
+              // vm.task.photo.push(data); 這樣會出錯
+              //pure push copy
+              vm.task.photo = [...vm.task.photo, data];
+
+              (vm.task.avatar = vm.task.photo[0].linkURL), //第一張照片設為頭像
+                // console.log(vm.task.avatar)
+                (vm.task.updateDate = new Date());
+              // 存入照片資料
+              //   vm.task.photo[0].avatar = true; //第一張照片設為頭像
+              console.log(vm.task);
+              let payload = {
+                id: vm.id,
+                data: vm.task, //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
+              };
+
+              //=============存入資料庫======================
+              return vm.updateFieldRecord(payload);
+            });
+          }
+        );
+    },
+
+
+
+  },//methods
 };
 </script>
 

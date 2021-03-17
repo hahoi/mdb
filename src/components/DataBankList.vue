@@ -5,7 +5,7 @@
         <q-item clickable>
           <q-item-section avatar class="col-5  text-grey-8">
             <q-avatar v-if="task.avatar.length !== 0">
-              <img :src="task.avatar" />
+              <img :src="task.avatar" @click="viewPhoto(task.avatar)"/>
             </q-avatar>
           </q-item-section>
           <q-item-section>
@@ -34,7 +34,7 @@
         <q-separator spaced v-if="task.companyPhone.length !== 0" />
 
         <q-item clickable v-if="task.email.length !== 0">
-          <q-item-section avatar class="col-5  text-grey-8"> Email： </q-item-section>
+          <q-item-section avatar class="col-3 text-grey-8"> Email： </q-item-section>
           <q-item-section>
             <q-item-label v-html="task.email">{{
               task.email
@@ -71,7 +71,7 @@
             }}</q-item-label>
           </q-item-section>
         </q-item>
-        <q-separator spaced v-if="task.address.length !== 0" />
+        <q-separator spaced v-if="task.classify.length !== 0" />
 
         <q-item clickable v-if="task.proTitle.length !== 0">
           <q-item-section avatar class="col-5  text-grey-8"> 職業職稱： </q-item-section>
@@ -173,16 +173,20 @@
         </div>
 
         <q-item clickable v-if="task.photo.length !== 0">
-          <q-item-section top thumbnail class="q-ml-none">
+          <q-item-section>
             <div v-for="img in task.photo">
-              <img :src="img.linkURL" @click="viewPhoto(img.linkURL)" />
+              <img
+                :src="img.linkURL"
+                @click="viewPhoto(img.linkURL)"
+                style="width: 100px"
+              />
             </div>
           </q-item-section>
         </q-item>
       </q-list>
     </q-card-section>
 
-    <q-dialog v-model="showPhoto">
+    <q-dialog v-model="showPhoto" :maximized="true">
       <q-card>
         <q-card-section class="row items-center q-py-none bg-grey-5">
           <q-space />

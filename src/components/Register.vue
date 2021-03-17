@@ -16,7 +16,6 @@
           label="Email"
           stack-label
           clearable
-          dense
         />
       </q-card-section>
 

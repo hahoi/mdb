@@ -8,7 +8,7 @@
   },
   "hosting": {
     "site": "mdb123",
-    "public": "public",
+    "public": "dist/pwa",
     "ignore": [
       "firebase.json",
       "**/.*",

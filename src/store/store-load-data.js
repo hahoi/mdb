@@ -9,7 +9,7 @@ const state = {
 
     FieldRecord: {},
     search: '',
-    sort: 'none',
+    sort: 'updateDate', //'none',
     currentId: '',
 
 }
@@ -147,7 +147,12 @@ const getters = {
             // if (sA > sB) return 1
             // else if (sA < sB) return -1
             // else return 0
-            return sA.localeCompare(sB, "zh-hant"); //適合中文的排序
+            //更新日期排序，最近的（大）排在前面
+            if (sA > sB) return -1
+            else if (sA < sB) return 1
+            else return 0
+
+            // return sA.localeCompare(sB, "zh-hant"); //適合中文的排序
         })
 
         keysOrdered.forEach((key) => {
