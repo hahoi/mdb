@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { uid, Notify } from 'quasar'
-import { firebaseDb, firebaseAuth, dbFirestore } from 'boot/firebase'
+import {  dbFirestore } from 'boot/firebase'
 
 const state = {
     mdb: false,

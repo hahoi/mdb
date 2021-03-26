@@ -91,12 +91,12 @@ export default {
       let role = ["Index"]
       if (this.item.states) {
         //可以使用的路由
-         role = ["Index", "MDB"];
+         role = ["Index", "MDB","import"];
       }
 
       if (this.item.sysMana) {
         //可以使用的路由
-         role = ["Index", "MDB", "users", "settings"];
+         role = ["Index", "MDB", "users", "settings","import"];
       }
       dbFirestore
         .collection("MDBUsers")

@@ -1,12 +1,19 @@
 <template>
   <div>
-     <q-card>
+    <template>
+      <!--  -->
+      <q-card v-if="FindRecordLength !== 0">
         <q-card-section class="">
-          <div class="full-width column">
-            <q-btn class="text-h6" label="匯 出" @click="exportFun" />
-          </div>
-          <search />
+          <!-- <div class="full-width column" > -->
+          <!-- <q-btn class="text-h6" label="匯 出" @click="exportFun" /> -->
+          <!------------ 匯出excel檔案 ------------------->
+          <data-export />
+          <!-- </div> -->
+          <!----------------- 本機搜尋 ------------------->
+          <search class="q-mt-md" />
           <!-- <q-scroll-area class="q-scroll-area-tasks">   -->
+
+          <!-- 列出符合條件的資料 -->
           <q-list bordered separator>
             <q-infinite-scroll @load="loadMore" :offset="10">
               <data-bank-list-item
@@ -31,6 +38,17 @@
           <!-- </q-scroll-area> -->
         </q-card-section>
       </q-card>
+      <!-- </div> -->
+    </template>
+
+    <!-- 向上捲動 回到頂部 -->
+    <!-- <q-page-scroller
+      position="bottom-right"
+      :scroll-offset="150"
+      :offset="[18, 18]"
+    >
+      <q-btn fab icon="keyboard_arrow_up" color="accent" />
+    </q-page-scroller> -->
   </div>
 </template>
 
@@ -49,12 +67,14 @@ export default {
       actualMaxPosition: 10,
       timer: null,
       index: 1,
+      exportData: [],
     };
   },
   components: {
     search: require("components/Search.vue").default,
     sort: require("components/Sort.vue").default,
     DataBankListItem: require("components/DataBankListItem.vue").default,
+    DataExport: require("components/DataExport.vue").default,
   },
   created() {},
   mounted() {
@@ -94,6 +114,8 @@ export default {
     done() {
       // clearTimeout(this.timer);
     },
+
+    //  ＝＝＝＝＝＝＝＝＝＝＝ 底下匯出functions已經不使用了＝＝＝＝＝＝＝＝＝＝＝＝＝
     exportFun() {
       let timeStamp = Date.now();
       let fileName = "MDB" + date.formatDate(timeStamp, "YYYYMMDDHHmmss");
@@ -118,8 +140,8 @@ export default {
         "興趣",
         "話題",
         "其他",
-        "星級",
-        "紅點",
+        "等級",
+        "註記",
       ];
 
       let data = {
@@ -129,7 +151,7 @@ export default {
         county: "",
         district: "",
         address: "",
-        email:"",
+        email: "",
         classify: "",
         proTitle: "",
         clubTitle: "",
@@ -151,9 +173,9 @@ export default {
       // html += '<head></head><body>'
 
       // let tr = "<table id='tblData' ref='tblData' border='1'>";
-      //     tr +="<thead><tr><th>姓名</th><th>手機</th><th>公司電話</th><th>縣市</th><th>區域</th><th>地址</th><th>分類</th><th>職業職稱</th><th>社團職稱</th><th>人脈關係</th><th>見面記事</th><th>建言事項</th><th>陳情事項</th><th>飲食</th><th>興趣</th><th>話題</th><th>其他</th><th>星級</th><th>紅點</th></tr></thead>"
+      //     tr +="<thead><tr><th>姓名</th><th>手機</th><th>公司電話</th><th>縣市</th><th>區域</th><th>地址</th><th>分類</th><th>職業職稱</th><th>社團職稱</th><th>人脈關係</th><th>見面記事</th><th>建言事項</th><th>陳情事項</th><th>飲食</th><th>興趣</th><th>話題</th><th>其他</th><th>等級</th><th>註記</th></tr></thead>"
 
-      rawData += `姓名,手機,公司電話,縣市,區域,地址,Email,分類,職業職稱,社團職稱,人脈關係,見面記事,建言事項,陳情事項,飲食,興趣,話題,其他,星級,紅點\r\n`;
+      rawData += `姓名,手機,公司電話,縣市,區域,地址,Email,分類,職業職稱,社團職稱,人脈關係,見面記事,建言事項,陳情事項,飲食,興趣,話題,其他,等級,註記\r\n`;
 
       Object.keys(this.FieldReordFiltered).forEach((key) => {
         let x = this.FieldReordFiltered[key];
@@ -248,8 +270,4 @@ export default {
 </script>
 
 <style>
-/* .q-scroll-area-tasks {
-  display: flex;
-  flex-grow: 1;
-} */
 </style>

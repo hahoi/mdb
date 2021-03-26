@@ -11,10 +11,10 @@
       hint="請務必確認檔案格式符合匯入條件"
     />
     <q-btn @click="importFun">匯入顯示</q-btn>
-    <q-btn @click="saveToFirestore">存到資料庫(注意使用)</q-btn>
     <q-btn @click="compareData">讀取並比較資料庫</q-btn>
     <q-btn @click="LastUpdate">列出最近更新(要更改DB查詢日期)</q-btn>
     <q-btn @click="deleteLastUpdate">刪除最近更新(注意使用)</q-btn>
+    <q-btn @click="saveToFirestore">存到資料庫(注意使用)</q-btn>
 
     {{ writeToDbArray }}
   </div>
@@ -58,18 +58,25 @@ export default {
 
         console.log(inputFileArr.length);
         let clearData = inputFileArr.filter((line) => {
-          let item = line.split(",");
-          if (item.length !== 7) {
+          let item = line.split(",") || [];
+
+
+          //注意：＝＝＝＝＝＝這裡的陣列長度要改＝＝＝＝＝＝＝＝＝
+
+          if (item.length !== 9) {
             //欄位數量要調整
-            console.log(item);
+            console.log("欄位數量不對",item.length ,item);
           }
-          return item.length === 7 && item[0] !== ""; //過濾格式不對，及 name是空白的（節點目錄）
+                      // console.log(item);
+
+          return item.length === 9 && item[0] !== ""; //過濾格式不對，及 name是空白的（節點目錄）
         });
+        // console.log(clearData)
 
         this.writeToDbArray = [];
         clearData.forEach((line) => {
-          // console.log(item.split(/\s+/));
           let item = line.split(",");
+          // console.log(item.split(/\s+/));
 
           let data = {
             name: item[0].trim(),
@@ -79,6 +86,8 @@ export default {
             address: item[4].trim() || "",
             proTitle: item[5].trim() || "",
             other: item[6].trim() || "",
+            email: item[7].trim() || "",
+            star: parseInt(item[8]) || 0,
 
             avatar: "",
             photo: [],
@@ -95,9 +104,7 @@ export default {
             topic: "",
             update: "",
             zip: "",
-            email:  "",
             RedDot: false,
-            star: 0,
             updateDate: new Date(),
 
 
@@ -105,7 +112,7 @@ export default {
           this.writeToDbArray.push(data);
         });
 
-        console.log(this.writeToDbArray);
+        // console.log(this.writeToDbArray);
         // writeToDbArray.forEach((item) => {
         //   this.addContact(item); //mapActions 寫入資料庫
         // });
@@ -146,7 +153,7 @@ export default {
         let match = this.SearchName(data.name, this.dbData);
         let aMatch = Object.values(match)[0]; //取出物件
         let aKey = Object.keys(match)[0];
-        if (aMatch) {
+        if (aMatch) { //重複
           ++i;
           console.log(aKey,"--------------------------------")
           console.log("新",
@@ -156,7 +163,9 @@ export default {
             data.county,
             data.address,
             data.proTitle,
-            data.other
+            data.other,
+            data.email,
+            data.star,
           );
           console.log("舊",
             aMatch.name,
@@ -165,17 +174,21 @@ export default {
             aMatch.county,
             aMatch.address,
             aMatch.proTitle,
-            aMatch.other
+            aMatch.other,
+            aMatch.email,
+            aMatch.star,
           );
           console.log("--------------------------------")
-          // 更新資料
+          //===== 更新資料==========
           let uData = {
-            // mobilePhone: data.mobilePhone,
-            // companyPhone: data.companyPhone,
+            mobilePhone: data.mobilePhone,
+            companyPhone: data.companyPhone,
             county: data.county,
             address: data.address,
             proTitle: data.proTitle,
-            other: data.other,            
+            other: data.other, 
+            email: data.email,
+            star: data.star,           
             updateDate: new Date(),
           };
           // console.log("更新", data.name, uData);
@@ -191,7 +204,8 @@ export default {
             .catch((error) => {
               console.error("更新資料失敗！", error);
             });
-        } else {
+        } else { 
+          //======= 新增資料 ============
           ++j;
           console.log(data.name, data,j);
           // 寫入資料
@@ -230,7 +244,7 @@ export default {
         let match = this.SearchName(data.name, this.dbData);
         let aMatch = Object.values(match)[0]; //取出物件
         let aKey = Object.keys(match)[0];
-        if (aMatch) {
+        if (aMatch) {//重複
           ++i;
           console.log(aKey,"--------------------------------")
           console.log("新",
@@ -240,7 +254,9 @@ export default {
             data.county,
             data.address,
             data.proTitle,
-            data.other
+            data.other,
+            data.email,
+            data.star,
           );
           console.log("舊",
             aMatch.name,
@@ -249,7 +265,9 @@ export default {
             aMatch.county,
             aMatch.address,
             aMatch.proTitle,
-            aMatch.other
+            aMatch.other,
+            aMatch.email,
+            aMatch.star,
           );
           console.log("--------------------------------")
         } else {
@@ -358,7 +376,7 @@ export default {
           console.log(err.message);
         });
     },
-  },
+  }, //methods
 };
 </script>
 
