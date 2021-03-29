@@ -210,7 +210,7 @@ export default {
           console.log(data.name, data,j);
           // 寫入資料
           dbFirestore
-            .collection("現場紀錄表")
+            .collection("現場紀錄表").doc
             .add(data)
             .then((ref) => {
               console.log("資料庫新增成功！", ref.id,j);

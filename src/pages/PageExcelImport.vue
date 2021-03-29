@@ -6,12 +6,13 @@
           <q-expansion-item
             expand-separator
             icon="update"
-            label="新增"
+            label="匯入"
             class="text-h4 bg-positive"
           >
             <q-card>
               <q-card-section>
-                <data-import-add></data-import-add>
+                <!-- 匯入 -->
+                <data-import></data-import>
               </q-card-section>
             </q-card>
           </q-expansion-item>
@@ -25,7 +26,13 @@
           >
             <q-card>
               <q-card-section>
-                <data-import-update></data-import-update>
+                <div class="text-black text-body1">
+                  資料匯入有錯誤，或要刪除多筆資料，可利用資料存入的時間，查詢出想要刪除的資料。
+                </div>
+              </q-card-section>
+              <q-card-section>
+                <!-- 刪除 -->
+                <data-Batch-delete></data-Batch-delete>
               </q-card-section>
             </q-card>
           </q-expansion-item>
@@ -44,9 +51,9 @@ export default {
     return {};
   },
   components: {
-    DataImportAdd: require("src/components/DataImportAdd.vue").default,
+    DataImport: require("src/components/DataImport.vue").default,
 
-    DataImportUpdate: require("src/components/DataImportUpdate.vue").default,
+    DataBatchDelete: require("src/components/DataBatchDelete.vue").default,
   },
   created() {},
   mounted() {},

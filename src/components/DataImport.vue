@@ -16,8 +16,8 @@
         <xlsx-sheets>
           <template #default="{ sheets }">
             <div class="q-pa-md" v-if="file">
-              <span class="q-pr-md text-h6 text-black">選擇活頁簿</span>
-              <select v-model="selectedSheet" class="text-h6 text-black">
+              <span class="q-pr-md text-subtitle1 text-black">選擇活頁簿</span>
+              <select v-model="selectedSheet" class="text-subtitle1 text-black">
                 <option v-for="sheet in sheets" :key="sheet" :value="sheet">
                   {{ sheet }}
                 </option>
@@ -30,11 +30,11 @@
         <!-- 會用 html table 顯示xlsx的資料-->
 
         <div class="q-pa-md q-gutter-sm text-black" v-if="file">
-          <q-btn
+          <!-- <q-btn
             label="匯入資料預覽"
             @click="table_dialog = true"
             v-if="selectedSheet"
-          />
+          /> -->
 
           <q-dialog
             v-model="table_dialog"
@@ -74,14 +74,6 @@
         </xlsx-json>
       </xlsx-read>
 
-      <div
-        class="full-width column text-black bg-grey-4"
-        v-if="isOk"
-        @click="importFun"
-      >
-        <q-btn class="text-h6" label="匯 入" />
-      </div>
-
       <q-dialog
         v-model="DuplicateDialog"
         persistent
@@ -95,9 +87,17 @@
               <q-tooltip content-class="bg-white text-primary">Close</q-tooltip>
             </q-btn>
           </q-bar>
-          <q-card-section>
+          <div
+            class="full-width column text-black bg-grey-4"
+            v-if="isOk"
+            @click="importFun"
+          >
+            <q-btn class="text-h6 text-positive" label="匯 入" v-close-popup/>
+          </div>
+
+          <q-card-section v-if="Duplicate.length > 0">
             <div class="text-h6">
-              資料庫中名字重複的資料。<span class="text-caption"
+              資料庫中名字重複的資料<span class="text-caption"
                 >(勾選確定新增會有兩筆同名字的資料)</span
               >
             </div>
@@ -111,7 +111,7 @@
               <q-item
                 clickable
                 v-ripple
-                v-for="(item, key) in ImportData"
+                v-for="(item, key) in Duplicate"
                 :key="key"
               >
                 <q-item-section>
@@ -120,16 +120,27 @@
                     }}<span class="q-ml-xl text-caption text-grey-8"
                       >新增<input
                         id="add"
-                        name="Duplicate"
+                        :name="`${item.name}`"
                         type="radio"
                         @click="item.add = true"
                     /></span>
                     <span class="q-ml-xl text-caption text-grey-8"
                       >更新<input
                         id="update"
-                        name="Duplicate"
+                        :name="`${item.name}`"
                         type="radio"
                         @click="item.update = true"
+                    /></span>
+                    <span class="q-ml-xl text-caption text-grey-8"
+                      >不匯入<input
+                        id="cancel"
+                        :name="`${item.name}`"
+                        type="radio"
+                        checked
+                        @click="
+                          item.update = false;
+                          item.add = false;
+                        "
                     /></span>
                   </q-item-label>
                   <q-item-label caption lines="4">
@@ -139,6 +150,10 @@
                         <td align="center">(新匯入)</td>
                       </tr>
                       <tr>
+                        <td>{{ item.db.proTitle }}</td>
+                        <td>{{ item.import.proTitle }}</td>
+                      </tr>
+                      <tr>
                         <td>{{ item.db.mobilePhone }}</td>
                         <td>{{ item.import.mobilePhone }}</td>
                       </tr>
@@ -146,29 +161,59 @@
                         <td>{{ item.db.address }}</td>
                         <td>{{ item.import.address }}</td>
                       </tr>
-                      <tr>
-                        <td>{{ item.db.proTitle }}</td>
-                        <td>{{ item.import.proTitle }}</td>
-                      </tr>
                     </table>
                   </q-item-label>
                 </q-item-section>
               </q-item>
-
-              <!-- <template
-                v-slot:loading
-                v-if="this.actualMaxPosition < this.FindRecordLength"
-              >
-                <div class="row justify-center q-my-md">
-                  {{ actualMaxPosition }} / {{ FindRecordLength }}
-                </div>
-                <div class="row justify-center">
-                  <q-spinner-dots color="primary" size="40px" />
-                </div>
-              </template> -->
-              <!-- </q-infinite-scroll> -->
             </q-list>
           </q-card-section>
+          <q-card-section v-if="NoDuplicate.length > 0">
+            <div class="text-h6">要新增匯入的資料</div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-none">
+            <q-list bordered separator>
+              <q-item
+                clickable
+                v-ripple
+                v-for="(item, key) in NoDuplicate"
+                :key="key"
+              >
+                <q-item-section>
+                  <q-item-label
+                    >{{ item.add_data.name }}
+                    <span class="q-ml-xl text-caption text-grey-8"
+                      >匯入<input
+                        id="add"
+                        :name="`${item.add_data.name}`"
+                        type="radio"
+                        checked
+                        @click="item.add = true"
+                    /></span>
+                    <span class="q-ml-xl text-caption text-grey-8"
+                      >不匯入<input
+                        id="cancel"
+                        :name="`${item.add_data.name}`"
+                        type="radio"
+                        @click="item.add = false" /></span
+                  ></q-item-label>
+                  <q-item-label caption lines="3">
+                    {{ item.add_data.proTitle }}<br />
+                    {{ item.add_data.mobilePhone }}<br />
+                    {{ item.add_data.address }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <div
+            class="full-width column text-black bg-grey-4"
+            v-if="isOk"
+            @click="importFun"
+          >
+            <q-btn class="text-h6 text-positive" label="匯 入" v-close-popup/>
+          </div>
 
           <q-bar>
             <q-space />
@@ -193,6 +238,7 @@ import {
 import { dbFirestore } from "boot/firebase";
 import Vue from "vue";
 import { date, Loading } from "quasar";
+import { showErrorMessage } from "src/utils/function-show-error-message";
 
 export default {
   name: "DataImportAdd",
@@ -207,11 +253,11 @@ export default {
       table_dialog: false,
 
       dbData: null, //資料庫所有人員名單
-      addData: [],
-      updateData: [],
+      // addData: [],
+      // updateData: [],
       DuplicateDialog: false,
-      ImportData: [],
-      // Duplicate: [],
+      Duplicate: [],
+      NoDuplicate: [],
       // Match: [],
       isOk: false,
     };
@@ -226,9 +272,7 @@ export default {
     XlsxDownload,
   },
   created() {},
-  mounted() {
-    // this.dbData = this.getDbData();
-  },
+  mounted() {},
   watch: {},
   computed: {},
   methods: {
@@ -240,19 +284,18 @@ export default {
       this.file = null;
       this.table_dialog = false;
     },
-
-    importFun() {
-      console.log("ok");
-    },
-
+    //========================= 選取工作表後，回傳 json資料 =====================================
     async returnCollection(collection_json) {
+      this.Duplicate = [];
+      this.NoDuplicate = [];
+
       Loading.show();
       this.dbData = await this.readDbData();
       Loading.hide();
       // console.log(this.selectedSheet); //工作表名稱
       // console.log(collection_json); //匯入的json
       if (collection_json.length > 1000) {
-        alert(
+        showErrorMessage(
           "匯入資料超過1000筆，未免系統運作緩慢，請拆分成數個Excel檔後再匯入！"
         );
         this.reset();
@@ -285,7 +328,7 @@ export default {
       ];
       for (let key in collection_json[0]) {
         if (!title.includes(key)) {
-          alert("欄位名稱【 " + key + " 】不符！");
+          showErrorMessage("欄位名稱【 " + key + " 】不符！");
           this.reset();
           return false;
         }
@@ -293,7 +336,7 @@ export default {
       // 遍歷匯入資料
       collection_json.forEach((x) => {
         if (!x.姓名) {
-          alert("姓名不能空白");
+          showErrorMessage("姓名不能空白");
           this.reset();
           return false;
         }
@@ -328,8 +371,11 @@ export default {
           name: "",
           mobilePhone: "",
           companyPhone: "",
+          avatar: "",
+          photo: [],
           county: "",
           district: "",
+          zip: "",
           address: "",
           email: "",
           classify: "",
@@ -357,7 +403,7 @@ export default {
         }
         // console.log("add_data", data_add);
         // 新增資料array
-        this.addData.push(data_add);
+        // this.addData.push(data_add);
 
         //過濾掉空白的欄位（屬性），資料庫「更新」時使用
         let data_update = {};
@@ -370,54 +416,59 @@ export default {
             }
           }
         }
+        data_update.updateDate = new Date(); //加上更新時間
+
         // console.log("update_data", data_update);
         //更新資料array
-        this.updateData.push(data_update);
+        // this.updateData.push(data_update);
 
-        this.ImportData = [];
-        this.addData.forEach((data) => {
-          let match = this.SearchName(data.name, this.dbData);
-          let aMatch = Object.values(match)[0]; //取出物件
-          let aKey = Object.keys(match)[0];
-          if (aMatch) {
-            //重複
-            // console.log("新增", data);
-            // console.log("資料庫中", aMatch);
-            let dup = {
-              name: data.name,
-              db: {
-                mobilePhone: aMatch.mobilePhone,
-                address: aMatch.address,
-                proTitle: aMatch.proTitle,
-              },
-              import: {
-                mobilePhone: data.mobilePhone,
-                address: data.address,
-                proTitle: data.proTitle,
-              },
-              key: aKey,
-              add_data: data_add,
-              update_data: data_update,
-              Duplicate: true,
-              add: false,
-              update: false,
-            };
-            // console.log(dup)
+        // 開始比對資料
+        // 這邊用data_add的資料
+        let match = this.SearchName(data_add.name, this.dbData);
+        let aMatch = Object.values(match)[0]; //取出物件
+        let aKey = Object.keys(match)[0];
+        // console.log(aMatch)
+        if (aMatch) {
+          //重複
+          // console.log("新增", data);
+          // console.log("資料庫中", aMatch);
+          let dup = {
+            name: data_add.name,
+            db: {
+              mobilePhone: aMatch.mobilePhone,
+              address: aMatch.address,
+              proTitle: aMatch.proTitle,
+            },
+            import: {
+              mobilePhone: data_add.mobilePhone,
+              address: data_add.address,
+              proTitle: data_add.proTitle,
+            },
+            id: aKey,
+            add_data: data_add,
+            update_data: data_update,
+            Duplicate: true,
+            add: false,
+            update: false,
+          };
+          // console.log(dup);
 
-            this.ImportData.push(dup);
-            this.DuplicateDialog = true;
-          }
-        });
-        this.isOk = true;
+          this.Duplicate.push(dup);
+        }
+        //沒有重複的部分，新增匯入
+        else {
+          let noDup = {
+            add: true,
+            add_data: data_add,
+          };
+          this.NoDuplicate.push(noDup);
+        }
       });
+      this.DuplicateDialog = true;
+      this.isOk = true;
     },
 
     //讀取資料庫所有人員名單
-    async getDbData() {
-      Loading.show();
-      this.dbData = await this.readDbData();
-      Loading.hide();
-    },
     readDbData() {
       return new Promise((resolve, reject) => {
         let dbData = {};
@@ -450,6 +501,43 @@ export default {
       });
       // console.log(match);
       return match;
+    },
+    //======================================================= 匯入資料================================================
+    importFun() {
+      // console.log(this.Duplicate);
+      // console.log(this.NoDuplicate);
+      // 設定批量
+      var batch = dbFirestore.batch();
+      //==============重複資料=============
+      this.Duplicate.forEach((item) => {
+        // -----新增------
+        if (item.add) {
+          console.log("新增", item.add_data);
+          let ref = dbFirestore.collection("現場紀錄表").doc();
+          batch.set(ref, item.add_data);
+        }
+        //------更新-----
+        if (item.update) {
+          console.log("更新", item.id, item.update_data);
+          let ref = dbFirestore.collection("現場紀錄表").doc(item.id);
+          batch.update(ref, item.update_data);
+        }
+      });
+      //===============不重複資料================
+
+      this.NoDuplicate.forEach((item) => {
+        if (item.add) {
+          console.log("不重複", item.add_data);
+          let ref = dbFirestore.collection("現場紀錄表").doc();
+          batch.set(ref, item.add_data);
+        }
+      });
+      // 批量寫入
+      batch.commit().then(() => {
+        console.log("資料庫批量寫入成功");
+        showErrorMessage("資料庫批量匯入成功")
+
+      });
     },
   }, // end methods
 };
