@@ -6,6 +6,7 @@
       <div class="q-pa-md text-h6 text-black" style="max-width: 300px">
         <div class="q-gutter-md text-h6 text-black">
           <q-file
+            filled
             v-model="file"
             label="選擇匯入的 Excel 檔案"
             @change="onChange"
@@ -289,9 +290,6 @@ export default {
       this.Duplicate = [];
       this.NoDuplicate = [];
 
-      Loading.show();
-      this.dbData = await this.readDbData();
-      Loading.hide();
       // console.log(this.selectedSheet); //工作表名稱
       // console.log(collection_json); //匯入的json
       if (collection_json.length > 1000) {
@@ -333,6 +331,14 @@ export default {
           return false;
         }
       }
+
+
+      
+      //讀取資料庫中資料
+      Loading.show();
+      this.dbData = await this.readDbData();
+      Loading.hide();
+
       // 遍歷匯入資料
       collection_json.forEach((x) => {
         if (!x.姓名) {
