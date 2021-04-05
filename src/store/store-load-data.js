@@ -11,6 +11,8 @@ const state = {
     search: '',
     sort: 'updateDate', //'none',
     currentId: '',
+    FieldRecordTotalCount: 0,
+
 
 }
 
@@ -40,6 +42,9 @@ const mutations = {
     setFilter(state, value) {
         state.filter = value
     },
+    setFieldRecordTotalCount(state,value){
+        state.FieldRecordTotalCount = value
+    },
     //Object
     updateFieldRecord(state, payload) {
         Vue.set(state.FieldRecord, payload.id, payload.data)
@@ -52,6 +57,7 @@ const mutations = {
         Vue.set(state.FieldRecord, payload.id, payload.data)
         // console.log("addFieldRecord",state.FieldRecord[payload.id])
     },
+
     
 
 }

@@ -37,6 +37,7 @@
           <q-item-label
             header
             class="text-grey-8 fit row justify-start items-center bg-brown-1"
+            @click="$router.push('/')"
           >
             <img alt="行動資料庫" src="~assets/MDB64.png" />
             <div
@@ -101,7 +102,7 @@
             <!-- <q-space /> -->
 
             <div v-if="FindRecordLength > 0" class="text-h6 text-black">
-              {{ FindRecordLength }}
+              {{FindRecordLength < 3000 ? FindRecordLength : FieldRecordTotalCount   }}
               <span class="text-subtitle1 text-blue-grey-10">筆資料</span>
             </div>
 
@@ -131,7 +132,7 @@ export default {
   },
   computed: {
     ...mapState("auth", ["loggedIn", "newMenu", "userData"]),
-    ...mapState("LoadData", ["FieldReord", "tasksDownloaded", "mdb"]),
+    ...mapState("LoadData", ["FieldReord", "tasksDownloaded", "mdb","FieldRecordTotalCount"]),
     ...mapGetters("LoadData", ["FindRecordLength"]),
   },
   methods: {

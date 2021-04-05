@@ -9,7 +9,7 @@
         style="font-family: 'Dancing Script', cursive"
       >
         Mobile Data Bank<br />
-        <span class="text-caption">V 1.4 </span>
+        <span class="text-caption">V 1.6 </span>
       </div>
     </div>
     <div v-else>

@@ -16,6 +16,7 @@
           label="Email"
           stack-label
           clearable
+          autocomplete="user-email"
         />
       </q-card-section>
 
@@ -30,6 +31,7 @@
           stack-label
           clearable
           dense
+          autocomplete="username"
         />
 
       </q-card-section>
@@ -44,6 +46,7 @@
           stack-label
           clearable
           dense
+          autocomplete="username"
         />
         
       </q-card-section>
@@ -61,6 +64,7 @@
           stack-label
           clearable
           dense
+          autocomplete="new-password"
         />
         
       </q-card-section>
@@ -76,6 +80,7 @@
           stack-label
           clearable
           dense
+          autocomplete="new-password"
         />
         
       </q-card-section>

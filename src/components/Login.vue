@@ -16,6 +16,7 @@
           stack-label
           clearable
           dense
+          autocomplete="user-email"
         />
       </q-card-section>
 
@@ -31,6 +32,7 @@
           stack-label
           clearable
           dense
+          autocomplete="current-password"
         />
       </q-card-section>
 
@@ -45,6 +47,7 @@
           label="登入"
           type="submit"
           class="btn-fixed-width"
+          autocomplete="new-password"
         />
       </q-card-actions>
     </q-card>

@@ -98,8 +98,8 @@
       </div>
     </template>
     <!-- v-if="conditions !== ''" -->
-    <template v-else >
-      <div class="q-mt-xl q-pt-xl" ref="showRecord" >
+    <template v-else>
+      <div class="q-mt-xl q-pt-xl" ref="showRecord">
         <show-record></show-record>
       </div>
     </template>
@@ -220,7 +220,7 @@ export default {
   },
   watch: {},
   computed: {
-    ...mapState("LoadData", [ "tasksDownloaded"]),
+    ...mapState("LoadData", ["tasksDownloaded"]),
     ...mapGetters("LoadData", ["FindRecordLength"]),
     ...mapState("phrase", ["professionalTitle", "Cassify", "counties"]),
 
@@ -252,6 +252,7 @@ export default {
       "setTasksDownloaded",
       "clearFieldReord",
       "setMDB",
+      "setFieldRecordTotalCount",
     ]),
     ...mapActions("LoadData", ["setFilter", "setSearch"]),
     ...mapActions("phrase", ["readProfessionalTitle", "ReadCassify"]),
@@ -1285,7 +1286,7 @@ export default {
       let duration = 1000;
       setScrollPosition(target, offset, duration);
     },
-    
+
     //沒有下查詢條件列出所有紀錄
     async listAllRecord() {
       let vm = this;
@@ -1294,30 +1295,66 @@ export default {
 
       let dbData = {};
       this.Downloading = true;
-      await dbFirestore
-        .collection("現場紀錄表")
-        .get()
-        .then((qs) => {
-          if (qs.empty) {
-            this.$q.dialog({
-              title: "",
-              message: "查不到",
+
+      const query = dbFirestore.collection("現場紀錄表");
+      const snapshot = await query.get();
+      const count = snapshot.size; //計算總筆數
+      console.log(count);
+      this.setFieldRecordTotalCount(count); //設定總筆數
+      // 超過3000筆資料，僅顯示3000筆
+      if (count > 3000) {
+        await query
+          .orderBy("updateDate", "desc")
+          .limit(3000)
+          .get()
+          .then((qs) => {
+            if (qs.empty) {
+              this.$q.dialog({
+                title: "",
+                message: "查不到",
+              });
+              this.Downloading = false;
+              return false;
+            }
+            qs.forEach((doc) => {
+              // console.log(doc.data().name);
+              Vue.set(dbData, doc.id, doc.data());
             });
             this.Downloading = false;
-            return false;
-          }
-          qs.forEach((doc) => {
-            // console.log(doc.data().name);
-            Vue.set(dbData, doc.id, doc.data());
+          })
+          .catch((err) => {
+            console.log(err.message);
           });
-          this.Downloading = false;
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-      this.setFieldReord(dbData);
-      await vm.scrollToElement();
-      return true;
+        this.setFieldReord(dbData);
+        await vm.scrollToElement();
+        return true;
+      } else {
+        // 小於3000筆資料
+        await dbFirestore
+          .collection("現場紀錄表")
+          .get()
+          .then((qs) => {
+            if (qs.empty) {
+              this.$q.dialog({
+                title: "",
+                message: "查不到",
+              });
+              this.Downloading = false;
+              return false;
+            }
+            qs.forEach((doc) => {
+              // console.log(doc.data().name);
+              Vue.set(dbData, doc.id, doc.data());
+            });
+            this.Downloading = false;
+          })
+          .catch((err) => {
+            console.log(err.message);
+          });
+        this.setFieldReord(dbData);
+        await vm.scrollToElement();
+        return true;
+      }
     },
   }, // methods end
 };

@@ -14,9 +14,15 @@ quasar dev
 
 
 ### Build the app for production
-```bash
-quasar build
-```
 
-### Customize the configuration
-See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
+### 發佈
+```bash
+quasar build -m pwa
+firebase deploy --only hosting
+```
+###預覽
+```
+firebase hosting:channel:deploy modatabank
+會產生臨時網址
+ https://--.web.app [expires 2021-03-12 15:44:11]
+```

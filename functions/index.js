@@ -59,8 +59,8 @@ exports.logActivities = functions.firestore.document('/{collection}/{id}')
 
 
 
-// //備份全部資料指令    gcloud firestore export gs://mdb_backup
-// //還原全部資料指令    gcloud firestore import gs://mdb_backup/2020-09-08T02:18:55_34393/
+// //備份全部資料指令    gcloud firestore export gs://pthgdb-backup
+// //還原全部資料指令    gcloud firestore import gs://pthgdb-backup/2021-03-30T03:03:53_86661
 // //注意：如果數據庫中的文檔不受導入影響，則導入後它將保留在數據庫中。
 
 

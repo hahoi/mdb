@@ -23,11 +23,11 @@
           v-if="isOk"
           @click="deleteFun"
         >
-          <q-btn class="text-h6" label="刪 除" v-close-popup />
+          <q-btn class="text-h6 text-red" label="刪 除" v-close-popup />
         </div>
 
         <q-card-section v-if="deleteData.length > 0">
-          <div class="text-h6">刪除的資料：{{ deleteData.length }}筆</div>
+          <div class="text-h6">查到可刪除的資料：{{ deleteData.length }}筆</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -49,7 +49,7 @@
                             id="del"
                             :name="`${item.name}`"
                             type="radio"
-                            checked
+                            :checked="`${item.del}`"
                             @click="item.add = true" /></span
                         ><br />
                         <span class="text-caption text-grey-8"
@@ -77,7 +77,7 @@
           v-if="isOk"
           @click="deleteFun"
         >
-          <q-btn class="text-h6" label="刪 除" v-close-popup />
+          <q-btn class="text-h6 text-red" label="刪 除" v-close-popup />
         </div>
 
         <q-bar>
@@ -91,7 +91,6 @@
 
 <script>
 import { dbFirestore } from "boot/firebase";
-import Vue from "vue";
 import { date, Loading } from "quasar";
 import { showErrorMessage } from "src/utils/function-show-error-message";
 
@@ -102,6 +101,7 @@ export default {
       dateRange: null,
       DeleteDialog: false,
       deleteData: [],
+      sliceDeleteData: [],
       isOk: false,
     };
   },
@@ -116,65 +116,23 @@ export default {
   },
   computed: {},
   methods: {
-    deleteFun() {
-      // console.log(this.deleteData);
-      this.$q
-        .dialog({
-          title: "刪除確認",
-          message: "從資料庫中刪除",
-          cancel: true,
-          persistent: true,
-        })
-        .onOk(() => {
-          this.$q
-            .dialog({
-              title: "警告",
-              message: "再次確認？",
-              cancel: true,
-            })
-            .onOk(() => {
-              // 設定批量
-              var batch = dbFirestore.batch();
-
-              let i = 0;
-              this.deleteData.forEach((item) => {
-                if (item.del) {
-                  ++i;
-
-                  // console.log(item.id, item.name,i);
-
-                  var Ref = dbFirestore.collection("現場紀錄表").doc(item.id);
-                  batch.delete(Ref);
-
-                  // dbFirestore
-                  //   .collection("現場紀錄表")
-                  //   .doc(key)
-                  //   .delete()
-                  //   .then(() => {
-                  //     console.log(item.id, "資料刪除成功！", i);
-                  //   });
-                }
-              });
-              // 批量寫入
-              batch.commit().then(() => {
-                console.log("批量資料刪除成功");
-                showErrorMessage("批量資料刪除成功");
-              });
-            });
-        });
-    },
     //最近更新
     LastUpdate() {
       this.deleteData.length = 0;
-      if(!this.dateRange) return
-      if (this.dateRange.from === this.dateRange.to) {
-        showErrorMessage("起始結束同一天");
-        return;
+      if (!this.dateRange) return;
+      let start,
+        end = "";
+      if (this.dateRange.from) {
+        start = new Date(this.dateRange.from);
+        end = new Date(this.dateRange.to);
+        // console.log(start)
+        // console.log(end)
+      } else {
+        //同一天
+        start = new Date(this.dateRange + " 00:00");
+        end = new Date(this.dateRange + " 23:59");
       }
-      let start = new Date(this.dateRange.from);
-      let end = new Date(this.dateRange.to);
 
-      // console.log(start, end);
       Loading.show();
       dbFirestore
         .collection("現場紀錄表")
@@ -185,9 +143,10 @@ export default {
         .then((qs) => {
           if (qs.empty) {
             this.$q.dialog({
-              title: "",
-              message: "查不到",
+              title: "提示",
+              message: "這段時間沒有存入資料紀錄",
             });
+            Loading.hide();
             return false;
           }
 
@@ -222,6 +181,74 @@ export default {
         .catch((err) => {
           console.log(err.message);
         });
+    },
+    deleteFun() {
+      // console.log(this.deleteData);
+      // 超過500需分段處理
+      if (this.deleteData.length >= 500) {
+        let NumPage = 500;
+        let totalPage = Math.ceil(this.deleteData.length / NumPage);
+        this.sliceDeleteData = [];
+        for (let page = 0; page < totalPage; page++) {
+          let offset = page * NumPage;
+          this.sliceDeleteData[page] = this.deleteData.slice(
+            offset,
+            NumPage + offset
+          );
+          // console.log(this.sliceDeleteData[page])
+        }
+      } else {
+        this.sliceDeleteData[0] = this.deleteData;
+      }
+
+      this.$q
+        .dialog({
+          title: "刪除確認",
+          message: "資料、照片從資料庫中刪除。",
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(() => {
+          this.$q
+            .dialog({
+              title: "警告",
+              message: "刪除再次確認？",
+              cancel: true,
+            })
+            .onOk(() => {
+              //要記錄是誰刪除
+
+
+
+
+
+
+              
+              this.sliceDeleteData.forEach((x) => {
+                console.log(x);
+                this.do_batch(x);
+              });
+            });
+        });
+    },
+    do_batch(deleteData) {
+      // 設定批量
+      var batch = dbFirestore.batch();
+
+      let i = 0;
+      deleteData.forEach((item) => {
+        if (item.del) {
+          ++i;
+          console.log("刪除", item.id, item.name, i);
+          var Ref = dbFirestore.collection("現場紀錄表").doc(item.id);
+          batch.delete(Ref);
+        }
+      });
+      // 批量寫入
+      batch.commit().then(() => {
+        // console.log("批量資料",i,"刪除成功");
+        showErrorMessage("批量資料" + i, "刪除成功");
+      });
     },
   }, //end methods
 };

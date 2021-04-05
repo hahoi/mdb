@@ -17,7 +17,7 @@
         <xlsx-sheets>
           <template #default="{ sheets }">
             <div class="q-pa-md" v-if="file">
-              <span class="q-pr-md text-subtitle1 text-black">選擇活頁簿</span>
+              <span class="q-pr-md text-subtitle1 text-black">選擇工作表</span>
               <select v-model="selectedSheet" class="text-subtitle1 text-black">
                 <option v-for="sheet in sheets" :key="sheet" :value="sheet">
                   {{ sheet }}
@@ -93,14 +93,20 @@
             v-if="isOk"
             @click="importFun"
           >
-            <q-btn class="text-h6 text-positive" label="匯 入" v-close-popup/>
+            <q-btn class="text-h6 text-positive" label="匯 入" v-close-popup />
           </div>
 
           <q-card-section v-if="Duplicate.length > 0">
             <div class="text-h6">
-              資料庫中名字重複的資料<span class="text-caption"
-                >(勾選確定新增會有兩筆同名字的資料)</span
-              >
+              資料庫中名字重複的資料
+              <ul class="text-caption">
+                <li>同名同姓不同人，勾選「新增」。</li>
+                <li>同一個人，勾選「更新」，更新資料。</li>
+                <li>不要新增或更新，勾選「不匯入」</li>
+              </ul>
+              <!-- <span class="text-caption"
+                >(勾選[新增]，匯入後會有兩筆同名字的資料)</span
+              > -->
             </div>
           </q-card-section>
 
@@ -143,12 +149,13 @@
                           item.add = false;
                         "
                     /></span>
+                    <!-- add-{{item.add}} update-{{item.update}} -->
                   </q-item-label>
                   <q-item-label caption lines="4">
                     <table width="100%">
                       <tr>
-                        <td align="center">(資料庫中)</td>
-                        <td align="center">(新匯入)</td>
+                        <td>(資料庫中已存資料)</td>
+                        <td>(即將匯入的資料)</td>
                       </tr>
                       <tr>
                         <td>{{ item.db.proTitle }}</td>
@@ -213,7 +220,7 @@
             v-if="isOk"
             @click="importFun"
           >
-            <q-btn class="text-h6 text-positive" label="匯 入" v-close-popup/>
+            <q-btn class="text-h6 text-positive" label="匯 入" v-close-popup />
           </div>
 
           <q-bar>
@@ -287,16 +294,21 @@ export default {
     },
     //========================= 選取工作表後，回傳 json資料 =====================================
     async returnCollection(collection_json) {
+      
       this.Duplicate = [];
       this.NoDuplicate = [];
 
-      // console.log(this.selectedSheet); //工作表名稱
       // console.log(collection_json); //匯入的json
-      if (collection_json.length > 1000) {
+      if (collection_json.length > 500) {
         showErrorMessage(
-          "匯入資料超過1000筆，未免系統運作緩慢，請拆分成數個Excel檔後再匯入！"
+          "匯入資料超過500筆，未免系統運作緩慢，請拆分成數個工作表後再匯入！"
         );
         this.reset();
+        return false;
+      }
+
+      // 活頁簿名稱不是「工作表一」時，還沒有取得資料，不要繼續往下
+      if (collection_json.length === 0) {
         return false;
       }
 
@@ -326,14 +338,59 @@ export default {
       ];
       for (let key in collection_json[0]) {
         if (!title.includes(key)) {
-          showErrorMessage("欄位名稱【 " + key + " 】不符！");
+          showErrorMessage("欄位名稱【 " + key + " 】不符，或是有資料沒欄位標題！");
+          this.reset();
+          return false;
+        }
+      }
+      // 先檢查資料
+      //  不能用forEach，沒有return
+      for (let key in collection_json) {
+        // 檢查姓名不能空白
+        let name = collection_json[key]["姓名"];
+        if (!name) {
+          showErrorMessage("姓名不能空白");
+          this.reset();
+          return false;
+        }
+        // 檢查等級數字
+        let str = collection_json[key]["等級"];
+        let error = false;
+        // undefined(沒有["等級"]欄位)
+        if (str) {
+          //空白可以，先過濾掉
+          let regex1 = /^\s+$/;
+          if (regex1.test(str)) {
+            // console.log("OK空白可以", str, name);
+          } else {
+            let regex2 = /[0-5]?|\s+/; //開頭結束是0-5數字出現0-1次 或 任何空白字元一次以上
+            let m = regex2.exec(str);
+            if (m[0] != "") {
+              //1-5開頭的數字都會符合，要解決10位數以上
+              if (parseInt(str) > 5) {
+                //十位數以上都不可以
+                // console.log("NO", str, name);
+                error = true;
+              } else {
+                // console.log("OK", str, name);
+              }
+            } else {
+              // console.log("No", str, name);
+              error = true;
+            }
+          }
+        }
+
+        if (error) {
+          showErrorMessage(
+            "等級請輸入 0~5間的數字，" + name + " " + str,
+            "錯誤"
+          );
           this.reset();
           return false;
         }
       }
 
-
-      
       //讀取資料庫中資料
       Loading.show();
       this.dbData = await this.readDbData();
@@ -341,11 +398,6 @@ export default {
 
       // 遍歷匯入資料
       collection_json.forEach((x) => {
-        if (!x.姓名) {
-          showErrorMessage("姓名不能空白");
-          this.reset();
-          return false;
-        }
         //初始資料，先都設成""，方便判斷全部欄位
         let data = {
           name: x.姓名.trim(),
@@ -470,6 +522,9 @@ export default {
           this.NoDuplicate.push(noDup);
         }
       });
+
+      // console.log(this.selectedSheet); //工作表名稱
+      // console.log(collection_json)
       this.DuplicateDialog = true;
       this.isOk = true;
     },
@@ -514,16 +569,19 @@ export default {
       // console.log(this.NoDuplicate);
       // 設定批量
       var batch = dbFirestore.batch();
+      let i = 0;
       //==============重複資料=============
       this.Duplicate.forEach((item) => {
         // -----新增------
         if (item.add) {
+          ++i;
           console.log("新增", item.add_data);
           let ref = dbFirestore.collection("現場紀錄表").doc();
           batch.set(ref, item.add_data);
         }
         //------更新-----
         if (item.update) {
+          ++i;
           console.log("更新", item.id, item.update_data);
           let ref = dbFirestore.collection("現場紀錄表").doc(item.id);
           batch.update(ref, item.update_data);
@@ -533,6 +591,7 @@ export default {
 
       this.NoDuplicate.forEach((item) => {
         if (item.add) {
+          ++i;
           console.log("不重複", item.add_data);
           let ref = dbFirestore.collection("現場紀錄表").doc();
           batch.set(ref, item.add_data);
@@ -540,9 +599,8 @@ export default {
       });
       // 批量寫入
       batch.commit().then(() => {
-        console.log("資料庫批量寫入成功");
-        showErrorMessage("資料庫批量匯入成功")
-
+        // console.log("資料庫批量寫入成功");
+        showErrorMessage("資料庫批量" + i, "匯入成功");
       });
     },
   }, // end methods

@@ -40,7 +40,7 @@
           </q-card>
         </q-expansion-item>
 
-        <q-separator />
+        <!-- <q-separator />
 
         <q-expansion-item
           group="somegroup"
@@ -76,7 +76,7 @@
               eveniet doloribus ullam aliquid.
             </q-card-section>
           </q-card>
-        </q-expansion-item>
+        </q-expansion-item> -->
       </q-list>
     </div>
   </div>
@@ -94,8 +94,23 @@ export default {
 
     DataBatchDelete: require("src/components/DataBatchDelete.vue").default,
   },
-  created() {},
-  mounted() {},
+  created() {
+          //  判斷設備
+      if (this.$q.platform.is.mobile) {
+        // console.log("mobile")
+        this.$q
+          .dialog({
+            title: "提示",
+            message: "請在電腦上操作匯入匯出。",
+            // persistent: true,
+          })
+          .onOk(() => {
+          })
+      }
+
+  },
+  mounted() {
+  },
   watch: {},
   computed: {},
   methods: {},
