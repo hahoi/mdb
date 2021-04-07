@@ -49,8 +49,12 @@ export const powerRouter = [
         path: '/users',
         component: () => import('pages/PageUsers'),
         meta: { title: '使用者管理', role: 'users', icon: 'group', divider: true }
-      },
-
+      },        
+      {
+        path: '/loglist',
+        component: () => import('pages/PageLogList'),
+        meta: { title: 'log紀錄', role: 'LogList', icon: 'group', divider: true }
+      },     
       // {
       //   path: '/settings',
       //   component: () => import('pages/PageSettings'),
@@ -67,8 +71,6 @@ export const powerRouter = [
       //   component: () => import('pages/PageBackup'),
       //   meta: { title: '備份', role: 'users', icon: 'backup_table', divider: true }
       // },      
-
-
     ]
   },
   {

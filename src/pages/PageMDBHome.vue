@@ -220,6 +220,7 @@ export default {
   },
   watch: {},
   computed: {
+    ...mapState("auth", ["userData"]),
     ...mapState("LoadData", ["tasksDownloaded"]),
     ...mapGetters("LoadData", ["FindRecordLength"]),
     ...mapState("phrase", ["professionalTitle", "Cassify", "counties"]),
@@ -283,6 +284,17 @@ export default {
       let county = !this.county ? "" : this.county;
       let classify = !this.classify ? "" : this.classify;
       let RedDot = this.RedDot;
+
+
+      
+
+      // 紀錄
+      dbFirestore.collection("log").add({
+        date: new Date(),
+        name: this.userData.name,
+        do: "查詢資料",
+        data: this.conditionsSetSearch
+      });
 
       //查詢條件空白
       if (
@@ -1327,7 +1339,7 @@ export default {
           });
         this.setFieldReord(dbData);
         await vm.scrollToElement();
-        return true;
+        // return true;
       } else {
         // 小於3000筆資料
         await dbFirestore
@@ -1353,8 +1365,15 @@ export default {
           });
         this.setFieldReord(dbData);
         await vm.scrollToElement();
-        return true;
+        // return true;
       }
+
+      // 紀錄
+      dbFirestore.collection("log").add({
+        date: new Date(),
+        name: this.userData.name,
+        do: "列出全部資料",
+      });
     },
   }, // methods end
 };

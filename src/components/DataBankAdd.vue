@@ -412,6 +412,7 @@ export default {
   },
   watch: {},
   computed: {
+    ...mapState("auth", ["userData"]),
     ...mapState("LoadData", ["currentId"]),
     ...mapState("phrase", [
       "professionalTitle",
@@ -496,8 +497,21 @@ export default {
 
           //拷貝一份，存入資料庫
           let copyData = Object.assign({}, this.data);
+          //資料庫新增
           this.addFieldRecord(copyData);
           this.$q.notify("存檔中...");
+
+
+          // 紀錄
+          dbFirestore.collection("log").add({
+            date: new Date(),
+            name: this.userData.name,
+            do: "新增資料",
+            data: JSON.stringify(copyData),
+          });
+
+
+
 
           //把基本資料Tab視窗關閉，後續上傳圖片
           this.dialogTab = false;

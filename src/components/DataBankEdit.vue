@@ -43,15 +43,10 @@
               <q-input v-model="task.companyPhone" label="公司電話" outlined />
             </div>
           </div>
-          
+
           <!-- :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.',]" -->
           <div class="q-ma-md row items-start">
-            <q-input
-              v-model="task.email"
-              label="Email"
-              lazy-rules
-              outlined
-            />
+            <q-input v-model="task.email" label="Email" lazy-rules outlined />
           </div>
           <div class="q-ma-md row">
             <q-select
@@ -367,6 +362,7 @@ export default {
   mounted() {},
   watch: {},
   computed: {
+    ...mapState("auth", ["userData"]),
     ...mapState("LoadData", ["currentId"]),
     ...mapState("phrase", [
       "professionalTitle",
@@ -466,7 +462,17 @@ export default {
             },
           };
           console.log(payload);
+          //資料庫更新
           this.updateFieldRecord(payload);
+
+          
+          // 紀錄
+          dbFirestore.collection("log").add({
+            date: new Date(),
+            name: this.userData.name,
+            do: "更新資料",
+            data: JSON.stringify(payload),
+          });
 
           this.$emit("listenToChild", false); //回傳關閉視窗;
         } else {
@@ -668,57 +674,54 @@ export default {
       });
     },
 
-// 測試OK，不過因沒有壓縮及傳送％，故暫不使用
-    factoryFn(files){
-      let vm = this
-      
-      const findKey = "/現場紀錄表/" + vm.id + "/" + files[0].name;  
-      console.log(files[0].name)
+    // 測試OK，不過因沒有壓縮及傳送％，故暫不使用
+    factoryFn(files) {
+      let vm = this;
+
+      const findKey = "/現場紀錄表/" + vm.id + "/" + files[0].name;
+      console.log(files[0].name);
       const uploadTask = dbStorage.ref().child(findKey).put(files[0]);
-        uploadTask.on(
-          "state_changed",
-          function (snapshot) {
-            //非同步處理
-            vm.uploadProgress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          },
-          function (error) {
-            console.log(error);
-            alert("上傳圖片有錯誤！");
-          },
-          function () {
-            //成功
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-              let data = {
-                linkURL: downloadURL,
-                findKey: findKey,
-              };
-              console.log(data);
-              // vm.task.photo.push(data); 這樣會出錯
-              //pure push copy
-              vm.task.photo = [...vm.task.photo, data];
+      uploadTask.on(
+        "state_changed",
+        function (snapshot) {
+          //非同步處理
+          vm.uploadProgress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        },
+        function (error) {
+          console.log(error);
+          alert("上傳圖片有錯誤！");
+        },
+        function () {
+          //成功
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            let data = {
+              linkURL: downloadURL,
+              findKey: findKey,
+            };
+            console.log(data);
+            // vm.task.photo.push(data); 這樣會出錯
+            //pure push copy
+            vm.task.photo = [...vm.task.photo, data];
 
-              (vm.task.avatar = vm.task.photo[0].linkURL), //第一張照片設為頭像
-                // console.log(vm.task.avatar)
-                (vm.task.updateDate = new Date());
-              // 存入照片資料
-              //   vm.task.photo[0].avatar = true; //第一張照片設為頭像
-              console.log(vm.task);
-              let payload = {
-                id: vm.id,
-                data: vm.task, //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
-              };
+            (vm.task.avatar = vm.task.photo[0].linkURL), //第一張照片設為頭像
+              // console.log(vm.task.avatar)
+              (vm.task.updateDate = new Date());
+            // 存入照片資料
+            //   vm.task.photo[0].avatar = true; //第一張照片設為頭像
+            console.log(vm.task);
+            let payload = {
+              id: vm.id,
+              data: vm.task, //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
+            };
 
-              //=============存入資料庫======================
-              return vm.updateFieldRecord(payload);
-            });
-          }
-        );
+            //=============存入資料庫======================
+            return vm.updateFieldRecord(payload);
+          });
+        }
+      );
     },
-
-
-
-  },//methods
+  }, //methods
 };
 </script>
 

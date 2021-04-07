@@ -93,6 +93,7 @@
 import { dbFirestore } from "boot/firebase";
 import { date, Loading } from "quasar";
 import { showErrorMessage } from "src/utils/function-show-error-message";
+import { mapState } from "vuex";
 
 export default {
   name: "DataBatchDelete",
@@ -114,7 +115,9 @@ export default {
       this.LastUpdate();
     },
   },
-  computed: {},
+  computed: {
+    ...mapState("auth", ["userData"]),
+  },
   methods: {
     //最近更新
     LastUpdate() {
@@ -216,22 +219,26 @@ export default {
               cancel: true,
             })
             .onOk(() => {
-              //要記錄是誰刪除
-
-
-
-
-
-
-              
               this.sliceDeleteData.forEach((x) => {
-                console.log(x);
+                // console.log(x);
                 this.do_batch(x);
               });
             });
         });
     },
     do_batch(deleteData) {
+      //要記錄是誰刪除
+      let data = {
+        date: new Date(),
+        name: this.userData.name,
+        do: "刪除資料",
+        data: JSON.stringify(deleteData),
+      };
+      // console.log(data)
+      dbFirestore.collection("log").add(data);
+
+
+
       // 設定批量
       var batch = dbFirestore.batch();
 

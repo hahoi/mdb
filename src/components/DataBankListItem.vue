@@ -173,6 +173,7 @@ export default {
   mounted() {},
   watch: {},
   computed: {
+    ...mapState("auth", ["userData"]),
     ...mapState("LoadData", ["search"]),
   },
   methods: {
@@ -229,6 +230,20 @@ export default {
               this.deleteFieldRecord(this.id);
               this.dialogList = false;
               this.$q.notify(`${this.task.name}已刪除`);
+
+
+
+              
+            // 紀錄
+            dbFirestore
+            .collection("log")
+            .add({
+                date: new Date(),
+                name: this.userData.name,
+                do: "刪除資料",
+                data: `${this.task.name}已刪除`
+            })
+
             });
         });
     },

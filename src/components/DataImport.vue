@@ -247,6 +247,7 @@ import { dbFirestore } from "boot/firebase";
 import Vue from "vue";
 import { date, Loading } from "quasar";
 import { showErrorMessage } from "src/utils/function-show-error-message";
+import { mapState } from "vuex";
 
 export default {
   name: "DataImportAdd",
@@ -282,7 +283,9 @@ export default {
   created() {},
   mounted() {},
   watch: {},
-  computed: {},
+  computed: {
+    ...mapState("auth", ["userData"]),
+  },
   methods: {
     onChange(event) {
       this.file = event.target.files ? event.target.files[0] : null;
@@ -294,7 +297,6 @@ export default {
     },
     //========================= 選取工作表後，回傳 json資料 =====================================
     async returnCollection(collection_json) {
-      
       this.Duplicate = [];
       this.NoDuplicate = [];
 
@@ -338,7 +340,9 @@ export default {
       ];
       for (let key in collection_json[0]) {
         if (!title.includes(key)) {
-          showErrorMessage("欄位名稱【 " + key + " 】不符，或是有資料沒欄位標題！");
+          showErrorMessage(
+            "欄位名稱【 " + key + " 】不符，或是有資料沒欄位標題！"
+          );
           this.reset();
           return false;
         }
@@ -578,6 +582,15 @@ export default {
           console.log("新增", item.add_data);
           let ref = dbFirestore.collection("現場紀錄表").doc();
           batch.set(ref, item.add_data);
+          //紀錄
+          let log = dbFirestore.collection("log").doc();
+          let data = {
+            date: new Date(),
+            name: this.userData.name,
+            do: "新增同名資料",
+            data:item.add_data.name,
+          };
+          batch.set(log,data);
         }
         //------更新-----
         if (item.update) {
@@ -585,6 +598,15 @@ export default {
           console.log("更新", item.id, item.update_data);
           let ref = dbFirestore.collection("現場紀錄表").doc(item.id);
           batch.update(ref, item.update_data);
+          //紀錄
+          let log = dbFirestore.collection("log").doc();
+          let data = {
+            date: new Date(),
+            name: this.userData.name,
+            do: "更新資料",
+            data:item.update_data.name,
+          };
+          batch.set(log,data);
         }
       });
       //===============不重複資料================
@@ -595,13 +617,24 @@ export default {
           console.log("不重複", item.add_data);
           let ref = dbFirestore.collection("現場紀錄表").doc();
           batch.set(ref, item.add_data);
+          //紀錄
+          let log = dbFirestore.collection("log").doc();
+          let data = {
+            date: new Date(),
+            name: this.userData.name,
+            do: "新增資料",
+            data:item.add_data.name,
+          };
+          batch.set(log,data);
         }
       });
+
       // 批量寫入
       batch.commit().then(() => {
         // console.log("資料庫批量寫入成功");
         showErrorMessage("資料庫批量" + i, "匯入成功");
       });
+
     },
   }, // end methods
 };
