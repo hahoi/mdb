@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { uid, Notify } from 'quasar'
-import {  dbFirestore } from 'boot/firebase'
+import { dbFirestore } from 'boot/firebase'
 
 const state = {
     mdb: false,
@@ -17,7 +17,7 @@ const state = {
 }
 
 const mutations = {
-    
+
     setMDB(state, value) {
         state.mdb = value
     },
@@ -42,7 +42,7 @@ const mutations = {
     setFilter(state, value) {
         state.filter = value
     },
-    setFieldRecordTotalCount(state,value){
+    setFieldRecordTotalCount(state, value) {
         state.FieldRecordTotalCount = value
     },
     //Object
@@ -58,7 +58,7 @@ const mutations = {
         // console.log("addFieldRecord",state.FieldRecord[payload.id])
     },
 
-    
+
 
 }
 
@@ -73,6 +73,19 @@ const actions = {
     setSort({ commit }, value) {
         commit('setSort', value)
     },
+    // 紀錄
+    log({ dispatch, commit, state, rootState }, payload) {
+        // console.log(rootState.auth.userData.name)
+        if (!payload) return
+        let data = {
+            date: new Date(), //記錄時間
+            name: rootState.auth.userData.name,  //記錄使用者
+            do: payload.do || "", //紀錄操作功能
+            data: payload.data || "" //記錄資料
+        }
+        dbFirestore.collection("log").add(data);
+    },
+
     //增加一筆
     addFieldRecord({ commit, dispatch }, data) { //建議跟mutations同名，較好記
         dbFirestore
@@ -88,6 +101,7 @@ const actions = {
                 // 更新 state.FieldRecord，更新畫面
                 commit("addFieldRecord", payload);
                 console.log("資料庫新增成功！", ref.id);
+                dispatch('log', { do: `新增${ payload.data.name}資料`, data: payload.data })
             })
             .catch(error => {
                 console.error("資料庫儲存失敗！", error);
@@ -95,7 +109,7 @@ const actions = {
     },
 
     //更新
-    updateFieldRecord({ commit }, payload) {
+    updateFieldRecord({ commit , dispatch }, payload) {
         // console.log(payload)
         dbFirestore
             .collection("現場紀錄表")
@@ -105,6 +119,7 @@ const actions = {
                 // 更新 state.FieldRecord，更新畫面
                 commit("updateFieldRecord", payload);
                 console.log("資料庫修改成功！");
+                dispatch('log', { do: `修改${ payload.data.name}資料`, data: payload.data })
             })
             .catch(error => {
                 console.error("資料庫更新失敗！", error);
@@ -112,14 +127,15 @@ const actions = {
 
     },
     //刪除
-    deleteFieldRecord({ commit }, id) {
+    deleteFieldRecord({ commit, dispatch  }, payload) {
         dbFirestore
             .collection("現場紀錄表")
-            .doc(id)
+            .doc(payload.id)
             .delete()
             .then(() => {
-                commit("deleteFieldRecord", id);
+                commit("deleteFieldRecord", payload.id);
                 console.log("資料刪除成功！");
+                dispatch('log', { do: `刪除${ payload.name}資料`, payload })
             })
 
     },
@@ -167,13 +183,14 @@ const getters = {
 
         return FieldReordSorted
     },
-    FieldReordFiltered: (state, getters) => {
+    FieldReordFiltered: (state, getters, rootState) => {
         let FieldReordSorted = getters.FieldReordSorted
         let FieldReordFiltered = {}
         let searchWord = state.search.trim();
         //過濾條件用空白分割成字串，用正則可一個或多個空白去分割
         let arraySearchWord = searchWord.split(/\s+/);
 
+        // console.log(rootState.auth.userData.name)
         if (state.search) {
             Object.keys(FieldReordSorted).forEach((id) => {
                 let task = FieldReordSorted[id]
@@ -194,16 +211,16 @@ const getters = {
 
                     //搜尋每個欄位
                     Object.keys(task).forEach((key) => {
-                            //搜尋文字型態個欄位
-                            if (typeof task[key] === 'string') {
-                                let item = task[key]
-                                // console.log(key,task[key])
-                                let searchLowerCase = keyword.toLowerCase()
-                                if (item.includes(searchLowerCase)) {
-                                    // FieldReordFiltered[id] = task
-                                    arr_flag[index] = true; //先把符合的記下來
-                                }
+                        //搜尋文字型態個欄位
+                        if (typeof task[key] === 'string') {
+                            let item = task[key]
+                            // console.log(key,task[key])
+                            let searchLowerCase = keyword.toLowerCase()
+                            if (item.includes(searchLowerCase)) {
+                                // FieldReordFiltered[id] = task
+                                arr_flag[index] = true; //先把符合的記下來
                             }
+                        }
                     })
                 })
 

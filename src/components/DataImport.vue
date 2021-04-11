@@ -357,6 +357,24 @@ export default {
           this.reset();
           return false;
         }
+
+        // 檢查等級數字
+        let str = collection_json[key]["等級"];
+        if (str) {
+          let regex = /^([012345])$|^(\s+)$/; //只能1到5中一位數或 一個到多個空白
+          // console.log(str,regex.test(str))
+          if (!regex.test(str)) {
+            showErrorMessage(
+              "等級請輸入 0~5間的數字，" + name + "的等級=" + str + "錯誤",
+              "錯誤"
+            );
+            this.reset();
+            return false;
+          }
+        }
+
+        /*
+
         // 檢查等級數字
         let str = collection_json[key]["等級"];
         let error = false;
@@ -393,7 +411,9 @@ export default {
           this.reset();
           return false;
         }
-      }
+*/
+      } //end for
+      // return
 
       //讀取資料庫中資料
       Loading.show();
@@ -460,7 +480,7 @@ export default {
             data_add[key] = data[key];
             //匯入資料有值時，再轉換型態
             data_add.RedDot = data_add.RedDot === "●" ? true : false;
-            data_add.star = parseInt(data_add.star);
+            data_add.star = parseInt(data_add.star) || 0;
           }
         }
         // console.log("add_data", data_add);
@@ -588,9 +608,9 @@ export default {
             date: new Date(),
             name: this.userData.name,
             do: "新增同名資料",
-            data:item.add_data.name,
+            data: item.add_data.name,
           };
-          batch.set(log,data);
+          batch.set(log, data);
         }
         //------更新-----
         if (item.update) {
@@ -604,9 +624,9 @@ export default {
             date: new Date(),
             name: this.userData.name,
             do: "更新資料",
-            data:item.update_data.name,
+            data: item.update_data.name,
           };
-          batch.set(log,data);
+          batch.set(log, data);
         }
       });
       //===============不重複資料================
@@ -623,9 +643,9 @@ export default {
             date: new Date(),
             name: this.userData.name,
             do: "新增資料",
-            data:item.add_data.name,
+            data: item.add_data.name,
           };
-          batch.set(log,data);
+          batch.set(log, data);
         }
       });
 
@@ -634,7 +654,6 @@ export default {
         // console.log("資料庫批量寫入成功");
         showErrorMessage("資料庫批量" + i, "匯入成功");
       });
-
     },
   }, // end methods
 };

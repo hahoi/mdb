@@ -465,15 +465,6 @@ export default {
           //資料庫更新
           this.updateFieldRecord(payload);
 
-          
-          // 紀錄
-          dbFirestore.collection("log").add({
-            date: new Date(),
-            name: this.userData.name,
-            do: "更新資料",
-            data: JSON.stringify(payload),
-          });
-
           this.$emit("listenToChild", false); //回傳關閉視窗;
         } else {
           console.log("檢查欄位規則錯誤");

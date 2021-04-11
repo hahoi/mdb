@@ -227,22 +227,13 @@ export default {
                 });
               }
               //刪除資料庫
-              this.deleteFieldRecord(this.id);
+              let payload ={
+                id: this.id,
+                name: this.task.name
+              }
+              this.deleteFieldRecord(payload);
               this.dialogList = false;
               this.$q.notify(`${this.task.name}已刪除`);
-
-
-
-              
-            // 紀錄
-            dbFirestore
-            .collection("log")
-            .add({
-                date: new Date(),
-                name: this.userData.name,
-                do: "刪除資料",
-                data: `${this.task.name}已刪除`
-            })
 
             });
         });

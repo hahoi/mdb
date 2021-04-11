@@ -232,7 +232,7 @@ export default {
         date: new Date(),
         name: this.userData.name,
         do: "刪除資料",
-        data: JSON.stringify(deleteData),
+        data: deleteData.length || 0,
       };
       // console.log(data)
       dbFirestore.collection("log").add(data);

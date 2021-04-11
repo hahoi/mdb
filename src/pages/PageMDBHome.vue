@@ -255,7 +255,7 @@ export default {
       "setMDB",
       "setFieldRecordTotalCount",
     ]),
-    ...mapActions("LoadData", ["setFilter", "setSearch"]),
+    ...mapActions("LoadData", ["setFilter", "setSearch","log"]),
     ...mapActions("phrase", ["readProfessionalTitle", "ReadCassify"]),
 
     //紅點切換
@@ -289,12 +289,12 @@ export default {
       
 
       // 紀錄
-      dbFirestore.collection("log").add({
-        date: new Date(),
-        name: this.userData.name,
-        do: "查詢資料",
-        data: this.conditionsSetSearch
-      });
+      let payload={
+        do:"查詢資料",
+        data: this.conditionsSetSearch,
+      }
+      this.log(payload)  
+
 
       //查詢條件空白
       if (
@@ -1369,11 +1369,12 @@ export default {
       }
 
       // 紀錄
-      dbFirestore.collection("log").add({
-        date: new Date(),
-        name: this.userData.name,
-        do: "列出全部資料",
-      });
+      let payload={
+        do:"列出全部資料",
+        data: null,
+      }
+      this.log(payload)  
+
     },
   }, // methods end
 };
