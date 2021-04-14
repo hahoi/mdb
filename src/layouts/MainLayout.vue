@@ -14,6 +14,7 @@
 
         <q-toolbar-title
           class="flex justify-center text-center text-weight text-h5"
+          @click="reload"
         >
           行動資料庫
         </q-toolbar-title>
@@ -140,6 +141,12 @@ export default {
 			visitOurWebsite() {
 				openURL('https://hahoi.github.io/mdbhelp/')
 			},
+    reload() {
+      //更新
+      window.location.reload(true);
+      //保存最新版本
+      // LocalStorage.set("version", this.settings.version);
+    },
   },
 };
 </script>

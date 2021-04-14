@@ -1,12 +1,12 @@
 <template>
-  <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
+  <div class="fullscreen bg-white text-white text-center q-pa-md flex flex-center">
     <div>
       <div style="font-size: 20vh">
-        404
+        
       </div>
 
-      <div class="text-h2" style="opacity:.4">
-        ...
+      <div class="text-h4 text-primary" style="opacity:.4">
+        請稍後...
       </div>
 
       <q-btn

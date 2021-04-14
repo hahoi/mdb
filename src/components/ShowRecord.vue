@@ -1,8 +1,7 @@
 <template>
   <div>
     <template>
-      <!--  -->
-      <q-card v-if="FindRecordLength !== 0">
+      <q-card v-if="FindRecordLength !== 0"> 
         <q-card-section class="">
           <!-- <div class="full-width column" > -->
           <!-- <q-btn class="text-h6" label="匯 出" @click="exportFun" /> -->
@@ -82,7 +81,7 @@ export default {
   },
   watch: {},
   computed: {
-    ...mapState("LoadData", ["FieldReord", "tasksDownloaded"]),
+    ...mapState("LoadData", ["FieldReord", "tasksDownloaded",'search']),
     ...mapGetters("LoadData", ["FieldReordFiltered", "FindRecordLength"]),
     showingData() {
       let keys = [];

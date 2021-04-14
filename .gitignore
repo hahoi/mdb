@@ -3,6 +3,7 @@
 node_modules
 /src/boot/firebase.js
 .firebase
+README.md
 
 # Quasar core related directories
 .quasar

@@ -267,12 +267,15 @@ export default {
             if (typeof task[key] === "string") {
               let item = task[key];
               // console.log(key,task[key])
-              let searchLowerCase = keyword.toLowerCase();
-              if (item.includes(searchLowerCase)) {
+              let searchLowerCase = keyword.toLowerCase(); //要轉成小寫英文姓名才不會出錯
+              let itemLowerCase = item.toLowerCase()       //要轉成小寫英文姓名才不會出錯
+              if (itemLowerCase.includes(searchLowerCase)) {
+                keyword = keyword.replaceAll("?", "") //去除??，匯入時字元錯誤產生
+                // console.log(keyword)
                 let regex = new RegExp(keyword, "i");
                 let match = item.match(regex);
                 // console.log(regex,match)
-                if (match) {
+                if (match[0] !== '') {
                   item = item.replace(
                     regex,
                     "<span class='bg-red text-white'>" + match[0] + "</span>"

@@ -97,9 +97,9 @@
         </span>
       </div>
     </template>
-    <!-- v-if="conditions !== ''" -->
     <template v-else>
       <div class="q-mt-xl q-pt-xl" ref="showRecord">
+        <!-- 列出查詢結果 -->
         <show-record></show-record>
       </div>
     </template>
@@ -218,7 +218,13 @@ export default {
   mounted() {
     this.clearFieldReord();
   },
-  watch: {},
+  watch: {
+    conditions() {
+      if (this.conditions === "") {
+        this.clearFieldReord();
+      }
+    },
+  },
   computed: {
     ...mapState("auth", ["userData"]),
     ...mapState("LoadData", ["tasksDownloaded"]),
@@ -255,7 +261,7 @@ export default {
       "setMDB",
       "setFieldRecordTotalCount",
     ]),
-    ...mapActions("LoadData", ["setFilter", "setSearch","log"]),
+    ...mapActions("LoadData", ["setFilter", "setSearch", "log"]),
     ...mapActions("phrase", ["readProfessionalTitle", "ReadCassify"]),
 
     //紅點切換
@@ -285,16 +291,12 @@ export default {
       let classify = !this.classify ? "" : this.classify;
       let RedDot = this.RedDot;
 
-
-      
-
       // 紀錄
-      let payload={
-        do:"查詢資料",
+      let payload = {
+        do: "查詢資料",
         data: this.conditionsSetSearch,
-      }
-      this.log(payload)  
-
+      };
+      this.log(payload);
 
       //查詢條件空白
       if (
@@ -1280,8 +1282,10 @@ export default {
     SearchName(name, data) {
       let match = {};
       Object.keys(data).forEach((key) => {
-        if (data[key]["name"].includes(name)) {
-          // console.log(data[key]["name"]);
+        let searchLowerCase = data[key]["name"].toLowerCase(); //要轉成小寫英文姓名才不會出錯
+        let nameLowerCase = name.toLowerCase(); //要轉成小寫英文姓名才不會出錯
+        if (searchLowerCase.includes(nameLowerCase)) {
+          // console.log(nameLowerCase,searchLowerCase);
           Vue.set(match, key, data[key]); //符合條件的存在物件中
         }
       });
@@ -1369,12 +1373,11 @@ export default {
       }
 
       // 紀錄
-      let payload={
-        do:"列出全部資料",
+      let payload = {
+        do: "列出全部資料",
         data: null,
-      }
-      this.log(payload)  
-
+      };
+      this.log(payload);
     },
   }, // methods end
 };
