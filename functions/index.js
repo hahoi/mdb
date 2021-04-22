@@ -42,20 +42,117 @@ exports.logActivities = functions.firestore.document('/{collection}/{id}')
         const collection = context.params.collection;
 
         if (collection === '現場紀錄表') {
-            console.log('現場紀錄表')
-            console.log(snap.data().name);
-            console.log(context.auth.email)
+            // console.log('現場紀錄表')
+            // console.log(snap.data().name);
+            // console.log(context.auth.email)
 
             //   return activities.add({ text: 'a new tutorial request was added' });
         }
         if (collection === 'MDBUsers') {
-            console.log('使用者資料')
+            // console.log('使用者資料')
             //   return activities.add({ text: 'a new user signed up'});
         }
 
         return null;
 
     });
+
+// //計算現場紀錄表筆數（以下測試成功）
+// const updateCount = async (delta) => {
+//     await admin
+//         .firestore()
+//         .collection("現場紀錄表_counter")
+//         .doc("counter")
+//         .set({ count: admin.firestore.FieldValue.increment(delta) }, { merge: true });
+// }
+
+
+// exports.recordOnCreate = functions.firestore.document('/{collection}/{id}')
+//     .onCreate((snap, context) => {
+//         const collection = context.params.collection;
+//         if (collection === '現場紀錄表') {
+//             updateCount(+1)
+//         }
+//     })
+// exports.recordOnDelete = functions.firestore.document('/{collection}/{id}')
+//     .onDelete((snap, context) => {
+//         const collection = context.params.collection;
+//         if (collection === '現場紀錄表') {
+//             updateCount(-1)
+//         }
+//     })
+
+//計算現場紀錄表筆數（firebase deploy --only functions 這樣才會更新到實名函數）
+/*
+實名函數要在呼叫前定義
+*/
+const db = admin.firestore();
+
+const cleanup = async () => {
+    const limitDate = new Date(Date.now() - 1000 * 60 * 10);
+
+    const batch = db.batch();
+
+    const pastEvents = await db
+        .collection("現場紀錄表_counter/counter/events")
+        .orderBy("createdAt", "asc")
+        .where("createdAt", "<", limitDate)
+        .limit(400)
+        .get();
+
+    pastEvents.forEach(event => batch.delete(event.ref));
+
+    await batch.commit();
+}
+
+
+const updateCount = async (eventId, delta) => {
+    try {
+        // create will throw ALREADY_EXISTS if the event has already been processed
+        await db
+            .doc(`現場紀錄表_counter/counter/events/${eventId}`)
+            .create({ createdAt: admin.firestore.FieldValue.serverTimestamp() });
+
+        await db
+            .doc("現場紀錄表_counter/counter")
+            .set({ count: admin.firestore.FieldValue.increment(delta) }, { merge: true });
+
+        if (Math.random() < 1.0 / 300) {
+            await cleanup();
+        }
+    } catch (error) {
+        if (error.code === GrpcStatus.ALREADY_EXISTS) {
+            functions.logger.debug("Duplicated event trigger!");
+        } else {
+            throw error;
+        }
+    }
+}
+
+
+exports.recordOnCreate = functions.firestore.document('/{collection}/{id}')
+    .onCreate((snap, context) => {
+        const collection = context.params.collection;
+        if (collection === '現場紀錄表') {
+            updateCount(context.eventId, +1)
+        }
+    })
+exports.recordOnDelete = functions.firestore.document('/{collection}/{id}')
+    .onDelete((snap, context) => {
+        const collection = context.params.collection;
+        if (collection === '現場紀錄表') {
+            updateCount(context.eventId, -1)
+        }
+    })
+
+
+
+
+
+
+
+
+
 
 
 

@@ -11,8 +11,12 @@ const state = {
     search: '',
     sort: 'updateDate', //'none',
     currentId: '',
-    FieldRecordTotalCount: 0,
 
+
+    FieldRecordTotalCount: 0, //全部筆數
+    currentPage: 1, //開始顯示第一頁，點擊選擇頁面
+    perPageNum: 1000, //每頁顯示數量
+    // getters.totalPage //總頁數 getters
 
 }
 
@@ -44,6 +48,9 @@ const mutations = {
     },
     setFieldRecordTotalCount(state, value) {
         state.FieldRecordTotalCount = value
+    },
+    setCurrentPage(state, value) {
+        state.currentPage = value
     },
     //Object
     updateFieldRecord(state, payload) {
@@ -101,7 +108,7 @@ const actions = {
                 // 更新 state.FieldRecord，更新畫面
                 commit("addFieldRecord", payload);
                 console.log("資料庫新增成功！", ref.id);
-                dispatch('log', { do: `新增${ payload.data.name}資料`, data: payload.data })
+                dispatch('log', { do: `新增${payload.data.name}資料`, data: payload.data })
             })
             .catch(error => {
                 console.error("資料庫儲存失敗！", error);
@@ -109,7 +116,7 @@ const actions = {
     },
 
     //更新
-    updateFieldRecord({ commit , dispatch }, payload) {
+    updateFieldRecord({ commit, dispatch }, payload) {
         // console.log(payload)
         dbFirestore
             .collection("現場紀錄表")
@@ -119,7 +126,7 @@ const actions = {
                 // 更新 state.FieldRecord，更新畫面
                 commit("updateFieldRecord", payload);
                 console.log("資料庫修改成功！");
-                dispatch('log', { do: `修改${ payload.data.name}資料`, data: payload.data })
+                dispatch('log', { do: `修改${payload.data.name}資料`, data: payload.data })
             })
             .catch(error => {
                 console.error("資料庫更新失敗！", error);
@@ -127,7 +134,7 @@ const actions = {
 
     },
     //刪除
-    deleteFieldRecord({ commit, dispatch  }, payload) {
+    deleteFieldRecord({ commit, dispatch }, payload) {
         dbFirestore
             .collection("現場紀錄表")
             .doc(payload.id)
@@ -135,7 +142,7 @@ const actions = {
             .then(() => {
                 commit("deleteFieldRecord", payload.id);
                 console.log("資料刪除成功！");
-                dispatch('log', { do: `刪除${ payload.name}資料`, payload })
+                dispatch('log', { do: `刪除${payload.name}資料`, payload })
             })
 
     },
@@ -153,6 +160,12 @@ const actions = {
 }
 
 const getters = {
+
+    //總頁數
+    totalPage : (state) => {
+        return Math.ceil(state.FieldRecordTotalCount / state.perPageNum)
+    },
+
     FindRecordLength: (state, getters) => {
         return Object.keys(getters.FieldReordFiltered).length
     },

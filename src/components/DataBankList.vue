@@ -270,6 +270,7 @@ export default {
 <style scoped>
 .email {
   overflow-x: auto;
+  overflow-y: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;

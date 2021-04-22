@@ -13,8 +13,10 @@ yarn
 ```
 
 
-### Build the app for production
-
+###只更新指定function，這樣會加快速度
+```
+firebase deploy --only functions:AdminUpdateUser
+```
 ### 發佈
 ```bash
 quasar build -m pwa

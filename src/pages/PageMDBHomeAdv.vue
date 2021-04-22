@@ -82,7 +82,7 @@
         <q-btn
           color="info"
           label="雲端搜尋"
-          @click="LoadDbData"
+          @click="queryData"
           class="full-width"
           icon="search"
           size="lg"
@@ -115,26 +115,9 @@
             label="列出全部資料"
             color=""
             v-close-popup
-            @click="listAllRecord"
+            @click="listAllRecord_Paginate"
           />
           <q-btn v-close-popup label="關閉" color="primary" />
-
-          <!-- <q-dialog v-model="secondDialog">
-            <q-card>
-              <q-card-section>
-                <div class="text-h6">
-                  下載全部資料若資料筆數過大，需要一些時間，仍要繼續...
-                </div>
-              </q-card-section>
-              <q-card-section
-                align="right"
-                class="bg-white text-teal q-gutter-sm"
-              >
-                <q-btn v-close-popup="2" label="確定" @click="listAllRecord" />
-                <q-btn v-close-popup="2" label="不要" />
-              </q-card-section>
-            </q-card>
-          </q-dialog> -->
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -204,6 +187,16 @@ export default {
 
       inception: false,
       secondDialog: false,
+
+
+      currentPage: 1, //開始顯示第一頁
+      perPageNum: 1000, //每頁讀取數量
+      lastDoc: "", //第一次要用空字串
+
+
+
+
+
     };
   },
   components: {
@@ -227,8 +220,12 @@ export default {
   },
   computed: {
     ...mapState("auth", ["userData"]),
-    ...mapState("LoadData", ["tasksDownloaded"]),
-    ...mapGetters("LoadData", ["FindRecordLength"]),
+    ...mapState("LoadData", [
+      "tasksDownloaded",
+      "FieldRecordTotalCount",
+      "currentPage",
+    ]),
+    ...mapGetters("LoadData", ["FindRecordLength", "totalPage"]),
     ...mapState("phrase", ["professionalTitle", "Cassify", "counties"]),
 
     //顯示查詢字串
@@ -272,16 +269,28 @@ export default {
     ratingFn() {
       // console.log(this.star);
     },
+    queryNoData() {
+      this.$q.dialog({
+        title: "",
+        message: "查不到",
+      });
+      this.Downloading = false;
+    },
 
-    //========================================================================
-    async LoadDbData() {
+    /*
+    ABCD四個條件，組合情形
+    A、B、C、D、AB、AC、AD、ABC、ABD、ACD、ABCD、BC、BD、BCD、CD 共15種
+    C(4,1) = 4  挑1個字元組合  n!/(n-r)!*r! =  4!/(3)!*1!
+    C(4,2) = 6  挑2個字元組合
+    C(4,3) = 4  挑3個字元組合
+    C(4,4) = 1  挑4個字元組合
+    */
+    async queryData() {
       let vm = this;
-      //  let showRecord = vm.$refs.showRecord
-      // vm.scrollToElement()
       //清空顯示資料
       this.cloudSearch = false;
       this.clearFieldReord();
-      this.setFieldRecordTotalCount(0)
+      this.setFieldRecordTotalCount(0);
       //顯示查詢字串
       this.setSearch(this.conditionsSetSearch);
       //多條件查詢
@@ -308,86 +317,32 @@ export default {
         RedDot === false
       ) {
         this.inception = true;
-        // this.$q.dialog({
-        //   title: "",
-        //   message: "請輸入查詢條件！",
-        // });
         return false;
       }
 
       this.Downloading = true;
 
-      // ============================================================================================
-      //有紅點
+      // 查詢資料庫
+      const query = dbFirestore.collection("現場紀錄表");
+
+      //有 紅點
       if (RedDot) {
-        //姓名
-        if (name !== "" && county === "" && classify === "" && star === 0) {
-          console.log("姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            .where("RedDot", "==", RedDot)
-            // .where("county", "==", county) //縣市
-            // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
-              this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市
-        if (name === "" && county !== "" && classify === "" && star === 0) {
-          console.log("縣市");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
+        //1縣市 紅點
+        if (county !== "" && classify === "" && name === "" && star === 0) {
+          console.log("1縣市 紅點 ");
+          const snapshot = await query
             .where("RedDot", "==", RedDot)
             .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
+            // .where("nameKeyword", "array-contains", name.toLowerCase())
+            // .where("star", "==", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
@@ -399,65 +354,22 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-        //分類
-        if (name === "" && county === "" && classify !== "" && star === 0) {
-          console.log("分類");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
+        //2分類 紅點
+        if (county === "" && classify !== "" && name === "" && star === 0) {
+          console.log("2分類 紅點 ");
+          const snapshot = await query
             .where("RedDot", "==", RedDot)
             // .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              this.Downloading = false;
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市 分類
-        if (name === "" && county !== "" && classify !== "" && star === 0) {
-          console.log("縣市 分類");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
+            // .where("nameKeyword", "array-contains", name.toLowerCase())
             // .where("star", "==", star)
-            .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
@@ -469,276 +381,25 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-        //縣市 姓名
-        if (name !== "" && county !== "" && classify === "" && star === 0) {
-          console.log("縣市 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
-              this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //分類 姓名
-        if (name !== "" && county === "" && classify !== "" && star === 0) {
-          console.log("分類 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            .where("RedDot", "==", RedDot)
-            // .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
-              this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市 分類 姓名
-        if (name !== "" && county !== "" && classify !== "" && star === 0) {
-          console.log("縣市 分類 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
-              this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市 星級
-        if (county !== "" && classify === "" && star > 0) {
-          console.log("縣市 星級");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
-            .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            // .where("classify", "==", classify) //分類
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              this.Downloading = false;
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-
-        //分類 星級
-        if (county === "" && classify !== "" && star > 0) {
-          console.log("分類 星級");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
-            .where("RedDot", "==", RedDot)
-            // .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              this.Downloading = false;
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-
-        //縣市 分類 星級
-        if (county !== "" && classify !== "" && star > 0) {
-          console.log("縣市 分類 星級");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
-            .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              this.Downloading = false;
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          this.Downloading = false;
-          return true;
-        }
-        //星級 姓名
-        if (name !== "" && county === "" && classify === "" && star > 0) {
-          console.log("星級 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
+        //3姓名 紅點
+        if (county === "" && classify === "" && name !== "" && star === 0) {
+          console.log("3姓名 紅點 ");
+          const snapshot = await query
             .where("RedDot", "==", RedDot)
             // .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            // .where("star", "==", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
               this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
             })
             .catch((err) => {
               console.log(err.message);
@@ -747,31 +408,22 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-
-        //星級  紅點
-        if (name === "" && county === "" && classify === "" && star > 0) {
-          console.log("星級 紅點");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
+        //4星級 紅點
+        if (county === "" && classify === "" && name === "" && star > 0) {
+          console.log("4星級 紅點 ");
+          const snapshot = await query
             .where("RedDot", "==", RedDot)
             // .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
+            // .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
@@ -783,44 +435,25 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-
-        //=======================================================================================
-        //沒有紅點
-      } else {
-        if (name !== "" && county === "" && classify === "" && star === 0) {
-          console.log("姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
+        //5縣市 分類 紅點
+        if (county !== "" && classify !== "" && name === "" && star === 0) {
+          console.log("5縣市 分類 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            // .where("nameKeyword", "array-contains", name.toLowerCase())
             // .where("star", "==", star)
-            // .where("RedDot", "==", RedDot)
-            // .where("county", "==", county) //縣市
-            // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
                 Vue.set(dbData, doc.id, doc.data());
               });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
               this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
             })
             .catch((err) => {
               console.log(err.message);
@@ -829,30 +462,22 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-        //縣市
-        if (name === "" && county !== "" && classify === "" && star === 0) {
-          console.log("縣市");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            // .where("RedDot", "==", RedDot)
+        //6縣市 姓名 紅點
+        if (county !== "" && classify === "" && name !== "" && star === 0) {
+          console.log("6縣市 姓名 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
             .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            // .where("star", "==", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
@@ -864,112 +489,25 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-        //分類
-        if (name === "" && county === "" && classify !== "" && star === 0) {
-          console.log("分類");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            // .where("RedDot", "==", RedDot)
-            // .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              this.Downloading = false;
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市 分類
-        if (name === "" && county !== "" && classify !== "" && star === 0) {
-          console.log("縣市 分類");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            // .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              this.Downloading = false;
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市 姓名
-        if (name !== "" && county !== "" && classify === "" && star === 0) {
-          console.log("縣市 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            // .where("RedDot", "==", RedDot)
+        //7縣市 星級 紅點
+        if (county !== "" && classify === "" && name === "" && star > 0) {
+          console.log("7縣市 星級 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
             .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
+            // .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
               this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
             })
             .catch((err) => {
               console.log(err.message);
@@ -978,116 +516,22 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-        //分類 姓名
-        if (name !== "" && county === "" && classify !== "" && star === 0) {
-          console.log("分類 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            // .where("star", "==", star)
-            // .where("RedDot", "==", RedDot)
+        //8分類 姓名 紅點
+        if (county === "" && classify !== "" && name !== "" && star === 0) {
+          console.log("8分類 姓名 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
             // .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
-              this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市 分類 姓名
-        if (name !== "" && county !== "" && classify !== "" && star === 0) {
-          console.log("縣市 分類 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
+            .where("nameKeyword", "array-contains", name.toLowerCase())
             // .where("star", "==", star)
-            // .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
-              this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                return false;
-              }
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          return true;
-        }
-        //縣市 星級
-        if (county !== "" && classify === "" && star > 0) {
-          console.log("縣市 星級");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
-            // .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            // .where("classify", "==", classify) //分類
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
@@ -1099,29 +543,22 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-
-        //分類 星級
-        if (county === "" && classify !== "" && star > 0) {
-          console.log("分類 星級");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
-            // .where("RedDot", "==", RedDot)
+        //9分類 星級 紅點
+        if (county === "" && classify !== "" && name === "" && star > 0) {
+          console.log("9分類 星級 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
             // .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
+            // .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
@@ -1133,77 +570,183 @@ export default {
           await vm.scrollToElement();
           return true;
         }
-
-        //縣市 分類 星級
-        if (county !== "" && classify !== "" && star > 0) {
-          console.log("縣市 分類 星級");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
-            // .where("RedDot", "==", RedDot)
-            .where("county", "==", county) //縣市
-            .where("classify", "==", classify) //分類
-            .get()
-            .then((qs) => {
-              if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
-                return false;
-              }
-              qs.forEach((doc) => {
-                // console.log(doc.data().name);
-                Vue.set(dbData, doc.id, doc.data());
-              });
-              this.Downloading = false;
-            })
-            .catch((err) => {
-              console.log(err.message);
-            });
-          this.setFieldReord(dbData);
-          await vm.scrollToElement();
-          this.Downloading = false;
-          return true;
-        }
-        //星級 姓名
-        if (name !== "" && county === "" && classify === "" && star > 0) {
-          console.log("星級 姓名");
-          let dbData = {};
-          await dbFirestore
-            .collection("現場紀錄表")
-            .where("star", ">=", star)
-            // .where("RedDot", "==", RedDot)
+        //10姓名 星級 紅點
+        if (county === "" && classify === "" && name !== "" && star > 0) {
+          console.log("10姓名 星級 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
             // .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
-            // .where("name", ">=", name)
-            // .where("name", "<=", name + "\uf8ff")
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
-                this.Downloading = false;
+                this.queryNoData();
                 return false;
               }
               qs.forEach((doc) => {
-                // console.log(doc.data().name);
                 Vue.set(dbData, doc.id, doc.data());
               });
-              //名字搜尋
-              dbData = this.SearchName(name, dbData);
               this.Downloading = false;
-              if (Object.keys(dbData).length == 0) {
-                this.$q.dialog({
-                  title: "",
-                  message: "查不到",
-                });
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //11縣市 分類 姓名 紅點
+        if (county !== "" && classify !== "" && name !== "" && star === 0) {
+          console.log("11縣市 分類 姓名 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            // .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
                 return false;
               }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //12縣市 分類 星級 紅點
+        if (county !== "" && classify !== "" && name === "" && star > 0) {
+          console.log("12縣市 分類 星級 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            // .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //13縣市 姓名 星級 紅點
+        if (county !== "" && classify === "" && name !== "" && star > 0) {
+          console.log("13縣市 姓名 星級 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
+            .where("county", "==", county) //縣市
+            // .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //14分類 姓名 星級 紅點
+        if (county === "" && classify !== "" && name !== "" && star > 0) {
+          console.log("14分類 姓名 星級 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
+            // .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //15縣市 分類 姓名 星級 紅點
+        if (county !== "" && classify !== "" && name !== "" && star > 0) {
+          console.log("15縣市 分類 姓名 星級 紅點 ");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //16只有紅點
+        if (county === "" && classify === "" && name === "" && star === 0) {
+          console.log("16紅點");
+          const snapshot = await query
+            .where("RedDot", "==", RedDot)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
             })
             .catch((err) => {
               console.log(err.message);
@@ -1213,73 +756,375 @@ export default {
           return true;
         }
       }
-      // =======================================================================================
-      //只有紅點，沒其他條件
-      if (RedDot) {
-        console.log("只有紅點，沒其他條件");
-
-        // console.log(RedDot,star)
-        let dbData = {};
-        await dbFirestore
-          .collection("現場紀錄表")
-          .where("RedDot", "==", true)
-          // .where("star", ">=", star)
-          .get()
-          .then((qs) => {
-            if (qs.empty) {
-              this.$q.dialog({
-                title: "",
-                message: "查不到",
+      //沒有紅點
+      else {
+        //1縣市
+        if (county !== "" && classify === "" && name === "" && star === 0) {
+          console.log("1縣市");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
-              return false;
-            }
-            qs.forEach((doc) => {
-              // console.log(doc.data().name);
-              Vue.set(dbData, doc.id, doc.data());
+            })
+            .catch((err) => {
+              console.log(err.message);
             });
-            this.Downloading = false;
-          })
-          .catch((err) => {
-            console.log(err.message);
-          });
-        this.setFieldReord(dbData);
-        await vm.scrollToElement();
-      } else if (star > 0) {
-        //沒有紅點,有星級
-        console.log("沒有紅點,有星級");
-        let dbData = {};
-        await dbFirestore
-          .collection("現場紀錄表")
-          // .where("RedDot", "==", true)
-          .where("star", ">=", star)
-          .get()
-          .then((qs) => {
-            if (qs.empty) {
-              this.$q.dialog({
-                title: "",
-                message: "查不到",
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //2分類
+        if (county === "" && classify !== "" && name === "" && star === 0) {
+          console.log("2分類");
+          const snapshot = await query
+            .where("classify", "==", classify) //分類
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
               });
               this.Downloading = false;
-              return false;
-            }
-            qs.forEach((doc) => {
-              // console.log(doc.data().name);
-              Vue.set(dbData, doc.id, doc.data());
+            })
+            .catch((err) => {
+              console.log(err.message);
             });
-            this.Downloading = false;
-          })
-          .catch((err) => {
-            console.log(err.message);
-          });
-        this.setFieldReord(dbData);
-        await vm.scrollToElement();
-      }
-      this.Downloading = false;
-    }, //LoadData end
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //3姓名
+        if (county === "" && classify === "" && name !== "" && star === 0) {
+          console.log("3姓名");
+          const snapshot = await query
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //4星級
+        if (county === "" && classify === "" && name === "" && star > 0) {
+          console.log("4星級");
+          const snapshot = await query
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //5縣市 分類
+        if (county !== "" && classify !== "" && name === "" && star === 0) {
+          console.log("5縣市 分類");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //6縣市 姓名
+        if (county !== "" && classify === "" && name !== "" && star === 0) {
+          console.log("6縣市 姓名");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //7縣市 星級
+        if (county !== "" && classify === "" && name === "" && star > 0) {
+          console.log("7縣市 星級");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //8分類 姓名
+        if (county === "" && classify !== "" && name !== "" && star === 0) {
+          console.log("8分類 姓名");
+          const snapshot = await query
+            .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //9分類 星級
+        if (county === "" && classify !== "" && name === "" && star > 0) {
+          console.log("9分類 星級");
+          const snapshot = await query
+            .where("classify", "==", classify) //分類
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //10姓名 星級
+        if (county === "" && classify === "" && name !== "" && star > 0) {
+          console.log("10姓名 星級");
+          const snapshot = await query
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //11縣市 分類 姓名
+        if (county !== "" && classify !== "" && name !== "" && star === 0) {
+          console.log("11縣市 分類 姓名");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //12縣市 分類 星級
+        if (county !== "" && classify !== "" && name === "" && star > 0) {
+          console.log("12縣市 分類 星級");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //13縣市 姓名 星級
+        if (county !== "" && classify === "" && name !== "" && star > 0) {
+          console.log("13縣市 姓名 星級");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //14分類 姓名 星級
+        if (county === "" && classify !== "" && name !== "" && star > 0) {
+          console.log("14分類 姓名 星級");
+          const snapshot = await query
+            .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+        //15縣市 分類 姓名 星級
+        if (county !== "" && classify !== "" && name !== "" && star > 0) {
+          console.log("15縣市 分類 姓名 星級");
+          const snapshot = await query
+            .where("county", "==", county) //縣市
+            .where("classify", "==", classify) //分類
+            .where("nameKeyword", "array-contains", name.toLowerCase())
+            .where("star", "==", star)
+            .get()
+            .then((qs) => {
+              if (qs.empty) {
+                this.queryNoData();
+                return false;
+              }
+              qs.forEach((doc) => {
+                Vue.set(dbData, doc.id, doc.data());
+              });
+              this.Downloading = false;
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          this.setFieldReord(dbData);
+          await vm.scrollToElement();
+          return true;
+        }
+      } //end if redDot
+    }, //end queryData
 
     //＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    //搜尋名字
+    //搜尋名字(沒有使用了)
     SearchName(name, data) {
       let match = {};
       Object.keys(data).forEach((key) => {
@@ -1293,6 +1138,20 @@ export default {
       // console.log(match);
       return match;
     },
+    //搜尋名字keyword陣列(沒有使用了)
+    async SearchNameKeyword(name, dbData) {
+      await dbFirestore
+        .collection("現場紀錄表")
+        .where("nameKeyword", "array-contains", name.toLowerCase())
+        .get()
+        .then((qs) => {
+          qs.forEach((doc) => {
+            Vue.set(dbData, doc.id, doc.data());
+          });
+        });
+      return dbData;
+    },
+    //捲動到ref=showRecord
     scrollToElement() {
       let vm = this;
       let el = vm.$refs.showRecord;
@@ -1325,16 +1184,7 @@ export default {
           .limit(3000)
           .get()
           .then((qs) => {
-            if (qs.empty) {
-              this.$q.dialog({
-                title: "",
-                message: "查不到",
-              });
-              this.Downloading = false;
-              return false;
-            }
             qs.forEach((doc) => {
-              // console.log(doc.data().name);
               Vue.set(dbData, doc.id, doc.data());
             });
             this.Downloading = false;
@@ -1351,16 +1201,7 @@ export default {
           .collection("現場紀錄表")
           .get()
           .then((qs) => {
-            if (qs.empty) {
-              this.$q.dialog({
-                title: "",
-                message: "查不到",
-              });
-              this.Downloading = false;
-              return false;
-            }
             qs.forEach((doc) => {
-              // console.log(doc.data().name);
               Vue.set(dbData, doc.id, doc.data());
             });
             this.Downloading = false;
@@ -1380,6 +1221,124 @@ export default {
       };
       this.log(payload);
     },
+
+    //沒有下查詢條件列出所有紀錄（分頁）
+    async listAllRecord_Paginate() {
+      let vm = this;
+      this.cloudSearch = false;
+      this.clearFieldReord();
+
+      let dbData = {};
+      this.Downloading = true;
+
+      //讀取總筆數
+      await dbFirestore
+        .collection("現場紀錄表_counter")
+        .doc("counter")
+        .get()
+        .then((doc) => {
+          console.log(doc.data());
+          this.setFieldRecordTotalCount(doc.data().count); //設定總筆數
+        });
+
+      // 超過3000筆資料，僅顯示3000筆
+      if (this.FieldRecordTotalCount > 3000) {
+        this.currentPage = 1
+       
+         const rd = await this.Recursive_fieldRecord("") 
+         console.log(rd.dbData)
+
+        await this.setFieldReord(rd.dbData);
+        
+        await vm.scrollToElement();
+        // return true;
+      } else {
+        // 小於3000筆資料
+        await dbFirestore
+          .collection("現場紀錄表")
+          .get()
+          .then((qs) => {
+            qs.forEach((doc) => {
+              Vue.set(dbData, doc.id, doc.data());
+            });
+            this.Downloading = false;
+          })
+          .catch((err) => {
+            console.log(err.message);
+          });
+        this.setFieldReord(dbData);
+        await vm.scrollToElement();
+        // return true;
+      }
+
+      // 紀錄
+      let payload = {
+        do: "列出全部資料",
+        data: null,
+      };
+      this.log(payload);
+    },
+
+
+    // 現場紀錄資料用遞迴方式分頁印到尾端
+    async Recursive_fieldRecord(lastDoc = "") {
+      if (lastDoc === "") {
+        this.serial = 0;
+        this.perPageNum = 1000; //每次讀取數量
+      }
+      let rd = await this.dbFieldRecord_read(lastDoc);
+      return rd
+      lastDoc = rd.lastDoc;
+      let dbData = rd.dbData;
+      if (lastDoc === false) return;
+      // this.Recursive_fieldRecord(lastDoc);
+    },
+    //資料庫分頁讀取
+    dbFieldRecord_read(lastDoc) {
+      return new Promise((resolve) => {
+        let dbData = [];
+        dbFirestore
+          .collection("現場紀錄表")
+          .orderBy("updateDate", "desc")
+          .startAfter(lastDoc)
+          .limit(this.perPageNum)
+          .get()
+          .then((qs) => {
+            if (qs.empty) {
+              resolve({ lastDoc: false });
+            }
+            qs.forEach((doc) => {
+              let x = doc.data();
+              x.id = doc.id;
+              ++this.serial;
+              // console.log(
+              //   this.serial,
+              //   x.id,
+              //   x.name,
+              //   date.formatDate(x.updateDate.toDate(), "YYYY-MM-DD HH:mm:ss")
+              // );
+              dbData.push({ ...x, id: doc.id });
+              lastDoc = x.updateDate; //這次查詢最後一筆 date值
+              this.Downloading = false;
+            });
+            let r = {
+              dbData: dbData,
+              lastDoc: lastDoc,
+            };
+            resolve(r);
+          });
+      });
+    },
+
+
+
+
+
+
+
+
+
+
   }, // methods end
 };
 </script>

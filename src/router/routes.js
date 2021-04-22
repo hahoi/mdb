@@ -54,7 +54,27 @@ export const powerRouter = [
         path: '/loglist',
         component: () => import('pages/PageLogList'),
         meta: { title: 'log紀錄', role: 'LogList', icon: 'group', divider: true }
+      },       
+      {
+        path: '/help',
+        component: () => import('pages/PageHelp'),
+        meta: { title: '使用說明', role: 'Help', icon: 'help', divider: true }
+      },       
+      {
+        path: '/DbPaginate',
+        component: () => import('pages/PageDbPaginate'),
+        meta: { title: '資料庫分頁', role: 'DbPaginate', icon: 'help', divider: true }
+      },      
+      {
+        path: '/LikeSearch',
+        component: () => import('pages/PageLikeSearch'),
+        meta: { title: 'like查詢', role: 'LikeSearch', icon: 'group', divider: true }
       },     
+      {
+        path: '/MDBAdv',
+        component: () => import('pages/PageMDBHomeAdv'),
+        meta: { title: '行動資料庫(改進)', role: 'MDBAdv', icon: 'group', divider: true }
+      },                       
       // {
       //   path: '/settings',
       //   component: () => import('pages/PageSettings'),

@@ -2,7 +2,7 @@
   <div>
     <q-item clickable v-ripple @click="dowork">
       <q-item-section avatar>
-        <q-avatar v-if="task.avatar.length !== 0">
+        <q-avatar v-if="task.avatar !== ''">
           <img :src="task.avatar" />
         </q-avatar>
       </q-item-section>
@@ -26,7 +26,7 @@
         </q-item-label>
       </q-item-section>
 
-      <q-item-section side>
+      <q-item-section side >
         <!-- {{ task.update }} -->
         <!-- <div class="text-orange fit row wrap justify-start items-center content-center" v-for="star in task.star"> -->
         <template v-for="star in task.star">
@@ -169,7 +169,10 @@ export default {
     DataBankEdit: require("components/DataBankEdit.vue").default,
     DataBankPrint: require("components/DataBankPrint.vue").default,
   },
-  created() {},
+  created() {
+    //星級＝NaN時，無法顯示也無法編輯，加入下行修正
+    this.task.star = isNaN(this.task.star)  ? 0 : this.task.star
+  },
   mounted() {},
   watch: {},
   computed: {
