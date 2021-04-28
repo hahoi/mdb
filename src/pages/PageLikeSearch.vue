@@ -73,6 +73,7 @@
 <script>
 import { dbFirestore } from "boot/firebase";
 import { date } from "quasar";
+import com_fun from "src/utils/function";
 
 export default {
   name: "",
@@ -136,7 +137,7 @@ export default {
           qs.forEach((doc) => {
             let x = doc.data();
             x.id = doc.id;
-            x.nameKeyword = this.nameSplit(x.name);
+            x.nameKeyword = com_fun.nameSplit(x.name);
             perPageData.push(x);
             this.lastDoc = x.updateDate; //這次查詢最後一筆 updateDate值
           });
@@ -174,34 +175,34 @@ export default {
       });
     },
 
-    //姓名拆分
-    nameSplit(name) {
-      let len = name.length;
-      let keyword = [];
-      name = name.toLowerCase().replace(/[\s*]/g, "");
+    // //姓名拆分
+    // nameSplit(name) {
+    //   let len = name.length;
+    //   let keyword = [];
+    //   name = name.toLowerCase().replace(/[\s*]/g, "");
 
-      for (let i = 0; i < len; i++) {
-        generateKeyWords(name);
-        name = name.substr(1).toLowerCase().replace(/[\s*]/g, "");
-        // console.log(name) //謝孟良、孟良、良
-      }
-      //   console.log(keyword);
-      return keyword;
+    //   for (let i = 0; i < len; i++) {
+    //     generateKeyWords(name);
+    //     name = name.substr(1).toLowerCase().replace(/[\s*]/g, "");
+    //     // console.log(name) //謝孟良、孟良、良
+    //   }
+    //   //   console.log(keyword);
+    //   return keyword;
 
-      //組成星狀的keyword
-      function generateKeyWords(name) {
-        let nameArr = Array.from(name); //字串轉陣列
-        let nameLength = name.length;
-        for (let j = 0; j < nameLength; j++) {
-          let str = "";
-          for (let i = 0; i <= j; i++) {
-            str += nameArr[i];
-          }
-          //   console.log(str);
-          keyword.push(str);
-        }
-      }
-    },
+    //   //組成星狀的keyword
+    //   function generateKeyWords(name) {
+    //     let nameArr = Array.from(name); //字串轉陣列
+    //     let nameLength = name.length;
+    //     for (let j = 0; j < nameLength; j++) {
+    //       let str = "";
+    //       for (let i = 0; i <= j; i++) {
+    //         str += nameArr[i];
+    //       }
+    //       //   console.log(str);
+    //       keyword.push(str);
+    //     }
+    //   }
+    // },
     async test_Log() {
       let i = 0;
       const qs = await dbFirestore.collection("log").get();
@@ -253,7 +254,7 @@ export default {
               console.log(
                 ++i,
                 x.name,
-                this.nameSplit(x.name),
+                com_fun.nameSplit(x.name),
                 date.formatDate(x.updateDate.toDate(), "YYYY-MM-DD HH:mm:ss")
               );
               lastDoc = x.updateDate; //這次查詢最後一筆 date值
@@ -306,6 +307,12 @@ export default {
           });
       });
     },
+
+/*
+以下四個function 放到modatabank先測試，後執行
+加入nameKeyword
+*/
+
     // 現場紀錄資料用遞迴方式分頁印到尾端
     async Recursive_fieldRecord(lastDoc = "") {
       if (lastDoc === "") {
@@ -336,12 +343,12 @@ export default {
               let x = doc.data();
               x.id = doc.id;
               ++this.serial;
-              // console.log(
-              //   this.serial,
-              //   x.id,
-              //   x.name,
-              //   date.formatDate(x.updateDate.toDate(), "YYYY-MM-DD HH:mm:ss")
-              // );
+              console.log(
+                this.serial,
+                x.id,
+                x.name,
+                date.formatDate(x.updateDate.toDate(), "YYYY-MM-DD HH:mm:ss")
+              );
               dbData.push({ ...x, id: doc.id });
               lastDoc = x.updateDate; //這次查詢最後一筆 date值
             });
@@ -360,7 +367,7 @@ export default {
         var batch = dbFirestore.batch();
         dbData.forEach((x) => {
           let data = {
-            nameKeyword: this.nameSplit(x.name),
+            nameKeyword: com_fun.nameSplit(x.name),
           };
           console.log(x.id, data.nameKeyword);
           let ref = dbFirestore.collection("現場紀錄表").doc(x.id);

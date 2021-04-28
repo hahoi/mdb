@@ -458,6 +458,7 @@ export default {
             id: this.id,
             data: {
               ...this.task,
+              nameKeyword: com_fun.nameSplit(this.task.name),
               updateDate: new Date(),
             },
           };

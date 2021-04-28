@@ -1,13 +1,17 @@
 <template>
   <div>
     <template>
-      <q-card v-if="FindRecordLength !== 0"> 
+      <q-card v-if="FindRecordLength !== 0">
         <q-card-section class="">
-          <!-- <div class="full-width column" > -->
-          <!-- <q-btn class="text-h6" label="匯 出" @click="exportFun" /> -->
-          <!------------ 匯出excel檔案 ------------------->
-          <data-export />
-          <!-- </div> -->
+          <div class="full-width column">
+            <q-btn
+              class="text-h6"
+              label="匯 出"
+              @click="dialogExport = true"
+            />
+            <!------------ 匯出excel檔案 ------------------->
+            <!-- <data-export /> -->
+          </div>
           <!----------------- 本機搜尋 ------------------->
           <search class="q-mt-md" />
           <!-- <q-scroll-area class="q-scroll-area-tasks">   -->
@@ -40,6 +44,31 @@
       <!-- </div> -->
     </template>
 
+    <template>
+      <q-dialog
+        v-model="dialogExport"
+        :maximized="true"
+        persistent
+        transition-show="slide-up"
+        transition-hide="slide-down"
+      >
+        <q-card class="bg-grey-1 text-white">
+          <q-bar>
+            <q-btn flat icon="close" v-close-popup class="bg-black text-white"
+              >離開
+              <q-tooltip content-class="bg-white text-primary">Close</q-tooltip>
+            </q-btn>
+            <q-space />
+          </q-bar>
+
+          <q-card-section>
+            <!-- 匯出資料元件 -->
+            <data-export />
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+    </template>
+
     <!-- 向上捲動 回到頂部 -->
     <!-- <q-page-scroller
       position="bottom-right"
@@ -67,6 +96,7 @@ export default {
       timer: null,
       index: 1,
       exportData: [],
+      dialogExport: false,
     };
   },
   components: {
@@ -81,7 +111,7 @@ export default {
   },
   watch: {},
   computed: {
-    ...mapState("LoadData", ["FieldReord", "tasksDownloaded",'search']),
+    ...mapState("LoadData", ["FieldReord", "tasksDownloaded", "search"]),
     ...mapGetters("LoadData", ["FieldReordFiltered", "FindRecordLength"]),
     showingData() {
       let keys = [];

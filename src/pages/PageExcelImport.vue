@@ -40,25 +40,29 @@
           </q-card>
         </q-expansion-item>
 
-        <!-- <q-separator />
+        <q-separator />
 
-        <q-expansion-item
+
+
+        <!-- <q-expansion-item
           group="somegroup"
           icon="cloud_download"
-          label="備份"
+          label="用Excel檔還原"
           header-class="bg-info text-white text-h5"
           expand-icon-class="text-white"
         >
+
           <q-card>
             <q-card-section>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem,
-              eius reprehenderit eos corrupti commodi magni quaerat ex numquam,
-              dolorum officiis modi facere maiores architecto suscipit iste
-              eveniet doloribus ullam aliquid.
+              <data-restore></data-restore>
             </q-card-section>
           </q-card>
         </q-expansion-item>
+         -->
 
+
+
+        <!--
         <q-separator />
 
         <q-expansion-item
@@ -93,24 +97,22 @@ export default {
     DataImport: require("src/components/DataImport.vue").default,
 
     DataBatchDelete: require("src/components/DataBatchDelete.vue").default,
-  },
-  created() {
-          //  判斷設備
-      if (this.$q.platform.is.mobile) {
-        // console.log("mobile")
-        this.$q
-          .dialog({
-            title: "提示",
-            message: "請在電腦上操作匯入匯出。",
-            // persistent: true,
-          })
-          .onOk(() => {
-          })
-      }
 
   },
-  mounted() {
+  created() {
+    //  判斷設備
+    if (this.$q.platform.is.mobile) {
+      // console.log("mobile")
+      this.$q
+        .dialog({
+          title: "提示",
+          message: "請在電腦上操作匯入匯出。",
+          // persistent: true,
+        })
+        .onOk(() => {});
+    }
   },
+  mounted() {},
   watch: {},
   computed: {},
   methods: {},

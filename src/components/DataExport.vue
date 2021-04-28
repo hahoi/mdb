@@ -1,16 +1,21 @@
 <template>
-  <div>
-    <!-- <section v-if="$q.platform.is.desktop"> -->
+  <q-page class="flex flex-center column">
+    <template v-if="showDownload">
+      <!-- <section v-if="$q.platform.is.desktop"> -->
       <xlsx-workbook>
         <xlsx-sheet :collection="exportData" sheet-name="工作表一" />
         <xlsx-download :filename="exportFilename">
           <div class="full-width column">
-            <q-btn class="text-h6" label="匯 出" @click="exportDataFun" />
+            <q-btn color="primary" size="xl" label="存入 Excel檔" />
           </div>
         </xlsx-download>
       </xlsx-workbook>
-    <!-- </section> -->
-  </div>
+      <!-- </section> -->
+    </template>
+    <template v-else
+      ><span class="text-h6 text-black"> 請稍後... </span></template
+    >
+  </q-page>
 </template>
 
 <script>
@@ -34,6 +39,7 @@ export default {
     return {
       exportData: [{}], //加上v-if 確保有資料，再顯示
       exportFilename: "mobileDataBank.xlsx",
+      showDownload: false,
     };
   },
   components: {
@@ -47,7 +53,7 @@ export default {
   },
   created() {},
   mounted() {
-    // this.exportDataFun();
+    this.exportDataFun();
   },
   watch: {},
   computed: {
@@ -85,18 +91,18 @@ export default {
             message: "請在電腦上操作匯入匯出。",
             // persistent: true,
           })
-          .onOk(() => {
-          })
+          .onOk(() => {});
       }
       if (this.$q.platform.is.desktop) {
         // console.log("desktop")
       }
       this.exportData.length = 0; //正確
 
-      if (this.FindRecordLength < 3000) {
+      if (this.FieldRecordTotalCount === 0) {
         Object.keys(this.FieldReordFiltered).forEach((key) => {
           let x = this.FieldReordFiltered[key];
           let data = {
+            // ID: x.key,
             姓名: x.name,
             手機: x.mobilePhone,
             公司電話: x.companyPhone,
@@ -117,13 +123,31 @@ export default {
             其他: x.other,
             等級: x.star,
             註記: x.RedDot ? "●" : "",
-            資料更新日期: date.formatDate(x.updateDate.toDate(), "YYYY-MM-DD"),
+            資料更新日期: date.formatDate(
+              x.updateDate.toDate(),
+              "YYYY-MM-DD HH:mm:ss.SSS"
+            ),
           };
           // console.log(data)
           this.exportData.push(data);
+          this.showDownload = true;
         });
       } else {
-        await dbFirestore
+        this.$q.loading.show();
+        let dbData = await this.getDbData();
+        // console.log("1",dbData)
+        setTimeout(() => {
+          this.exportData = dbData;
+          this.showDownload = true;
+          this.$q.loading.hide();
+        }, 500);
+        // console.log("2",this.exportData)
+      }
+    },
+    getDbData() {
+      return new Promise((resolve) => {
+        let dbData = [];
+        dbFirestore
           .collection("現場紀錄表")
           .get()
           .then((qs) => {
@@ -131,6 +155,7 @@ export default {
               let x = doc.data();
               let key = doc.id;
               let data = {
+                // ID: x.key,
                 姓名: x.name,
                 手機: x.mobilePhone,
                 公司電話: x.companyPhone,
@@ -153,16 +178,17 @@ export default {
                 註記: x.RedDot ? "●" : "",
                 資料更新日期: date.formatDate(
                   x.updateDate.toDate(),
-                  "YYYY-MM-DD"
+                  "YYYY-MM-DD HH:mm:ss.SSS"
                 ),
               };
               // console.log(data)
-              this.exportData.push(data);
+              dbData.push(data);
             });
+            resolve(dbData);
           });
-      }
+      });
     },
-  },
+  }, //end methods
 };
 </script>
 

@@ -105,10 +105,20 @@ const cleanup = async () => {
     await batch.commit();
 }
 
+/*
+創建或刪除文檔後，我們將存儲一個由eventId索引的文檔，
+如果create throw表示事件已被處理，否則它將創建該文檔，
+從而阻止其他調用來處理該事件，
+然後我們可以更新計數器。
+最後，我們每隔約300次更新就對舊事件進行定期清理
+（也可以在預定功能中完成）。
+為了獲得計數，只需要讀取計數器即可。
+*/
 
 const updateCount = async (eventId, delta) => {
     try {
         // create will throw ALREADY_EXISTS if the event has already been processed
+        // 如果事件已被处理，create将抛出ALREADY_EXISTS
         await db
             .doc(`現場紀錄表_counter/counter/events/${eventId}`)
             .create({ createdAt: admin.firestore.FieldValue.serverTimestamp() });

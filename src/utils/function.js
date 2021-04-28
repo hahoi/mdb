@@ -479,5 +479,33 @@ export default {
         }
         return value;
     },
+    //姓名拆分
+    nameSplit(name) {
+        let len = name.length;
+        let keyword = [];
+        name = name.toLowerCase().replace(/[\s*]/g, "");
+  
+        for (let i = 0; i < len; i++) {
+          generateKeyWords(name);
+          name = name.substr(1).toLowerCase().replace(/[\s*]/g, "");
+          // console.log(name) //謝孟良、孟良、良
+        }
+        //   console.log(keyword);
+        return keyword;
+  
+        //組成星狀的keyword
+        function generateKeyWords(name) {
+          let nameArr = Array.from(name); //字串轉陣列
+          let nameLength = name.length;
+          for (let j = 0; j < nameLength; j++) {
+            let str = "";
+            for (let i = 0; i <= j; i++) {
+              str += nameArr[i];
+            }
+            //   console.log(str);
+            keyword.push(str);
+          }
+        }
+      },
 
 }

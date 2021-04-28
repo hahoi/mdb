@@ -505,10 +505,12 @@ export default {
           //檢查欄位規則是正确的
 
           this.data.updateDate = new Date();
-          // console.log(this.data);
+          this.data.nameKeyword = com_fun.nameSplit(this.data.name)
 
           //拷貝一份，存入資料庫
           let copyData = Object.assign({}, this.data);
+          console.log(copyData);
+
           //資料庫新增
           this.addFieldRecord(copyData);
           this.$q.notify("存檔中...");

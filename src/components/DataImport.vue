@@ -248,6 +248,9 @@ import Vue from "vue";
 import { date, Loading } from "quasar";
 import { showErrorMessage } from "src/utils/function-show-error-message";
 import { mapState } from "vuex";
+import com_fun from "src/utils/function";
+
+
 
 export default {
   name: "DataImportAdd",
@@ -301,9 +304,9 @@ export default {
       this.NoDuplicate = [];
 
       // console.log(collection_json); //匯入的json
-      if (collection_json.length > 500) {
+      if (collection_json.length > 249) {
         showErrorMessage(
-          "匯入資料超過500筆，未免系統運作緩慢，請拆分成數個工作表後再匯入！"
+          "匯入資料超過200筆，未免系統運作緩慢，請拆分成數個工作表後再匯入！"
         );
         this.reset();
         return false;
@@ -316,6 +319,7 @@ export default {
 
       // 檢查欄位
       let title = [
+        "ID",
         "姓名",
         "手機",
         "公司電話",
@@ -475,6 +479,10 @@ export default {
           RedDot: false,
           updateDate: new Date(),
         };
+        
+        //加入搜尋關鍵字屬性
+        data_add.nameKeyword = com_fun.nameSplit(data.name)
+
         for (const key in data) {
           if (data[key] !== "") {
             data_add[key] = data[key];
@@ -483,6 +491,7 @@ export default {
             data_add.star = parseInt(data_add.star) || 0;
           }
         }
+
         // console.log("add_data", data_add);
         // 新增資料array
         // this.addData.push(data_add);
@@ -499,6 +508,8 @@ export default {
           }
         }
         data_update.updateDate = new Date(); //加上更新時間
+        //加入搜尋關鍵字屬性
+        data_update.nameKeyword = com_fun.nameSplit(data.name)
 
         // console.log("update_data", data_update);
         //更新資料array
@@ -578,7 +589,8 @@ export default {
     SearchName(name, data) {
       let match = {};
       Object.keys(data).forEach((key) => {
-        if (data[key]["name"].includes(name)) {
+        //現場紀錄表，若資料庫全部刪除，要先手動加入name、updateDate兩個屬性
+        if (data[key]["name"].includes(name)) { //若資料庫全部刪除，沒有name屬性，會發生錯誤
           // ++this.i
           // console.log(data[key]["name"], date.formatDate(data[key]["updateDate"].toDate(), 'YYYY-MM-DD HH:mm:ss'));
           Vue.set(match, key, data[key]); //符合條件的存在物件中
@@ -602,6 +614,7 @@ export default {
           console.log("新增", item.add_data);
           let ref = dbFirestore.collection("現場紀錄表").doc();
           batch.set(ref, item.add_data);
+
           //紀錄
           let log = dbFirestore.collection("log").doc();
           let data = {
@@ -610,6 +623,7 @@ export default {
             do: "新增同名資料",
             data: item.add_data.name,
           };
+
           batch.set(log, data);
         }
         //------更新-----
@@ -618,6 +632,7 @@ export default {
           console.log("更新", item.id, item.update_data);
           let ref = dbFirestore.collection("現場紀錄表").doc(item.id);
           batch.update(ref, item.update_data);
+
           //紀錄
           let log = dbFirestore.collection("log").doc();
           let data = {
@@ -626,6 +641,8 @@ export default {
             do: "更新資料",
             data: item.update_data.name,
           };
+
+
           batch.set(log, data);
         }
       });
@@ -637,6 +654,8 @@ export default {
           console.log("不重複", item.add_data);
           let ref = dbFirestore.collection("現場紀錄表").doc();
           batch.set(ref, item.add_data);
+
+
           //紀錄
           let log = dbFirestore.collection("log").doc();
           let data = {
@@ -645,6 +664,8 @@ export default {
             do: "新增資料",
             data: item.add_data.name,
           };
+
+
           batch.set(log, data);
         }
       });

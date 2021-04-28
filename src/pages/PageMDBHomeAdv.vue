@@ -101,6 +101,11 @@
       <div class="q-mt-xl q-pt-xl" ref="showRecord">
         <!-- 列出查詢結果 -->
         <show-record></show-record>
+        <template v-if="pageSticky">
+          <q-page-sticky position="bottom-right" :offset="[18, 18]">
+            <q-btn label="- 查看更多 -" @click="morePaginate" />
+          </q-page-sticky>
+        </template>
       </div>
     </template>
 
@@ -115,9 +120,26 @@
             label="列出全部資料"
             color=""
             v-close-popup
-            @click="listAllRecord_Paginate"
+            @click="listAllRecord"
           />
           <q-btn v-close-popup label="關閉" color="primary" />
+
+          <!-- <q-dialog v-model="secondDialog">
+            <q-card>
+              <q-card-section>
+                <div class="text-h6">
+                  下載全部資料若資料筆數過大，需要一些時間，仍要繼續...
+                </div>
+              </q-card-section>
+              <q-card-section
+                align="right"
+                class="bg-white text-teal q-gutter-sm"
+              >
+                <q-btn v-close-popup="2" label="確定" @click="listAllRecord" />
+                <q-btn v-close-popup="2" label="不要" />
+              </q-card-section>
+            </q-card>
+          </q-dialog> -->
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -168,7 +190,7 @@ import Vue from "vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { dbFirestore } from "boot/firebase";
 
-import { scroll } from "quasar";
+import { scroll, Notify } from "quasar";
 
 export default {
   name: "",
@@ -188,15 +210,8 @@ export default {
       inception: false,
       secondDialog: false,
 
-
-      currentPage: 1, //開始顯示第一頁
-      perPageNum: 1000, //每頁讀取數量
-      lastDoc: "", //第一次要用空字串
-
-
-
-
-
+      lastDoc: "", //分頁讀取用
+      pageSticky: false, //查看更多按鈕
     };
   },
   components: {
@@ -207,6 +222,7 @@ export default {
     //讀入分類
     // this.readProfessionalTitle();
     this.ReadCassify();
+    this.setFieldRecordTotalCount(0);
   },
   mounted() {
     this.clearFieldReord();
@@ -220,12 +236,8 @@ export default {
   },
   computed: {
     ...mapState("auth", ["userData"]),
-    ...mapState("LoadData", [
-      "tasksDownloaded",
-      "FieldRecordTotalCount",
-      "currentPage",
-    ]),
-    ...mapGetters("LoadData", ["FindRecordLength", "totalPage"]),
+    ...mapState("LoadData", ["tasksDownloaded", "FieldRecordTotalCount","FieldRecord500"]),
+    ...mapGetters("LoadData", ["FindRecordLength"]),
     ...mapState("phrase", ["professionalTitle", "Cassify", "counties"]),
 
     //顯示查詢字串
@@ -257,6 +269,8 @@ export default {
       "clearFieldReord",
       "setMDB",
       "setFieldRecordTotalCount",
+      "setFieldRecord500",
+      "clearFieldRecord500",
     ]),
     ...mapActions("LoadData", ["setFilter", "setSearch", "log"]),
     ...mapActions("phrase", ["readProfessionalTitle", "ReadCassify"]),
@@ -269,6 +283,7 @@ export default {
     ratingFn() {
       // console.log(this.star);
     },
+
     queryNoData() {
       this.$q.dialog({
         title: "",
@@ -301,12 +316,12 @@ export default {
       let classify = !this.classify ? "" : this.classify;
       let RedDot = this.RedDot;
 
-      // 紀錄
-      let payload = {
-        do: "查詢資料",
-        data: this.conditionsSetSearch,
-      };
-      this.log(payload);
+      // // 紀錄
+      // let payload = {
+      //   do: "查詢資料",
+      //   data: this.conditionsSetSearch,
+      // };
+      // this.log(payload);
 
       //查詢條件空白
       if (
@@ -335,7 +350,7 @@ export default {
             .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
             // .where("nameKeyword", "array-contains", name.toLowerCase())
-            // .where("star", "==", star)
+            // .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -362,7 +377,7 @@ export default {
             // .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             // .where("nameKeyword", "array-contains", name.toLowerCase())
-            // .where("star", "==", star)
+            // .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -389,7 +404,7 @@ export default {
             // .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            // .where("star", "==", star)
+            // .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -416,7 +431,7 @@ export default {
             // .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
             // .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -443,7 +458,7 @@ export default {
             .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             // .where("nameKeyword", "array-contains", name.toLowerCase())
-            // .where("star", "==", star)
+            // .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -470,7 +485,7 @@ export default {
             .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            // .where("star", "==", star)
+            // .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -497,7 +512,7 @@ export default {
             .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
             // .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -524,7 +539,7 @@ export default {
             // .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            // .where("star", "==", star)
+            // .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -551,7 +566,7 @@ export default {
             // .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             // .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -578,7 +593,7 @@ export default {
             // .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -605,7 +620,7 @@ export default {
             .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            // .where("star", "==", star)
+            // .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -632,7 +647,7 @@ export default {
             .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             // .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -659,7 +674,7 @@ export default {
             .where("county", "==", county) //縣市
             // .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -686,7 +701,7 @@ export default {
             // .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -713,7 +728,7 @@ export default {
             .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -831,7 +846,7 @@ export default {
         if (county === "" && classify === "" && name === "" && star > 0) {
           console.log("4星級");
           const snapshot = await query
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -903,7 +918,7 @@ export default {
           console.log("7縣市 星級");
           const snapshot = await query
             .where("county", "==", county) //縣市
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -951,7 +966,7 @@ export default {
           console.log("9分類 星級");
           const snapshot = await query
             .where("classify", "==", classify) //分類
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -975,7 +990,7 @@ export default {
           console.log("10姓名 星級");
           const snapshot = await query
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -1025,7 +1040,7 @@ export default {
           const snapshot = await query
             .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -1050,7 +1065,7 @@ export default {
           const snapshot = await query
             .where("county", "==", county) //縣市
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -1075,7 +1090,7 @@ export default {
           const snapshot = await query
             .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -1101,7 +1116,7 @@ export default {
             .where("county", "==", county) //縣市
             .where("classify", "==", classify) //分類
             .where("nameKeyword", "array-contains", name.toLowerCase())
-            .where("star", "==", star)
+            .where("star", ">=", star)
             .get()
             .then((qs) => {
               if (qs.empty) {
@@ -1124,7 +1139,7 @@ export default {
     }, //end queryData
 
     //＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-    //搜尋名字(沒有使用了)
+    //搜尋名字
     SearchName(name, data) {
       let match = {};
       Object.keys(data).forEach((key) => {
@@ -1138,20 +1153,6 @@ export default {
       // console.log(match);
       return match;
     },
-    //搜尋名字keyword陣列(沒有使用了)
-    async SearchNameKeyword(name, dbData) {
-      await dbFirestore
-        .collection("現場紀錄表")
-        .where("nameKeyword", "array-contains", name.toLowerCase())
-        .get()
-        .then((qs) => {
-          qs.forEach((doc) => {
-            Vue.set(dbData, doc.id, doc.data());
-          });
-        });
-      return dbData;
-    },
-    //捲動到ref=showRecord
     scrollToElement() {
       let vm = this;
       let el = vm.$refs.showRecord;
@@ -1168,67 +1169,9 @@ export default {
       let vm = this;
       this.cloudSearch = false;
       this.clearFieldReord();
+      this.clearFieldRecord500();
+      this.lastDoc = "";
 
-      let dbData = {};
-      this.Downloading = true;
-
-      const query = dbFirestore.collection("現場紀錄表");
-      const snapshot = await query.get(); //非同步是必須的，才算得出總數
-      const count = snapshot.size; //計算總筆數
-      console.log(count);
-      this.setFieldRecordTotalCount(count); //設定總筆數
-      // 超過3000筆資料，僅顯示3000筆
-      if (count > 3000) {
-        await query
-          .orderBy("updateDate", "desc")
-          .limit(3000)
-          .get()
-          .then((qs) => {
-            qs.forEach((doc) => {
-              Vue.set(dbData, doc.id, doc.data());
-            });
-            this.Downloading = false;
-          })
-          .catch((err) => {
-            console.log(err.message);
-          });
-        this.setFieldReord(dbData);
-        await vm.scrollToElement();
-        // return true;
-      } else {
-        // 小於3000筆資料
-        await dbFirestore
-          .collection("現場紀錄表")
-          .get()
-          .then((qs) => {
-            qs.forEach((doc) => {
-              Vue.set(dbData, doc.id, doc.data());
-            });
-            this.Downloading = false;
-          })
-          .catch((err) => {
-            console.log(err.message);
-          });
-        this.setFieldReord(dbData);
-        await vm.scrollToElement();
-        // return true;
-      }
-
-      // 紀錄
-      let payload = {
-        do: "列出全部資料",
-        data: null,
-      };
-      this.log(payload);
-    },
-
-    //沒有下查詢條件列出所有紀錄（分頁）
-    async listAllRecord_Paginate() {
-      let vm = this;
-      this.cloudSearch = false;
-      this.clearFieldReord();
-
-      let dbData = {};
       this.Downloading = true;
 
       //讀取總筆數
@@ -1240,105 +1183,62 @@ export default {
           console.log(doc.data());
           this.setFieldRecordTotalCount(doc.data().count); //設定總筆數
         });
+      // 分頁讀取，每次500筆
+      let dbObj = await this.Paginate();
+      // console.log(dbObj);
+      this.pageSticky = true; //查看更多按鈕
+      this.setFieldRecord500(Object.keys(dbObj).length);
+      this.setFieldReord(dbObj);
+      await vm.scrollToElement();
 
-      // 超過3000筆資料，僅顯示3000筆
-      if (this.FieldRecordTotalCount > 3000) {
-        this.currentPage = 1
-       
-         const rd = await this.Recursive_fieldRecord("") 
-         console.log(rd.dbData)
-
-        await this.setFieldReord(rd.dbData);
-        
-        await vm.scrollToElement();
-        // return true;
-      } else {
-        // 小於3000筆資料
-        await dbFirestore
-          .collection("現場紀錄表")
-          .get()
-          .then((qs) => {
-            qs.forEach((doc) => {
-              Vue.set(dbData, doc.id, doc.data());
-            });
-            this.Downloading = false;
-          })
-          .catch((err) => {
-            console.log(err.message);
-          });
-        this.setFieldReord(dbData);
-        await vm.scrollToElement();
-        // return true;
+      // // 紀錄
+      // let payload = {
+      //   do: "列出全部資料",
+      //   data: null,
+      // };
+      // this.log(payload);
+    },
+    async morePaginate() {
+      // 分頁讀取，每次500筆
+      let dbObj = await this.Paginate();
+      // console.log(dbObj);
+      if((Object.keys(dbObj).length === 0 && dbObj.constructor === Object) || this.FieldRecord500 > this.FieldRecordTotalCount ){
+        console.log("沒有了");
+        this.$q.notify("沒有了...");
+        this.pageSticky = false;
+        return;
       }
-
-      // 紀錄
-      let payload = {
-        do: "列出全部資料",
-        data: null,
-      };
-      this.log(payload);
+      // console.log(Object.keys(dbObj).length)
+      this.setFieldRecord500(Object.keys(dbObj).length);
+      this.setFieldReord(dbObj);
+      await this.scrollToElement();
     },
 
-
-    // 現場紀錄資料用遞迴方式分頁印到尾端
-    async Recursive_fieldRecord(lastDoc = "") {
-      if (lastDoc === "") {
-        this.serial = 0;
-        this.perPageNum = 1000; //每次讀取數量
-      }
-      let rd = await this.dbFieldRecord_read(lastDoc);
-      return rd
-      lastDoc = rd.lastDoc;
-      let dbData = rd.dbData;
-      if (lastDoc === false) return;
-      // this.Recursive_fieldRecord(lastDoc);
-    },
-    //資料庫分頁讀取
-    dbFieldRecord_read(lastDoc) {
-      return new Promise((resolve) => {
-        let dbData = [];
-        dbFirestore
-          .collection("現場紀錄表")
+    Paginate() {
+      return new Promise((resolve, reject) => {
+        let dbObj = {};
+        const query = dbFirestore.collection("現場紀錄表");
+        const snapshot = query
           .orderBy("updateDate", "desc")
-          .startAfter(lastDoc)
-          .limit(this.perPageNum)
-          .get()
-          .then((qs) => {
-            if (qs.empty) {
-              resolve({ lastDoc: false });
-            }
-            qs.forEach((doc) => {
-              let x = doc.data();
-              x.id = doc.id;
-              ++this.serial;
-              // console.log(
-              //   this.serial,
-              //   x.id,
-              //   x.name,
-              //   date.formatDate(x.updateDate.toDate(), "YYYY-MM-DD HH:mm:ss")
-              // );
-              dbData.push({ ...x, id: doc.id });
-              lastDoc = x.updateDate; //這次查詢最後一筆 date值
-              this.Downloading = false;
-            });
-            let r = {
-              dbData: dbData,
-              lastDoc: lastDoc,
-            };
-            resolve(r);
+          .startAfter(this.lastDoc)
+          .limit(500)
+          .get();
+        snapshot.then((qs) => {
+          // console.log(qs.empty)
+          if (qs.empty) {
+            resolve({});
+          }
+
+          qs.forEach((doc) => {
+            let x = doc.data();
+            Vue.set(dbObj, doc.id, x);
+            this.lastDoc = x.updateDate; //這次查詢最後一筆 date值
           });
+          this.Downloading = false;
+          resolve(dbObj);
+        });
       });
     },
-
-
-
-
-
-
-
-
-
-
   }, // methods end
 };
 </script>
