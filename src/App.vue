@@ -7,16 +7,19 @@
 import { mapActions } from "vuex";
 
 export default {
-  name: 'App',
+  name: "App",
   methods: {
-    ...mapActions("auth", ["handleAuthStateChange","getDepartment","getAllRoles"]),
-    ...mapActions('settings', ['getSettings']),
-
+    ...mapActions("auth", [
+      "handleAuthStateChange",
+      "getDepartment",
+      "getAllRoles"
+    ]),
+    ...mapActions("settings", ["getSettings"])
   },
   mounted() {
-      this.handleAuthStateChange()
-      this.getAllRoles()
-      this.getSettings()
-	  }
-}
+    this.handleAuthStateChange();
+    this.getAllRoles();
+    this.getSettings();
+  }
+};
 </script>

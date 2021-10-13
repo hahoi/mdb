@@ -183,115 +183,30 @@
           </div>
         </q-tab-panel>
 
+        <!----------- 上傳圖片 -------------------->
         <q-tab-panel name="uploadPhoto">
-          <!-- <div> 不使用
-            <q-uploader :factory="factoryFn" style="max-width: 250px" />
-          </div> -->
-          <div class="q-pa-md">
-            <q-stepper v-model="step" vertical color="primary" animated>
-              <q-step :name="1" title="選擇照片" icon="add" :done="step > 1">
-                <input
-                  id="inputimage"
-                  ref="fileInput"
-                  type="file"
-                  @change="handleFileSelect"
-                  style="display: none"
-                  accept="image/*, .pdf"
-                />
-                <q-stepper-navigation>
-                  <!-- <q-btn @click="step = 2" color="primary" label="下一步" /> -->
-                  <q-btn color="primary" @click="$refs.fileInput.click()"
-                    >按我選擇照片</q-btn
-                  >
-                </q-stepper-navigation>
-              </q-step>
+          <my-camera
+            :task="task"
+            :id="id"
+            @listenCamera="$emit('listenToChild', false)"
+          />
 
-              <q-step
-                :name="2"
-                title="預覽照片"
-                icon="create_new_folder"
-                :done="step > 2"
-              >
-                <div v-for="(item, key) in imageFiles">
-                  <!-- {{ item.filename }} -->
-                  <div>
-                    <q-img
-                      :src="item.imageDataUrl"
-                      style="max-width: 100px"
-                    ></q-img>
-                  </div>
-                  <!-- <pre>{{item.EXIF}}</pre> -->
+          <q-list>
+            <q-item clickable v-if="task.photo.length !== 0">
+              <q-item-section top thumbnail class="q-ml-none">
+                <div
+                  v-for="(img, key) in task.photo"
+                  class="col text-black q-mb-md vertical-middle"
+                >
+                  <span @click="delPhoto(img, key)">
+                    <q-icon name="delete"/><q-icon name="close"/></span
+                  ><br />
+                  <img :src="img.linkURL" class="vertical-middle" />
+                  <q-btn flat @click="setAvatar(img.linkURL)">設為頭像</q-btn>
                 </div>
-
-                <q-stepper-navigation>
-                  <q-circular-progress
-                    :min="40"
-                    :max="70"
-                    :value="uploadProgress"
-                    size="50px"
-                    :thickness="0.22"
-                    color="teal"
-                    track-color="grey-3"
-                    class="q-ma-sm"
-                  />
-                  <q-btn
-                    @click="uploadImage"
-                    color="primary"
-                    label="上傳照片"
-                  />
-                  <q-btn
-                    flat
-                    @click="step = 1"
-                    color="primary"
-                    label="重選照片"
-                    class="q-ml-sm"
-                  />
-                </q-stepper-navigation>
-              </q-step>
-              <q-step :name="3" title="完成" icon="add_comment">
-                <q-stepper-navigation>
-                  <q-btn
-                    @click="step = 1"
-                    color="primary"
-                    label="繼續上傳"
-                    class="q-ml-sm"
-                  />
-                </q-stepper-navigation>
-              </q-step>
-            </q-stepper>
-
-            <q-list>
-              <template
-                v-for="(img, key) in task.photo"
-                class="text-black q-mb-md vertical-middle"
-              >
-                <q-item clickable v-if="task.photo.length !== 0">
-                  <q-item-section top thumbnail>
-                    <div>
-                      <span @click="delPhoto(img, key)">
-                        <q-icon name="delete"/><q-icon name="close"/></span
-                      ><br />
-                      <img :src="img.linkURL" class="vertical-middle" />
-                    </div>
-                  </q-item-section>
-                  <q-item-section>
-                    <div class="row vertical-middle q-mt-md">
-                      <q-btn
-                        @click="setAvatar(img.linkURL)"
-                        label="設為頭像"
-                        class="text-black"
-                      />
-                      <q-btn
-                        @click="cropper_setAvatar(img, key)"
-                        label="裁切照片"
-                        class="text-black"
-                      />
-                    </div>
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-list>
-          </div>
+              </q-item-section>
+            </q-item>
+          </q-list>
         </q-tab-panel>
       </q-tab-panels>
 
@@ -340,43 +255,6 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-
-    <!-- 裁切照片，並設為頭像視窗============================== -->
-    <q-dialog
-      v-model="dialogCropper"
-      persistent
-      transition-show="slide-up"
-      transition-hide="slide-down"
-    >
-      <q-card class="bg-grey-1 text-white">
-        <q-bar>
-          <q-btn flat icon="close" v-close-popup class="bg-black text-white"
-            >離開
-          </q-btn>
-          <q-space />
-        </q-bar>
-
-        <q-card-section>
-          <cropper-avatar
-            :imgInfo="imgInfo"
-            :id="id"
-            :task="task"
-            :photoIndex="photoIndex"
-          />
-        </q-card-section>
-        <!-- <q-card-section>
-          <q-btn
-            flat
-            icon="close"
-            v-close-popup
-            class="bg-black text-white"
-            size="sm"
-            >離開
-          </q-btn>
-          <q-space />
-        </q-card-section> -->
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
@@ -384,7 +262,7 @@
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { dbFirestore, dbStorage } from "boot/firebase";
 import com_fun from "src/utils/function";
-// import EXIF from "src/utils/exif.min.js";
+import EXIF from "src/utils/exif.min.js";
 import { extend } from "quasar";
 
 export default {
@@ -402,16 +280,12 @@ export default {
       imageFiles: [], //儲存上傳檔案資訊，含imageDataUrl（base64Url格式）
       uploadProgress: 0,
       first: true,
-      index: -1,
-
-      dialogCropper: false,
-      imgInfo: "",
-      photoIndex: 0
+      index: -1
     };
   },
   components: {
     CassifyEdit: require("components/CassifyEdit.vue").default,
-    CropperAvatar: require("components/CropperAvatar.vue").default
+    MyCamera: require("components/MyCamera.vue").default
   },
   created() {
     // this.readProfessionalTitle();
@@ -474,42 +348,32 @@ export default {
             .delete();
 
           //刪除copy_task中photo陣列中的刪除項目
-          let copyData = extend(true, {}, vm.task);
-          copyData.photo.splice(key, 1);
-          copyData.updateDate = new Date();
+          vm.task.photo.splice(key, 1);
+          vm.task.updateDate = new Date();
 
           let payload = {
             id: vm.id,
-            data: copyData
+            data: vm.task
           };
           console.log(payload);
 
           //=============存入資料庫======================
           vm.updateFieldRecord(payload);
-          vm.$emit("listenToChild", false); //回傳關閉視窗;
         });
     },
     //設為頭像
     setAvatar(linkUrl) {
       let vm = this;
-      let copyData = extend(true, {}, vm.task);
-      copyData.avatar = linkUrl;
-      copyData.updateDate = new Date();
+      vm.task.avatar = linkUrl;
+      vm.task.updateDate = new Date();
       let payload = {
         id: vm.id,
-        data: copyData
+        data: vm.task
       };
       // console.log(payload);
       vm.updateFieldRecord(payload);
       this.$q.notify("設定頭像修改成功");
       vm.$emit("listenToChild", false); //回傳關閉視窗;
-    },
-
-    //裁切照片，並設為頭像
-    cropper_setAvatar(img, key) {
-      this.dialogCropper = true;
-      this.imgInfo = img;
-      this.photoIndex = key;
     },
     //=========修改儲存================
     onSubmit() {
@@ -571,11 +435,11 @@ export default {
         }
         vm.imageFiles.unshift({
           filename: "", //照片檔名
-          imageDataUrl: "" //base64Url
-          // EXIF: {},
-          // discription: "", //照片描述
-          // GPSLatitude: 0, //緯度
-          // GPSLongitude: 0 //經度
+          imageDataUrl: "", //base64Url
+          EXIF: {},
+          discription: "", //照片描述
+          GPSLatitude: 0, //緯度
+          GPSLongitude: 0 //經度
           // GPSLatitudeRef: "",		//南北緯 N北緯 S南緯
           // GPSLongitudeRef: ""		//東西經 E東經 W西經
         });
@@ -584,33 +448,33 @@ export default {
         let image = new Image();
         // const EXIF = require("exif").ExifImage;
 
-        // EXIF.getData(file, function() {
-        //   Orientation = EXIF.getTag(this, "Orientation");
-        //   //   console.log(Orientation);
-        //   //   vm.imageFiles[i].EXIF = EXIF.getAllTags(this);
-        //   //   console.log(EXIF.getAllTags(this));
-        //   let lat_ref = EXIF.getTag(this, "GPSLatitudeRef");
-        //   let lat = EXIF.getTag(this, "GPSLatitude");
+        EXIF.getData(file, function() {
+          Orientation = EXIF.getTag(this, "Orientation");
+          //   console.log(Orientation);
+          //   vm.imageFiles[i].EXIF = EXIF.getAllTags(this);
+          //   console.log(EXIF.getAllTags(this));
+          let lat_ref = EXIF.getTag(this, "GPSLatitudeRef");
+          let lat = EXIF.getTag(this, "GPSLatitude");
 
-        //   let lng_ref = EXIF.getTag(this, "GPSLongitudeRef");
-        //   let lng = EXIF.getTag(this, "GPSLongitude");
+          let lng_ref = EXIF.getTag(this, "GPSLongitudeRef");
+          let lng = EXIF.getTag(this, "GPSLongitude");
 
-        //   if (
-        //     lat_ref != undefined &&
-        //     lng_ref != undefined &&
-        //     lng != undefined &&
-        //     lng != undefined
-        //   ) {
-        //     vm.imageFiles[i].GPSLatitude =
-        //       lat_ref == "N"
-        //         ? com_fun.change_latlng(lat)
-        //         : com_fun.change_latlng(lat) * -1;
-        //     vm.imageFiles[i].GPSLongitude =
-        //       lng_ref == "E"
-        //         ? com_fun.change_latlng(lng)
-        //         : com_fun.change_latlng(lng) * -1;
-        //   }
-        // });
+          if (
+            lat_ref != undefined &&
+            lng_ref != undefined &&
+            lng != undefined &&
+            lng != undefined
+          ) {
+            vm.imageFiles[i].GPSLatitude =
+              lat_ref == "N"
+                ? com_fun.change_latlng(lat)
+                : com_fun.change_latlng(lat) * -1;
+            vm.imageFiles[i].GPSLongitude =
+              lng_ref == "E"
+                ? com_fun.change_latlng(lng)
+                : com_fun.change_latlng(lng) * -1;
+          }
+        });
 
         reader.onload = function(ev) {
           image.src = ev.target.result;
@@ -630,9 +494,6 @@ export default {
               ctx = canvas.getContext("2d");
             canvas.width = imgWidth;
             canvas.height = imgHeight;
-
-            ctx.drawImage(this, 0, 0, imgWidth, imgHeight);
-            /*
             if (Orientation && Orientation != 1) {
               switch (Orientation) {
                 case 6:
@@ -661,7 +522,6 @@ export default {
             } else {
               ctx.drawImage(this, 0, 0, imgWidth, imgHeight);
             }
-            */
             vm.imageFiles[i].imageDataUrl = canvas.toDataURL("image/jpeg", 0.8); //save 壓縮過的檔案
             vm.imageFiles[i].filename =
               file.name == "image.jpg"
@@ -711,28 +571,27 @@ export default {
               let linkURL = downloadURL; //link URL
               let findKey = "/現場紀錄表/" + vm.id + "/" + item.filename; //find 鍵值
               vm.imageFiles = []; //螢幕顯示部分，上傳完畢后，需清除
-              let data = {
+              let imageLink = {
                 linkURL: linkURL,
                 findKey: findKey
               };
 
+              // 因要取得資料庫id資料先新增存檔，vm.data已存入vuex，故要拷貝另一份作處理
               let copyData = extend(true, {}, vm.task);
-              copyData.photo = [...copyData.photo, data];
+              copyData.photo.push(imageLink);
               copyData.avatar = linkURL; //設為頭像
               copyData.updateDate = new Date();
-              // console.log(copyData);
-              // 存入照片資料
+              console.log(copyData);
               let payload = {
                 id: vm.id,
-                data: copyData
+                data: copyData //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
               };
               //跳下一步
               vm.step = 3;
-
               //=============存入資料庫======================
+
               vm.updateFieldRecord(payload);
               vm.$emit("listenToChild", false); //回傳關閉視窗;
-
               return;
             });
           }

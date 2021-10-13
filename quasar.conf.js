@@ -6,7 +6,7 @@
 // Configuration for your app
 // https://quasar.dev/quasar-cli/quasar-conf-js
 
-module.exports = function (/* ctx */) {
+module.exports = function ( /* ctx */ ) {
   return {
     // https://quasar.dev/quasar-cli/supporting-ts
     supportTS: false,
@@ -18,7 +18,7 @@ module.exports = function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
-      'firebase',      
+      'firebase',
       'axios',
       'router-auth',
     ],
@@ -33,7 +33,7 @@ module.exports = function (/* ctx */) {
       // 'ionicons-v4',
       // 'mdi-v5',
       // 'fontawesome-v5',
-      // 'eva-icons',
+      'eva-icons',
       // 'themify',
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
@@ -65,6 +65,15 @@ module.exports = function (/* ctx */) {
       // https://quasar.dev/quasar-cli/handling-webpack
       extendWebpack (cfg) {
       },
+
+
+      // 往process.env新增API属性，process.env.API = 'https://covid-19.nchc.org.tw/'
+      // dev環境用api，發佈環境用 https://covid-19.nchc.org.tw/
+      // env: {
+      //   // NODE_TLS_REJECT_UNAUTHORIZED: ctx.dev ? 0 : 1,
+      //   API: ctx.dev ? '/api' : 'https://firebasestorage.googleapis.com/'
+      // },
+
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
@@ -72,6 +81,22 @@ module.exports = function (/* ctx */) {
       https: false,
       port: 8080,
       open: true // opens browser window automatically
+      // proxy: {
+      //   // 解决跨域问题
+      //   '/api': {
+      //     // 此处的写法，目的是为了 将 /api 替换成 https://autumnfish.cn/
+      //     target: 'https://firebasestorage.googleapis.com/',
+
+      //     //將代理的安全設置為 false，然後通過 http 訪問 webpack-dev-server。
+      //     secure: false,
+      //     // 允许跨域
+      //     changeOrigin: true,
+      //     ws: true,
+      //     pathRewrite: {
+      //       '^/api': ''
+      //     }
+      //   }
+      // },
     },
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework

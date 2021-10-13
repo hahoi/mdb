@@ -19,48 +19,48 @@ const state = {
 
 const mutations = {
 
-    setMDB(state, value) {
+    setMDB (state, value) {
         state.mdb = value
     },
-    clearFieldReord(state) {
+    clearFieldReord (state) {
         state.FieldRecord = {}
     },
-    setFieldReord(state, value) {
+    setFieldReord (state, value) {
         state.FieldRecord = Object.assign({}, value)
     },
-    setSearch(state, value) {
+    setSearch (state, value) {
         state.search = value
     },
-    setSort(state, value) {
+    setSort (state, value) {
         state.sort = value
     },
-    setTasksDownloaded(state, value) {
+    setTasksDownloaded (state, value) {
         state.tasksDownloaded = value
     },
-    setCurrentId(state, value) {
+    setCurrentId (state, value) {
         state.currentId = value
     },
-    setFilter(state, value) {
+    setFilter (state, value) {
         state.filter = value
     },
-    setFieldRecordTotalCount(state, value) {
+    setFieldRecordTotalCount (state, value) {
         state.FieldRecordTotalCount = value
     },
-    setFieldRecord500(state, value) {
+    setFieldRecord500 (state, value) {
         state.FieldRecord500 += value
     },
-    clearFieldRecord500(state, value) {
+    clearFieldRecord500 (state, value) {
         state.FieldRecord500 = 0
     },
     //Object
-    updateFieldRecord(state, payload) {
+    updateFieldRecord (state, payload) {
         Vue.set(state.FieldRecord, payload.id, payload.data)
         // console.log("state.FieldRecord",state.FieldRecord[payload.id])
     },
-    deleteFieldRecord(state, id) {
+    deleteFieldRecord (state, id) {
         Vue.delete(state.FieldRecord, id)
     },
-    addFieldRecord(state, payload) {
+    addFieldRecord (state, payload) {
         Vue.set(state.FieldRecord, payload.id, payload.data)
         // console.log("addFieldRecord",state.FieldRecord[payload.id])
     },
@@ -70,18 +70,18 @@ const mutations = {
 }
 
 const actions = {
-    setFilter({ commit }, value) {
+    setFilter ({ commit }, value) {
         commit('setFilter', value)
     },
 
-    setSearch({ commit }, value) {
+    setSearch ({ commit }, value) {
         commit('setSearch', value)
     },
-    setSort({ commit }, value) {
+    setSort ({ commit }, value) {
         commit('setSort', value)
     },
     // 紀錄
-    log({ dispatch, commit, state, rootState }, payload) {
+    log ({ dispatch, commit, state, rootState }, payload) {
         // console.log(rootState.auth.userData.name)
         if (!payload) return
         let data = {
@@ -94,7 +94,7 @@ const actions = {
     },
 
     //增加一筆
-    addFieldRecord({ commit, dispatch }, data) { //建議跟mutations同名，較好記
+    addFieldRecord ({ commit, dispatch }, data) { //建議跟mutations同名，較好記
         dbFirestore
             .collection("現場紀錄表")
             .add(data)
@@ -108,7 +108,7 @@ const actions = {
                 // 更新 state.FieldRecord，更新畫面
                 commit("addFieldRecord", payload);
                 console.log("資料庫新增成功！", ref.id);
-                dispatch('log', { do: `新增${ payload.data.name}資料`, data: payload.data })
+                dispatch('log', { do: `新增${payload.data.name}資料`, data: payload.data })
             })
             .catch(error => {
                 console.error("資料庫儲存失敗！", error);
@@ -116,7 +116,7 @@ const actions = {
     },
 
     //更新
-    updateFieldRecord({ commit , dispatch }, payload) {
+    updateFieldRecord ({ commit, dispatch }, payload) {
         // console.log(payload)
         dbFirestore
             .collection("現場紀錄表")
@@ -126,7 +126,7 @@ const actions = {
                 // 更新 state.FieldRecord，更新畫面
                 commit("updateFieldRecord", payload);
                 console.log("資料庫修改成功！");
-                dispatch('log', { do: `修改${ payload.data.name}資料`, data: payload.data })
+                dispatch('log', { do: `修改${payload.data.name}資料`, data: payload.data })
             })
             .catch(error => {
                 console.error("資料庫更新失敗！", error);
@@ -134,7 +134,7 @@ const actions = {
 
     },
     //刪除
-    deleteFieldRecord({ commit, dispatch  }, payload) {
+    deleteFieldRecord ({ commit, dispatch }, payload) {
         dbFirestore
             .collection("現場紀錄表")
             .doc(payload.id)
@@ -142,7 +142,7 @@ const actions = {
             .then(() => {
                 commit("deleteFieldRecord", payload.id);
                 console.log("資料刪除成功！");
-                dispatch('log', { do: `刪除${ payload.name}資料`, payload })
+                dispatch('log', { do: `刪除${payload.name}資料`, payload })
             })
 
     },

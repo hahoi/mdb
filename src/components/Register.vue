@@ -1,13 +1,16 @@
 <template>
-
   <q-form ref="form" @submit.prevent="submitForm">
-    <q-card flat style="width: 100%; max-width: 300px; margin: 0 auto" class="text-h6">
+    <q-card
+      flat
+      style="width: 100%; max-width: 300px; margin: 0 auto"
+      class="text-h6"
+    >
       <q-card-section>
         <q-input
           v-model="formData.email"
           :rules="[
-            (val) => !!val || '* 這個欄位必須要輸入',
-            (val) => isValidEmailAddress(val) || '不合格式的 e-mail.',
+            val => !!val || '* 這個欄位必須要輸入',
+            val => isValidEmailAddress(val) || '不合格式的 e-mail.'
           ]"
           ref="email"
           type="email"
@@ -23,7 +26,7 @@
       <q-card-section>
         <q-input
           v-model="formData.name"
-          :rules="[(val) => !!val || '* 這個欄位必須要輸入']"
+          :rules="[val => !!val || '* 這個欄位必須要輸入']"
           ref="name"
           lazy-rules
           class="col text-h6"
@@ -33,12 +36,11 @@
           dense
           autocomplete="username"
         />
-
       </q-card-section>
       <q-card-section>
         <q-input
           v-model="formData.telephone"
-          :rules="[(val) => !!val || '* 這個欄位必須要輸入']"
+          :rules="[val => !!val || '* 這個欄位必須要輸入']"
           ref="telephone"
           lazy-rules
           class="col text-h6"
@@ -48,13 +50,13 @@
           dense
           autocomplete="username"
         />
-        
       </q-card-section>
-      <q-card-section><q-input
+      <q-card-section
+        ><q-input
           v-model="formData.password"
           :rules="[
-            (val) => !!val || '* 這個欄位必須要輸入',
-            (val) => val.length >= 6 || 'Please enter at least 6 characters.',
+            val => !!val || '* 這個欄位必須要輸入',
+            val => val.length >= 6 || 'Please enter at least 6 characters.'
           ]"
           ref="password"
           lazy-rules
@@ -66,12 +68,11 @@
           dense
           autocomplete="new-password"
         />
-        
       </q-card-section>
       <q-card-section>
         <q-input
           v-model="password2"
-          :rules="[(val) => val === formData.password || '兩次密碼不一樣']"
+          :rules="[val => val === formData.password || '兩次密碼不一樣']"
           ref="password2"
           lazy-rules
           type="password"
@@ -82,28 +83,22 @@
           dense
           autocomplete="new-password"
         />
-        
       </q-card-section>
 
       <q-separator dark />
 
       <q-card-actions>
         <q-space />
-        
-        <q-btn color="primary" label="註冊" type="submit" class="btn-fixed-width"/>
+
+        <q-btn
+          color="primary"
+          label="註冊"
+          type="submit"
+          class="btn-fixed-width"
+        />
       </q-card-actions>
     </q-card>
-
-
   </q-form>
-
-
-
-
-
-  
-        
-
 </template>
 
 <script>
@@ -120,17 +115,16 @@ export default {
         email: "",
         password: "",
         name: "",
-        telephone: "",
+        telephone: ""
       },
-      password2: "",
+      password2: ""
     };
   },
   components: {},
   created() {},
   mounted() {},
   watch: {},
-  computed: {
-  },
+  computed: {},
   methods: {
     ...mapActions("auth", ["registerUser"]),
 
@@ -151,13 +145,17 @@ export default {
       //   this.$refs.password2.validate()
       // );
 
-      if (this.$refs.form.validate()) {
-        this.registerUser(this.formData);
-      }
-    },
-  },
+      this.$q.dialog({
+        title: "Error",
+        message: "測試版本不能註冊！"
+      });
+
+      // if (this.$refs.form.validate()) {
+      //   this.registerUser(this.formData);
+      // }
+    }
+  }
 };
 </script>
 
-<style>
-</style>
+<style></style>

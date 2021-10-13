@@ -136,7 +136,7 @@
             建言事項：
           </q-item-section>
           <q-item-section>
-            <q-item-label v-html="task.suggestions">{{
+            <q-item-label class="col-7" v-html="task.suggestions">{{
               task.suggestions
             }}</q-item-label>
           </q-item-section>
@@ -248,7 +248,7 @@ export default {
   data() {
     return {
       showPhoto: false,
-      photoUrl: "",
+      photoUrl: ""
     };
   },
   components: {},
@@ -262,8 +262,8 @@ export default {
     viewPhoto(url) {
       this.photoUrl = url;
       this.showPhoto = true;
-    },
-  },
+    }
+  }
 };
 </script>
 

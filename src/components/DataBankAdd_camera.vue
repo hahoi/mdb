@@ -198,6 +198,14 @@
 
       <q-card-section v-if="currentId"
         >上傳照片
+
+        <!----------- 上傳圖片 -------------------->
+        <my-camera
+          :task="data"
+          :id="currentId"
+          @listenCamera="$emit('listenToChild', false)"
+        />
+
         <template>
           <div class="q-pa-md">
             <q-stepper v-model="step" vertical color="primary" animated>
@@ -273,27 +281,17 @@
             </q-stepper>
           </div>
         </template>
-        <!-- <div
-          class="fit row wrap justify-end items-center bg-cyan"
-          style="margin: 0; padding: 0"
-        >
-          <div class="q-ma-xs">
-            <q-btn
-              label="繼續新增"
-              type="submit"
-              color="primary"
-              @click="KeepAdd"
-            />
+        <!-- quasar上傳圖片，暫時不使用 -->
+        <!-- <div class="q-pa-md">
+          <div class="text-center text-negative">
+            <p>先按<img src="../assets/addImage.png" />選擇圖片</p>
+            <p>再按<img src="../assets/upload.png" />上傳圖片</p>
           </div>
-          <div class="q-ma-xs">
-            <q-btn
-              label="離開"
-              color="primary"
-              class="bg-accent text-white"
-              flat
-              @click="goAway"
-            />
-          </div>
+          <q-uploader
+            :factory="factoryFn2"
+            accept=".jpg, image/*"
+            style="max-width: 200px"
+          />
         </div> -->
       </q-card-section>
     </div>
@@ -338,7 +336,8 @@
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { dbFirestore, dbStorage } from "boot/firebase";
 import com_fun from "src/utils/function";
-// import EXIF from "src/utils/exif.min.js";
+import EXIF from "src/utils/exif.min.js";
+import { extend } from "quasar";
 
 export default {
   name: "",
@@ -388,7 +387,8 @@ export default {
     };
   },
   components: {
-    CassifyEdit: require("components/CassifyEdit.vue").default
+    CassifyEdit: require("components/CassifyEdit.vue").default,
+    MyCamera: require("components/MyCamera.vue").default
   },
   created() {
     // this.readProfessionalTitle();
@@ -559,20 +559,19 @@ export default {
         }
         vm.imageFiles.unshift({
           filename: "", //照片檔名
-          imageDataUrl: "" //base64Url
-          // EXIF: {},
-          // discription: "", //照片描述
-          // GPSLatitude: 0, //緯度
-          // GPSLongitude: 0 //經度
-          // // GPSLatitudeRef: "",		//南北緯 N北緯 S南緯
-          // // GPSLongitudeRef: ""		//東西經 E東經 W西經
+          imageDataUrl: "", //base64Url
+          EXIF: {},
+          discription: "", //照片描述
+          GPSLatitude: 0, //緯度
+          GPSLongitude: 0 //經度
+          // GPSLatitudeRef: "",		//南北緯 N北緯 S南緯
+          // GPSLongitudeRef: ""		//東西經 E東經 W西經
         });
 
         let reader = new FileReader();
         let image = new Image();
         // const EXIF = require("exif").ExifImage;
 
-        /*
         EXIF.getData(file, function() {
           Orientation = EXIF.getTag(this, "Orientation");
           //   console.log(Orientation);
@@ -600,7 +599,6 @@ export default {
                 : com_fun.change_latlng(lng) * -1;
           }
         });
-        */
 
         reader.onload = function(ev) {
           image.src = ev.target.result;
@@ -620,9 +618,6 @@ export default {
               ctx = canvas.getContext("2d");
             canvas.width = imgWidth;
             canvas.height = imgHeight;
-
-            ctx.drawImage(this, 0, 0, imgWidth, imgHeight);
-            /*
             if (Orientation && Orientation != 1) {
               switch (Orientation) {
                 case 6:
@@ -651,7 +646,6 @@ export default {
             } else {
               ctx.drawImage(this, 0, 0, imgWidth, imgHeight);
             }
-            */
             vm.imageFiles[i].imageDataUrl = canvas.toDataURL("image/jpeg", 0.8); //save 壓縮過的檔案
             vm.imageFiles[i].filename =
               file.name == "image.jpg"
@@ -701,38 +695,75 @@ export default {
               let linkURL = downloadURL; //link URL
               let findKey = "/現場紀錄表/" + vm.currentId + "/" + item.filename; //find 鍵值
               vm.imageFiles = []; //螢幕顯示部分，上傳完畢后，需清除
-              let data = {
+              let imageLink = {
                 linkURL: linkURL,
                 findKey: findKey
-                // avatar: false,
               };
 
-              // vm.data.photo.push(data); 這樣會出錯
-              //pure push copy
-              vm.data.photo = [...vm.data.photo, data];
-
-              vm.data.avatar = linkURL; //設為頭像
-              // console.log(vm.data.avatar)
-              vm.data.updateDate = new Date();
-              // 存入照片資料
-              //   vm.data.photo[0].avatar = true; //第一張照片設為頭像
-              console.log(vm.data);
+              // 因要取得資料庫id資料先新增存檔，vm.data已存入vuex，故要拷貝另一份作處理
+              let copyData = extend(true, {}, vm.data);
+              copyData.photo.push(imageLink);
+              copyData.avatar = copyData.photo[0].linkURL; //第一張照片設為頭像
+              copyData.updateDate = new Date();
+              console.log(copyData);
               let payload = {
                 id: vm.currentId,
-                data: vm.data //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
+                data: copyData //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
               };
               //跳下一步
               vm.step = 3;
 
               //=============存入資料庫======================
-              vm.updateFieldRecord(payload);
-              vm.$emit("listenToChild", false); //回傳關閉視窗;
-
-              return;
+              return vm.updateFieldRecord(payload);
             });
           }
         );
       });
+    },
+
+    // quasar 上傳圖檔2，2021/9/23暫時不用
+    factoryFn2(files) {
+      const vm = this;
+      let findKey = "/現場紀錄表/" + vm.currentId + "/" + files[0].name; //find 鍵值
+      const uploadTask = dbStorage
+        .ref()
+        .child(findKey)
+        .put(files[0]);
+      uploadTask.on(
+        "state_changed",
+        function(snapshot) {
+          //非同步處理
+          // vm.uploadProgress =
+          //   (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        },
+        function(error) {
+          console.log(error);
+          alert("上傳圖片有錯誤！");
+        },
+        function() {
+          //成功
+          uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
+            let imageLink = {
+              linkURL: downloadURL,
+              findKey: findKey
+            };
+
+            // 因要取得資料庫id資料先新增存檔，vm.data已存入vuex，故要拷貝另一份作處理
+            let copyData = extend(true, {}, vm.data);
+            copyData.photo.push(imageLink);
+            copyData.avatar = copyData.photo[0].linkURL; //第一張照片設為頭像
+            copyData.updateDate = new Date();
+            console.log(copyData);
+            let payload = {
+              id: vm.currentId,
+              data: copyData //要更新所有欄位，否則在更新state時，因是全物件更新，所以會出錯
+            };
+
+            //=============存入資料庫======================
+            return vm.updateFieldRecord(payload);
+          });
+        }
+      );
     }
   }
 };

@@ -24,11 +24,12 @@ export const powerRouter = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      // {
-      //   path: '/index', component: () => import('pages/Index.vue'),
-      //   meta: { title: '首頁', role: 'Index', icon: 'home', divider: true }
+      {
+        // path: '', 
+        // component: () => import('pages/PageMDBHomeAdv.vue'),
+        // // meta: { title: '行動資料庫', role: 'MDBAdv', icon: 'view_list', divider: true }
 
-      // },
+      },
       {
         path: '/MDB',
         component: () => import('pages/PageMDBHome.vue'),
@@ -49,12 +50,12 @@ export const powerRouter = [
         path: '/users',
         component: () => import('pages/PageUsers'),
         meta: { title: '使用者管理', role: 'users', icon: 'group', divider: true }
-      },        
-      {
-        path: '/loglist',
-        component: () => import('pages/PageLogList'),
-        meta: { title: 'log紀錄', role: 'LogList', icon: 'group', divider: true }
-      },       
+      },
+      // {
+      //   path: '/loglist',
+      //   component: () => import('pages/PageLogList'),
+      //   meta: { title: 'log紀錄', role: 'LogList', icon: 'group', divider: true }
+      // },
       // {
       //   path: '/help',
       //   component: () => import('pages/PageHelp'),
@@ -70,11 +71,11 @@ export const powerRouter = [
       //   component: () => import('pages/PageLikeSearch'),
       //   meta: { title: 'like查詢', role: 'LikeSearch', icon: 'group', divider: true }
       // },     
-      {
-        path: '/MDBAdv',
-        component: () => import('pages/PageMDBHomeAdv'),
-        meta: { title: '行動資料庫(改進)', role: 'MDBAdv', icon: 'group', divider: true }
-      },                       
+      // {
+      //   path: '/MDBAdv',
+      //   component: () => import('pages/PageMDBHomeAdv'),
+      //   meta: { title: '行動資料庫(改進)', role: 'MDBAdv', icon: 'group', divider: true }
+      // },                       
       // {
       //   path: '/settings',
       //   component: () => import('pages/PageSettings'),
@@ -86,11 +87,16 @@ export const powerRouter = [
       //   meta: { title: '匯入', role: 'users', icon: 'group', divider: true }
       // },     
       // // 暫時性的功能，注意role的設定，設成users暫時取代使用者管理功能             
-      {
-        path: '/BackupRestory',
-        component: () => import('pages/PageBackupRestory'),
-        meta: { title: '備份還原', role: 'users', icon: 'backup_table', divider: true }
-      },      
+      // {
+      //   path: '/BackupRestory',
+      //   component: () => import('pages/PageBackupRestory'),
+      //   meta: { title: '備份還原', role: 'users', icon: 'backup_table', divider: true }
+      // },
+      // {
+      //   path: '/OCR',
+      //   component: () => import('pages/PageOCR'),
+      //   meta: { title: '本文檢測', role: 'users', icon: 'group', divider: true }
+      // },
     ]
   },
   {

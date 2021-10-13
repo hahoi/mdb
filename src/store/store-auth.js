@@ -1,4 +1,4 @@
-import { LocalStorage, Loading, extend  } from 'quasar'
+import { LocalStorage, Loading, extend } from 'quasar'
 import { firebaseAuth, dbFirestore } from 'boot/firebase'
 import { powerRouter } from 'src/router/routes'
 import { showErrorMessage } from "src/utils/function-show-error-message";
@@ -12,31 +12,31 @@ const state = {
 }
 
 const mutations = {
-	setLoggedIn(state, value) {
+	setLoggedIn (state, value) {
 		state.loggedIn = value
 	},
-	setNewRouter(state, value) {
+	setNewRouter (state, value) {
 		state.newRouter = value
 	},
-	setNewMenu(state, value) {
+	setNewMenu (state, value) {
 		state.newMenu = value
 	},
-	setAllRoles(state, value) {
+	setAllRoles (state, value) {
 		state.allRoles = value
 	},
-	setUserData(state, value) {
+	setUserData (state, value) {
 		state.userData = value
 	},
-	clearUserData(state) {
+	clearUserData (state) {
 		state.userData = {}
 	},
-	clearNewMenu(state) {
+	clearNewMenu (state) {
 		state.newMenu = []
 	},
-	clearNewRouter(state) {
+	clearNewRouter (state) {
 		state.newRouter = []
 	},
-	clearAllRoles(state) {
+	clearAllRoles (state) {
 		state.allRoles = []
 	}
 }
@@ -48,7 +48,7 @@ const actions = {
 	// setNewMenu({ commit }, value) {
 	// 	commit('setNewMenu', value)
 	// },
-	registerUser({ }, payload) {
+	registerUser ({ }, payload) {
 		let vm = this
 
 		Loading.show()
@@ -69,7 +69,7 @@ const actions = {
 				payload.createAt = new Date(); //後台寫入物件日期
 				payload.changeAt = new Date();
 				// payload.emailVerified = false
-				payload.role = ['Index'] //這個要隨不同系統去調整，還未審核通過前可route 路由
+				payload.role = ['Index', 'MDB', 'import'] //這個要隨不同系統去調整，還未審核通過前可route 路由
 				payload.memo = ""
 				payload.states = false
 				payload.sysMana = false
@@ -108,17 +108,17 @@ const actions = {
 
 			})
 	},
-	loginUser({ state }, payload) {
+	loginUser ({ state }, payload) {
 		// Loading.show()
 		firebaseAuth.signInWithEmailAndPassword(payload.email, payload.password)
 			.then(response => {
 				console.log("login:", response)
 				// console.log(firebaseAuth.currentUser.uid)
-				if (!response.user.emailVerified) {
+				// if (!response.user.emailVerified) {
 
-					showErrorMessage("你註冊的Email帳號尚未驗證！請到註冊的郵件信箱收信，點擊連結回傳確認。", "注意")
-					return false
-				}
+				// 	// showErrorMessage("你註冊的Email帳號尚未驗證！請到註冊的郵件信箱收信，點擊連結回傳確認。", "注意")
+				// 	return false
+				// }
 
 
 			})
@@ -127,7 +127,7 @@ const actions = {
 				// console.log(error.message)
 			})
 	},
-	logoutUser() {
+	logoutUser () {
 		console.log('logoutUser')
 		firebaseAuth.signOut()
 		console.log(firebaseAuth.currentUser.uid)
@@ -139,7 +139,7 @@ const actions = {
 	//將loggedIn值，分別存在 state 及 LocalStorage
 	//router.beforeEach 每次跳轉頁面，從 LocalStorage 取值做判斷，而不是執行 onAuthStateChange
 	//開發設計時，因user值一直存在，需要注意loggedIn、userData的值，是否符合實際登入狀態，否則會出錯
-	handleAuthStateChange({ state, commit, dispatch }) {
+	handleAuthStateChange ({ state, commit, dispatch }) {
 		firebaseAuth.onAuthStateChanged(user => {
 			// console.log("user",user) 網頁reload、開新視窗、分頁，user都會存在
 			Loading.hide()
@@ -161,13 +161,13 @@ const actions = {
 				// console.log(JSON.stringify(user, null, '  '))
 
 
-				if (user.emailVerified) {
-					dispatch('getUserData', user.uid)
-					// dispatch('tasks/fbReadData', null, { root: true })
-				} else {
-					showErrorMessage("你註冊的Email帳號尚未驗證！請到註冊的郵件信箱收信，點擊連結回傳確認。", "注意")
-					return false
-				}
+				// if (user.emailVerified) {
+				dispatch('getUserData', user.uid)
+				// // dispatch('tasks/fbReadData', null, { root: true })
+				// } else {
+				// 	showErrorMessage("你註冊的Email帳號尚未驗證！請到註冊的郵件信箱收信，點擊連結回傳確認。", "注意")
+				// 	return false
+				// }
 			}
 			else {
 				// commit('tasks/clearTasks', null, { root: true })
@@ -183,7 +183,7 @@ const actions = {
 	},
 	// 取得使用者資料
 	// 依權限設定路由、功能表選項
-	getUserData({ commit, state }, userid) {
+	getUserData ({ commit, state }, userid) {
 		dbFirestore
 			.collection("MDBUsers").doc(userid)
 			.get()
@@ -198,7 +198,7 @@ const actions = {
 					memo: doc.data().memo,
 					telephone: doc.data().telephone,
 					states: doc.data().states,
-					sysMana : doc.data().sysMana
+					sysMana: doc.data().sysMana
 				};
 				commit('setUserData', UserData)
 			})
@@ -250,10 +250,10 @@ const actions = {
 	},
 
 
-	
+
 
 	//讀取所有的權限
-	getAllRoles({ commit, state }) {
+	getAllRoles ({ commit, state }) {
 		let allRoles = []
 		powerRouter[0].children.forEach(item => {
 			// console.log(item)

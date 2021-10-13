@@ -26,7 +26,7 @@
         </q-item-label>
       </q-item-section>
 
-      <q-item-section side >
+      <q-item-section side>
         <!-- {{ task.update }} -->
         <!-- <div class="text-orange fit row wrap justify-start items-center content-center" v-for="star in task.star"> -->
         <template v-for="star in task.star">
@@ -137,7 +137,7 @@
         </q-bar>
 
         <q-card-section>
-            <data-bank-print :task="printTask" ></data-bank-print>
+          <data-bank-print :task="printTask"></data-bank-print>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -161,23 +161,23 @@ export default {
       maximizedToggle: true,
       copyTask: null,
       editTask: {},
-      printTask: {},
+      printTask: {}
     };
   },
   components: {
     DataBankList: require("components/DataBankList.vue").default,
     DataBankEdit: require("components/DataBankEdit.vue").default,
-    DataBankPrint: require("components/DataBankPrint.vue").default,
+    DataBankPrint: require("components/DataBankPrint.vue").default
   },
   created() {
     //星級＝NaN時，無法顯示也無法編輯，加入下行修正
-    this.task.star = isNaN(this.task.star)  ? 0 : this.task.star
+    this.task.star = isNaN(this.task.star) ? 0 : this.task.star;
   },
   mounted() {},
   watch: {},
   computed: {
     ...mapState("auth", ["userData"]),
-    ...mapState("LoadData", ["search"]),
+    ...mapState("LoadData", ["search"])
   },
   methods: {
     ...mapActions("LoadData", ["deleteFieldRecord", "updateFieldRecord"]),
@@ -209,35 +209,37 @@ export default {
           title: "刪除確認",
           message: `要刪除${this.task.name}嗎？`,
           cancel: true,
-          persistent: true,
+          persistent: true
         })
         .onOk(() => {
           this.$q
             .dialog({
               title: "警告",
               message: "再次確認？",
-              cancel: true,
+              cancel: true
             })
             .onOk(() => {
               console.log(this.id);
               //刪除圖檔
               if (this.task.photo.length > 0) {
-                this.task.photo.forEach((p) => {
+                this.task.photo.forEach(p => {
                   if (p.findKey) {
                     console.log(p.findKey);
-                    dbStorage.ref().child(p.findKey).delete();
+                    dbStorage
+                      .ref()
+                      .child(p.findKey)
+                      .delete();
                   }
                 });
               }
               //刪除資料庫
-              let payload ={
+              let payload = {
                 id: this.id,
                 name: this.task.name
-              }
+              };
               this.deleteFieldRecord(payload);
               this.dialogList = false;
               this.$q.notify(`${this.task.name}已刪除`);
-
             });
         });
     },
@@ -263,7 +265,7 @@ export default {
         //每一筆資料比對多個關鍵字 and
         arraySearchWord.forEach((keyword, index) => {
           //搜尋每個欄位
-          Object.keys(task).forEach((key) => {
+          Object.keys(task).forEach(key => {
             //搜尋文字型態個欄位
             if (key == "photo") return; //照片不搜尋取代
             if (key == "avatar") return; //頭像照片不搜尋取代
@@ -271,14 +273,14 @@ export default {
               let item = task[key];
               // console.log(key,task[key])
               let searchLowerCase = keyword.toLowerCase(); //要轉成小寫英文姓名才不會出錯
-              let itemLowerCase = item.toLowerCase()       //要轉成小寫英文姓名才不會出錯
+              let itemLowerCase = item.toLowerCase(); //要轉成小寫英文姓名才不會出錯
               if (itemLowerCase.includes(searchLowerCase)) {
-                keyword = keyword.replaceAll("?", "") //去除??，匯入時字元錯誤產生
+                keyword = keyword.replaceAll("?", ""); //去除??，匯入時字元錯誤產生
                 // console.log(keyword)
                 let regex = new RegExp(keyword, "i");
                 let match = item.match(regex);
                 // console.log(regex,match)
-                if (match[0] !== '') {
+                if (match[0] !== "") {
                   item = item.replace(
                     regex,
                     "<span class='bg-red text-white'>" + match[0] + "</span>"
@@ -292,8 +294,8 @@ export default {
         });
       }
       this.copyTask = task;
-    },
-  },
+    }
+  }
 };
 </script>
 

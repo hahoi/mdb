@@ -5,8 +5,8 @@
         <q-input
           v-model="formData.email"
           :rules="[
-            (val) => !!val || '* 這個欄位必須要輸入',
-            (val) => isValidEmailAddress(val) || '不合格式的 e-mail.',
+            val => !!val || '* 這個欄位必須要輸入',
+            val => isValidEmailAddress(val) || '不合格式的 e-mail.'
           ]"
           ref="email"
           type="email"
@@ -23,7 +23,7 @@
       <q-card-section>
         <q-input
           v-model="formData.password"
-          :rules="[(val) => !!val || '* 這個欄位必須要輸入']"
+          :rules="[val => !!val || '* 這個欄位必須要輸入']"
           ref="password"
           lazy-rules
           type="password"
@@ -66,9 +66,9 @@ export default {
     return {
       // department: [],
       formData: {
-        email: "",
-        password: "",
-      },
+        email: "test@gmail.com",
+        password: "000000"
+      }
     };
   },
   components: {},
@@ -101,19 +101,19 @@ export default {
           message: "輸入註冊的Email",
           prompt: {
             model: "",
-            type: "text", // optional
+            type: "text" // optional
           },
           cancel: true,
-          persistent: true,
+          persistent: true
         })
-        .onOk((data) => {
+        .onOk(data => {
           // console.log(">>>> OK, received", data);
           firebaseAuth
             .sendPasswordResetEmail(data)
-            .then(function () {
+            .then(function() {
               vm.$q.notify(`已發送${data}密碼重置電子郵件`);
             })
-            .catch(function (error) {
+            .catch(function(error) {
               // An error happened.
             });
         })
@@ -123,10 +123,9 @@ export default {
         .onDismiss(() => {
           // console.log('I am triggered on both OK and Cancel')
         });
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style>
-</style>
+<style></style>
